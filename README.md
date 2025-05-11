@@ -39,30 +39,23 @@ pytest
     └── test_board_attrs.py
     └── test_board_functions.py
 ```
+---
 
-## Test Code
+### 2. **Save the File**
 
-```python
-from ai_minesweeper.board import Board, State
-
-def test_neighbors_count():
-    ...
-```
+Press `Ctrl+S` (or `Cmd+S` on Mac).
 
 ---
 
-## 2. **Fix the Git Push Issue**
+### 3. **Stage, Commit, and Push**
 
-Your push is being rejected because your local branch is behind the remote.  
-**To fix:**
+In your terminal, run:
 
 ```bash
+git add README.md
+git commit -m "docs: remove obsolete test code section from README"
 git pull --rebase origin main
-# If there are conflicts, VS Code will show you how to resolve them.
-# After resolving any conflicts:
 git push origin main
 ```
-
----
 
 *This project is MIT licensed.*
