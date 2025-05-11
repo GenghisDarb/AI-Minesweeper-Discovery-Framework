@@ -1,0 +1,6 @@
+src/
+  ai_minesweeper/
+    cell.py
+    board.py
+tests/
+  test_board_attrs.py

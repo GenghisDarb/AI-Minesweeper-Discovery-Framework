@@ -1,0 +1,5 @@
+from ai_minesweeper.board import Board
+
+def test_init():
+    b = Board(8, 8)
+    assert b.n_rows == 8 and b.n_cols == 8

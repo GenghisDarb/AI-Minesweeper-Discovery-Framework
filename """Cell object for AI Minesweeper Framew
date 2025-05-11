@@ -1,0 +1,25 @@
+"""Cell object for AI Minesweeper Framework."""
+from __future__ import annotations
+from enum import Enum, auto
+
+class State(Enum):
+    HIDDEN = auto()
+    TRUE   = auto()   # cell proven true
+    FALSE  = auto()   # cell proven false (negated)
+    MINE   = auto()   # confirmed mine (or contradiction marker)
+
+class Cell:
+    """A single board cell."""
+
+    def __init__(self, row: int, col: int):
+        self.row = row
+        self.col = col
+        self.state: State = State.HIDDEN
+        self.neighbors: list[tuple[int, int]] = []
+
+    # --- convenience ---
+    def id(self) -> str:
+        return f"{self.row},{self.col}"
+
+    def __repr__(self) -> str:
+        return f"Cell({self.id()}:{self.state.name})"

@@ -1,0 +1,80 @@
+"""Board container for AI Minesweeper Framework."""
+from __future__ import annotations
+import csv
+from pathlib import Path
+from typing import Iterator
+
+from ai_minesweeper.cell import Cell, State
+
+class Board:
+    """Rectangular grid of Cell objects."""
+
+    def __init__(self, n_rows: int, n_cols: int):
+        self.n_rows = n_rows
+        self.n_cols = n_cols
+        self.grid: list[list[Cell]] = [
+            [Cell(r, c) for c in range(n_cols)] for r in range(n_rows)
+        ]
+        self._wire_neighbors()
+
+    # --------------------------------------------------------------------- #
+    # factory helpers
+    # --------------------------------------------------------------------- #
+    @classmethod
+    def random(cls, n_rows: int, n_cols: int, p_mine: float = 0.15) -> "Board":
+        """Generate a random board with mines assigned at probability `p_mine`."""
+        import random
+        b = cls(n_rows, n_cols)
+        for row in b.grid:
+            for cell in row:
+                if random.random() < p_mine:
+                    cell.state = State.MINE
+        return b
+
+    @classmethod
+    def from_csv(cls, path: str | Path) -> "Board":
+        """Load board from CSV where '1' denotes a mine, '0' a hidden cell."""
+        rows = list(csv.reader(Path(path).open()))
+        brd = cls(len(rows), len(rows[0]))
+        for r, line in enumerate(rows):
+            for c, token in enumerate(line):
+                if token.strip() == "1":
+                    brd.grid[r][c].state = State.MINE
+        return brd
+
+    # --------------------------------------------------------------------- #
+    # core helpers
+    # --------------------------------------------------------------------- #
+    def _wire_neighbors(self) -> None:
+        """Populate neighbor lists (8-connected)."""
+        for r in range(self.n_rows):
+            for c in range(self.n_cols):
+                nbrs = []
+                for dr in (-1, 0, 1):
+                    for dc in (-1, 0, 1):
+                        if dr == dc == 0:
+                            continue
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols:
+                            nbrs.append((nr, nc))
+                self.grid[r][c].neighbors = nbrs
+
+    def neighbors(self, row: int, col: int) -> Iterator[Cell]:
+        """Yield neighbor Cell objects."""
+        for nr, nc in self.grid[row][col].neighbors:
+            yield self.grid[nr][nc]
+
+    def reveal(self, row: int, col: int, truth: bool) -> None:
+        """Reveal a cell as TRUE or FALSE (safe) or mark as mine."""
+        cell = self.grid[row][col]
+        cell.state = State.TRUE if truth else State.FALSE
+
+    # --------------------------------------------------------------------- #
+    # utilities
+    # --------------------------------------------------------------------- #
+    def to_matrix(self) -> list[list[str]]:
+        sym = {State.HIDDEN: "?", State.TRUE: "✔", State.FALSE: "✖", State.MINE: "*"}
+        return [[sym[c.state] for c in row] for row in self.grid]
+
+    def __str__(self) -> str:
+        return "\n".join(" ".join(row) for row in self.to_matrix())
