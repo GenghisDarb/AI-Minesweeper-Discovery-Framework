@@ -1,3 +1,6 @@
+from .cell import Cell, State   # re-export so tests can import State here
+__all__ = ["Board", "State"]    # optional but nice
+
 from .cell import Cell
 
 class Board:
