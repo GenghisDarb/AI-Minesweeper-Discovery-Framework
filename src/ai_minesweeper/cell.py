@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class State(Enum):
     HIDDEN = auto()
     REVEALED = auto()
+    TRUE = REVEALED        # legacy alias for old tests
     FLAGGED = auto()
 
 @dataclass
