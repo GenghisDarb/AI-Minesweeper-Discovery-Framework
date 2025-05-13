@@ -39,23 +39,37 @@ pytest
     └── test_board_attrs.py
     └── test_board_functions.py
 ```
----
 
-### 2. **Save the File**
+## Project Configuration
 
-Press `Ctrl+S` (or `Cmd+S` on Mac).
+```toml
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
----
+[project]
+name = "ai-minesweeper"
+version = "0.1.0"
+description = "AI Minesweeper Discovery Framework"
+authors = [
+    { name = "Your Name", email = "your@email.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+dependencies = []
 
-### 3. **Stage, Commit, and Push**
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage",
+    "ruff",
+    "mkdocs",
+    "mkdocstrings[python]"
+]
 
-In your terminal, run:
-
-```bash
-git add README.md
-git commit -m "docs: remove obsolete test code section from README"
-git pull --rebase origin main
-git push origin main
+[project.scripts]
+minesweeper = "ai_minesweeper.cli:app"
 ```
 
 *This project is MIT licensed.*
