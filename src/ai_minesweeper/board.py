@@ -1,8 +1,6 @@
 from .cell import Cell, State   # re-export so tests can import State here
 __all__ = ["Board", "State"]    # optional but nice
 
-from .cell import Cell
-
 class Board:
     def __init__(self, n_rows, n_cols):
         self.n_rows = n_rows
@@ -21,6 +19,12 @@ class Board:
                     nbrs.append(self.grid[nr][nc])
         return nbrs
 
-    def reveal(self, r, c):
-        # Placeholder: reveal logic
-        self.grid[r][c].state = self.grid[r][c].state  # No-op for now
+    def reveal(self, row: int, col: int, flood: bool = False) -> None:
+        """
+        Reveal the cell at (row, col).
+        If `flood` is True, recursively reveal neighboring empty cells (classic Minesweeper flood-fill).
+        Placeholder logic: just mark the target cell as REVEALED.
+        """
+        cell = self.grid[row][col]
+        cell.state = State.REVEALED
+        # TODO: implement real flood logic
