@@ -1,5 +1,5 @@
 import typer
-from .board_builder import BoardBuilder
+
 
 app = typer.Typer()
 
