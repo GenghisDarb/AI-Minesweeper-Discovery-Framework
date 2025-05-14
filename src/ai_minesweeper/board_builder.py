@@ -29,3 +29,4 @@ from .board import Board
 
         board.compute_adjacent_mines()
         return board
+# Minor change to trigger CI
