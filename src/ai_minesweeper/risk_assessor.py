@@ -15,3 +15,4 @@ class RiskAssessor:
                 else:
                     risk_map[(r, c)] = 0.0
         return risk_map
+# Trigger workflow update
