@@ -1,10 +1,11 @@
 import typer
+from .board_builder import BoardBuilder
 
 app = typer.Typer()
 
 @app.command()
 def play(csv_path: str):
-    board = BoardBuilder.from_csv(csv_path)
+    
     # Placeholder for playing the game
     pass
 
