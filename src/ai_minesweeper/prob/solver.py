@@ -93,4 +93,30 @@ def enumerate_cluster(cluster) -> dict[tuple[int, int], float]:
     if total == 0:
         # No valid assignments, assign uniform zero
         return {cell: 0.0 for cell in cells}
-    return {cell: freq[i] / total for i, cell in enumerate(cells)}
+    return {
+def split_clusters(constraints):
+    clusters = []
+    seen = set()
+
+    for con in constraints:
+        if con in seen:
+            continue
+        # start new cluster
+        cluster_cons = set([con])
+        cluster_hidden = set(con.hidden)
+        changed = True
+        while changed:
+            changed = False
+            for other in constraints:
+                if other in cluster_cons:
+                    continue
+                if cluster_hidden & set(other.hidden):
+                    cluster_cons.add(other)
+                    cluster_hidden |= set(other.hidden)
+                    changed = True
+        clusters.append(
+            Cluster(hidden=tuple(cluster_hidden), constraints=tuple(cluster_cons))
+        )
+        seen |= cluster_cons
+    return clusters
+        cell: freq[i] / total for i, cell in enumerate(cells)}
