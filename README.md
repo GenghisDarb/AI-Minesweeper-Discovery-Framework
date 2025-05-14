@@ -47,3 +47,4 @@ pytest
 See `pyproject.toml` for build and packaging configuration.
 
 *This project is MIT licensed.*
+<!-- keep CI warm -->
