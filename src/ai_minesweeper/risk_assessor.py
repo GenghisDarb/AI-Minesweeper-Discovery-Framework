@@ -4,14 +4,17 @@ class RiskAssessor:
     """Very naïve probability map."""
 
     @staticmethod
-    def estimate(board: Board) -> dict[tuple[int, int], float]:
-        risk_map: dict[tuple[int, int], float] = {}
-        for r, row in enumerate(board.grid):
-            for c, cell in enumerate(row):
-                if cell.state == State.HIDDEN:
-                    risk_map[(r, c)] = 0.15  # placeholder uniform risk
-                elif cell.is_mine:
-                    risk_map[(r, c)] = 1.0
-                else:
-                    risk_map[(r, c)] = 0.0
-        return risk_map
+    @staticmethod
+def estimate(board: Board) -> dict[tuple[int, int], float]:
+    constraints = collect_constraints(board)
+    clusters = split_clusters(constraints)
+
+    probabilities = {}
+    for cluster in clusters:
+        if len(cluster.hidden) <= MAX_ENUM:
+            cluster_probs = enumerate_cluster(cluster)
+        else:
+            cluster_probs = mc_cluster(cluster)
+        probabilities.update(cluster_probs)
+
+    return probabilities
