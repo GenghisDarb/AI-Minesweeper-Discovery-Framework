@@ -1,4 +1,6 @@
 class BoardBuilder:
+from .board import Board
+
     """Ingests domain relations & builds cell network."""
     def __init__(self, relations):
         self.relations = relations
