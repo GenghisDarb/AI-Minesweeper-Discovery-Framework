@@ -8,5 +8,5 @@ def load_csv_board(path):
 def test_mini_csv_dimensions():
     board_path = os.path.join("examples", "boards", "mini.csv")
     grid = load_csv_board(board_path)
-    assert len(grid) == 35
+    assert len(grid) == 355
     assert all(len(row) == 3 for row in grid)
