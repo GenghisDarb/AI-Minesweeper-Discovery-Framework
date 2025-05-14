@@ -1,4 +1,4 @@
-from .board import Board, Cell, State
+from .board import Board, State
 
 class RiskAssessor:
     """Very naïve probability map."""
