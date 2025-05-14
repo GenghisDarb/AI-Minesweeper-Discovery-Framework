@@ -9,4 +9,4 @@ def test_mini_csv_dimensions():
     board_path = os.path.join("examples", "boards", "mini.csv")
     grid = load_csv_board(board_path)
     assert len(grid) == 5
-    assert all(len(row) == 3 for row in grid)
+    assert all(len(row) == 5 for row in grid)
