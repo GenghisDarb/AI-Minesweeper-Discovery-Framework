@@ -29,6 +29,7 @@ dev = [
     "ruff",
     "mkdocs",
     "mkdocstrings[python]"
+    "pytest-cov",
 ]
 
 [project.scripts]
