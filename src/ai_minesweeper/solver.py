@@ -1,10 +1,12 @@
+from .click_engine import ClickEngine
+from .board import Board
+
+
 class ConstraintSolver:
-        def solve(self, board):
-        clifrom .click_engine import ClickEngine
+    """Naive solver loop."""
 
-ck_engine = ClickEngine(board)
-        for _ in range(10):
-            r, c = click_engine.next_click()
+    @staticmethod
+    def solve(board: Board, max_moves: int = 10):
+        for _ in range(max_moves):
+            r, c = ClickEngine.next_click(board)
             board.reveal(r, c)
-
-# Minor change to trigger CI
