@@ -29,8 +29,8 @@ dev = [
         "pytest-cov",      # ← new
     "ruff",
     "mkdocs",
-    "mkdocstrings[python]"
-    "pytest-cov",
+    "mkdocstrings[python],"
+    "pytes
 ]
 
 [project.scripts]
