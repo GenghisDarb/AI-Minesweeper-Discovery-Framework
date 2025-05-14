@@ -7,3 +7,4 @@ ck_engine = ClickEngine(board)
             r, c = click_engine.next_click()
             board.reveal(r, c)
 
+# Minor change to trigger CI
