@@ -12,6 +12,6 @@ class RiskAssessor:
                 risk_map[(r, c)] = 0.15  # placeholder uniform risk
                 elf cell.is_mine:
                 risk_map[(r, c)] = 1.0
-                else:
+            else:    
                     risk_map[(r, c)] = 0.0
         return risk_map
