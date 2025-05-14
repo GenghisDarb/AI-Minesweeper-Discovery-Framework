@@ -32,4 +32,3 @@ def choose_move(board: Board) -> Tuple[int, int]:
     probs = compute_probabilities(board)
     # Safest move = min-probability hidden cell
     return min(probs.items(), key=lambda item: item[1])[0]
-
