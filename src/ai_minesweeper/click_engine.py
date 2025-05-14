@@ -1,6 +1,8 @@
 class ClickEngine:
     """Propagates constraints, reveals safe cells."""
-    def __init__(self, board):
+    def _from .risk_assessor import RiskAssessor
+
+_init__(self, board):
         self.board = board
 
     def reveal_safe_cells(self):
