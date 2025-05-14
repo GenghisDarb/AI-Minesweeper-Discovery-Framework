@@ -1,4 +1,3 @@
-from .risk_assessor import RiskAssessor
 from .board import Board
 
 
