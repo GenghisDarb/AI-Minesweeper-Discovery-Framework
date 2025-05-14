@@ -10,7 +10,7 @@ class RiskAssessor:
             for c, cell in enumerate(row):
                 if cell.state == State.HIDDEN:
                 risk_map[(r, c)] = 0.15  # placeholder uniform risk
-                elf cell.is_mine:
+                    elfcell.is_mine:
                 risk_map[(r, c)] = 1.0
                 else:
                     risk_map[(r, c)] = 0.0
