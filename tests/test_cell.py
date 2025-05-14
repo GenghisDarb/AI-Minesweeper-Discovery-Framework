@@ -1,4 +1,4 @@
- pyfrom ai_minesweeper.cell import State, Cell
+from ai_minesweeper.cell import State, Cell
 
 def test_initial_state():
     cell = Cell()
