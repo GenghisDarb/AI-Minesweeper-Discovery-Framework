@@ -3,7 +3,7 @@ from .board import Board
 
 
 class ConstraintSolver:
-    """Very small loop that keeps clicking until max_moves."""
+    """Naive solver: click up to `max_moves` times using ClickEngine."""
 
     @staticmethod
     def solve(board: Board, max_moves: int = 10) -> None:
