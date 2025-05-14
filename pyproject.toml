@@ -26,11 +26,10 @@ dependencies = [
 dev = [
     "pytest",
     "coverage",
-        "pytest-cov",      # ← new
+    "pytest-cov",
     "ruff",
     "mkdocs",
-    "mkdocstrings[python],"
-    "pytes
+    "mkdocstrings[python]"
 ]
 
 [project.scripts]
