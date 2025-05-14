@@ -42,34 +42,6 @@ pytest
 
 ## Project Configuration
 
-```toml
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "ai-minesweeper"
-version = "0.1.0"
-description = "AI Minesweeper Discovery Framework"
-authors = [
-    { name = "Your Name", email = "your@email.com" }
-]
-readme = "README.md"
-requires-python = ">=3.8"
-license = { file = "LICENSE" }
-dependencies = []
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "coverage",
-    "ruff",
-    "mkdocs",
-    "mkdocstrings[python]"
-]
-
-[project.scripts]
-minesweeper = "ai_minesweeper.cli:app"
-```
+See `pyproject.toml` for build and packaging configuration.
 
 *This project is MIT licensed.*
