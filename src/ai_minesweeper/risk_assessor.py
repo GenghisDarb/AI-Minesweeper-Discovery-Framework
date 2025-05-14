@@ -1,21 +1,17 @@
+from .board import Board, Cell, State
+
 class RiskAssessor:
-    """Scores unknown cells for next probe."""
-    def __init__(self, board):
-        self.board = board
+    """Very naïve probability map."""
 
-    def score_cells(self):
-        # TODO: Implement risk scoring
-        pass
-
-    def estimate(self) -> dict:
-        risk_map = {}
-        for r in range(self._board.n_rows):
-            for c in range(self._board.n_cols):
-                cell = self._board.grid[r][c]
-                if cell.is_flagged:
+    @staticmethod
+    def estimate(board: Board) -> dict[tuple[int, int], float]:
+        risk_map: dict[tuple[int, int], float] = {}
+        for r, row in enumerate(board.grid):
+            for c, cell in enumerate(row):
+                if cell.state == State.HIDDEN:
+                    risk_map[(r, c)] = 0.15  # placeholder uniform risk
+                elif cell.is_mine:
                     risk_map[(r, c)] = 1.0
-                elif cell.is_revealed:
-                    risk_map[(r, c)] = 0
                 else:
-                    risk_map[(r, c)] = 0.15
+                    risk_map[(r, c)] = 0.0
         return risk_map
