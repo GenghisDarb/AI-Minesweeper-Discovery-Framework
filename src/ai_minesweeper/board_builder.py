@@ -17,9 +17,9 @@ class BoardBuilder:
         # mark mines
         for r, line in enumerate(rows):
             for c, token in enumerate(line):
-                token = token.strip()          # ← add
+                token = token.strip()
                 cell: Cell = board.grid[r][c]
-                if token == "*":
+                if "*" in token:               # ← accept any cell that contains '*'
                     cell.is_mine = True
                 cell.state = State.HIDDEN  # ensure consistent state
 
