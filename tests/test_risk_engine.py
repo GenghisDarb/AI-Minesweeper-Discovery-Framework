@@ -1,6 +1,6 @@
 
-from ai_minesweeper.board import Boardimport 
-unittest
+import unitte
+from ai_minesweeper.board import Board
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.click_engine import ClickEngine
 from ai_minesweeper.risk_assessor import RiskAssessor
