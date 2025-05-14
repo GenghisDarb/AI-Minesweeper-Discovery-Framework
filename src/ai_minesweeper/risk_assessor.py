@@ -8,9 +8,9 @@ class RiskAssessor:
         risk_map: dict[tuple[int, int], float] = {}
         for r, row in enumerate(board.grid):
             for c, cell in enumerate(row):
-                if cell.state == State.HIDDEN:
-                risk_map[(r, c)] = 0.15  # placeholder uniform risk
-                elf cell.is_mine:
+                    if cell.state == State.HIDDEN:
+                    risk_map[(r, c)] = 0.15  # placeholder uniform risk
+                    eli f c    ell.is_mine:
                 risk_map[(r, c)] = 1.0
                 else:
                     risk_map[(r, c)] = 0.0
