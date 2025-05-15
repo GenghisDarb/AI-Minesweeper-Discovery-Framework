@@ -36,11 +36,16 @@ class BoardBuilder:
         return board
 
     @staticmethod
-    def from_ascii(ascii_str: str) -> "Board":
-        """Quick board builder from a newline-separated ASCII grid.
+    def from_ascii(ascii_str: str) -> "BoardBuilder":
+        """Create a builder from a newline-separated ASCII grid.
 
-        Example:
-            '1.\n..'   → 2×2 board, clue '1' at (0,0)
+        Example ASCII:
+            1.
+            ..
         """
         rows = [list(line) for line in ascii_str.strip().splitlines()]
-        return Board(rows)
+        bb = BoardBuilder()
+        bb.grid = rows
+        bb.n_rows = len(rows)
+        bb.n_cols = len(rows[0])
+        return bb
