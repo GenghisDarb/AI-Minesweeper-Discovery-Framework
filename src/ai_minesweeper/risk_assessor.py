@@ -39,11 +39,9 @@ class RiskAssessor:
         probs = self.compute_probabilities()
         return min(probs.items(), key=lambda kv: kv[1])[0]
 
-    # ---- helper for static-style tests ----------------------------------
-    @staticmethod
-    def estimate(board: Board) -> dict[tuple[int, int], float]:
-        """Convenience wrapper used by test_risk.py."""
-        return RiskAssessor(board).compute_probabilities()
+    def estimate(self) -> dict[tuple[int, int], float]:
+        """Convenience wrapper used by tests."""
+        return self.compute_probabilities()
 
 
 __all__ = ["RiskAssessor"]
