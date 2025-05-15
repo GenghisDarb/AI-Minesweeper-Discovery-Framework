@@ -52,11 +52,13 @@ class BoardBuilder:
         """
         def char_to_cell(ch: str) -> Cell:
             if ch.isdigit():
-                return Cell(state=State.REVEALED, clue=int(ch), is_mine=False)
+                cell = Cell(ch, State.REVEALED)
+                cell.clue = int(ch)
+                return cell
             if ch in ('.', ' '):
-                return Cell(state=State.HIDDEN,  clue=0,        is_mine=False)
+                return Cell(ch, State.HIDDEN)
             if ch in ('*', '#'):
-                return Cell(state=State.HIDDEN,  clue=0,        is_mine=True)
+                return Cell(ch, State.HIDDEN)
             raise ValueError(f"Unrecognized board char: {ch!r}")
 
         rows = [[char_to_cell(ch) for ch in line]
