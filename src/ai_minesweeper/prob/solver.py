@@ -7,6 +7,9 @@ class Cluster:
     hidden: frozenset[tuple[int, int]]
     constraints: tuple
 
+def _in_bounds(b, r, c):
+    return 0 <= r < b.n_rows and 0 <= c < b.n_cols
+
 def collect_constraints(board) -> list[Constraint]:
     constraints = []
     for r, row in enumerate(board.grid):
@@ -19,14 +22,13 @@ def collect_constraints(board) -> list[Constraint]:
                         if dr == dc == 0:
                             continue
                         nr, nc = r + dr, c + dc
-                        if not board.in_bounds(nr, nc):
+                        if not _in_bounds(board, nr, nc):   # <- use helper
                             continue
                         ncell = board.grid[nr][nc]
                         if ncell.state is State.HIDDEN:
                             hidden.append((nr, nc))
                         elif getattr(ncell, "is_mine", False):
                             flagged += 1
-                # ✱ Only create a constraint if there is **at least one** hidden neighbour
                 if hidden:
                     constraints.append(
                         Constraint((r, c), tuple(hidden), cell.clue - flagged)
