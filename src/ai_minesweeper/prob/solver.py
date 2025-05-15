@@ -1,5 +1,6 @@
-# from collections import defaultdict   # ← remove if not needed
 from dataclasses import dataclass
+from ai_minesweeper.prob.constraints import Constraint
+from ai_minesweeper.cell import State
 
 @dataclass(frozen=True)
 class Cluster:
