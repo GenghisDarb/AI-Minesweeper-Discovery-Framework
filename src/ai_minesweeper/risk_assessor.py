@@ -39,8 +39,13 @@ class RiskAssessor:
         probs = self.compute_probabilities()
         return min(probs.items(), key=lambda kv: kv[1])[0]
 
+    @staticmethod
+    def estimate(board: Board) -> dict[tuple[int, int], float]:
+        """Static helper for legacy/test code."""
+        return RiskAssessor(board).compute_probabilities()
+
     def estimate(self) -> dict[tuple[int, int], float]:
-        """Convenience wrapper used by tests."""
+        """Instance method for OO usage."""
         return self.compute_probabilities()
 
 
