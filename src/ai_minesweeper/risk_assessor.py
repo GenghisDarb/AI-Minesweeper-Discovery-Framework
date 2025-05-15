@@ -1,10 +1,12 @@
-from .board import Board, State
+from .board import Board
 from ai_minesweeper.prob import (
     collect_constraints,
     split_clusters,
     enumerate_cluster,
     mc_cluster,
 )
+
+MAX_ENUM = 15    # enumerate if cluster ≤15 hidden cells
 
 class RiskAssessor:
     """Very naïve probability map."""
