@@ -43,26 +43,20 @@ class BoardBuilder:
 
     @staticmethod
     def from_ascii(ascii_str: str) -> "BoardBuilder":
-        """Create a builder from a newline-separated ASCII grid.
-
-        Symbols:
-            • digit 0-8 → revealed clue
-            • '.'       → hidden, empty
-            • '*' or '#'→ hidden mine
-        """
+        """Parse a small ASCII board into a BoardBuilder."""
         def char_to_cell(ch: str) -> Cell:
-            """Map ASCII character to a fully-formed Cell."""
+            cell = Cell(ch)                 # let constructor handle glyph
             if ch.isdigit():                # revealed clue
-                cell = Cell(ch, State.REVEALED)
-                cell.clue = int(ch)         # attach clue attr for solver
-                return cell
-            if ch in ('.', ' '):            # hidden empty
-                return Cell(ch, State.HIDDEN)
-            if ch in ('*', '#'):            # hidden mine
-                cell = Cell(ch, State.HIDDEN)
+                cell.state = State.REVEALED
+                cell.clue  = int(ch)
+            elif ch in ('.', ' '):          # hidden empty
+                cell.state = State.HIDDEN
+            elif ch in ('*', '#'):          # hidden mine
+                cell.state  = State.HIDDEN
                 cell.is_mine = True
-                return cell
-            raise ValueError(f"Unrecognized board char: {ch!r}")
+            else:
+                raise ValueError(f"Bad board char: {ch!r}")
+            return cell
 
         rows = [[char_to_cell(ch) for ch in line]
                 for line in ascii_str.strip().splitlines()]
