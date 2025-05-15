@@ -39,14 +39,22 @@ class RiskAssessor:
         probs = self.compute_probabilities()
         return min(probs.items(), key=lambda kv: kv[1])[0]
 
-    @staticmethod
-    def estimate(board: Board) -> dict[tuple[int, int], float]:
-        """Static helper for legacy/test code."""
-        return RiskAssessor(board).compute_probabilities()
+    # single method covers both usages:
+    #   • RiskAssessor.estimate(board)          ← static-style
+    #   • RiskAssessor(board).estimate()        ← instance-style
+    def estimate(self_or_board) -> dict[tuple[int, int], float]:
+        """
+        If called as RiskAssessor.estimate(board): self_or_board is a Board.
+        If called as instance.estimate():          self_or_board is a RiskAssessor.
+        """
+        from ai_minesweeper.board import Board  # local to avoid cycle
 
-    def estimate(self) -> dict[tuple[int, int], float]:
-        """Instance method for OO usage."""
-        return self.compute_probabilities()
+        if isinstance(self_or_board, Board):
+            board_obj = self_or_board                         # static style
+        else:
+            board_obj = self_or_board.board                   # instance style
+
+        return RiskAssessor(board_obj).compute_probabilities()
 
 
 __all__ = ["RiskAssessor"]
