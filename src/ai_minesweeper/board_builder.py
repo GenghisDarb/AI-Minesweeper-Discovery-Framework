@@ -51,14 +51,17 @@ class BoardBuilder:
             • '*' or '#'→ hidden mine
         """
         def char_to_cell(ch: str) -> Cell:
-            if ch.isdigit():
+            """Map ASCII character to a fully-formed Cell."""
+            if ch.isdigit():                # revealed clue
                 cell = Cell(ch, State.REVEALED)
-                cell.clue = int(ch)
+                cell.clue = int(ch)         # attach clue attr for solver
                 return cell
-            if ch in ('.', ' '):
+            if ch in ('.', ' '):            # hidden empty
                 return Cell(ch, State.HIDDEN)
-            if ch in ('*', '#'):
-                return Cell(ch, State.HIDDEN)
+            if ch in ('*', '#'):            # hidden mine
+                cell = Cell(ch, State.HIDDEN)
+                cell.is_mine = True
+                return cell
             raise ValueError(f"Unrecognized board char: {ch!r}")
 
         rows = [[char_to_cell(ch) for ch in line]
