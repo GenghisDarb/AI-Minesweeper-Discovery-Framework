@@ -1,4 +1,4 @@
-from collections import defaultdict
+# from collections import defaultdict   # ← remove if not needed
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
@@ -76,7 +76,7 @@ def enumerate_cluster(cluster) -> dict[tuple[int, int], float]:
     if n > 15:
         raise ValueError("Cluster too large for exact enumeration")
     for mask in range(1 << n):
-        assign = {cells[i]: bool(mask & (1 << i)) for i in range(n)}
+        assign = {cells[i]: bool(mask & (1 << i)) for i, cell in enumerate(cells)}
         if all(sum(assign[c] for c in con.hidden) == con.mines for con in cluster.constraints):
             total += 1
             for i, cell in enumerate(cells):
