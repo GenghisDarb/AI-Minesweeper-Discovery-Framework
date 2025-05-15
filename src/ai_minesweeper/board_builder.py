@@ -5,6 +5,11 @@ from .board import Board, Cell, State
 class BoardBuilder:
     """Factory helpers for Board objects."""
 
+    def __init__(self) -> None:
+        self.grid: list[list[str]] = []
+        self.n_rows: int = 0
+        self.n_cols: int = 0
+
     @staticmethod
     def from_csv(path: str | Path) -> Board:
         """Parse a CSV file of `*` (mine) and `.` (empty) into a Board object."""
@@ -49,3 +54,8 @@ class BoardBuilder:
         bb.n_rows = len(rows)
         bb.n_cols = len(rows[0])
         return bb
+
+    def build(self) -> "Board":
+        """Finalize and return a Board instance."""
+        from ai_minesweeper.board import Board  # local import to avoid cycle
+        return Board(n_rows=self.n_rows, n_cols=self.n_cols, grid=self.grid)
