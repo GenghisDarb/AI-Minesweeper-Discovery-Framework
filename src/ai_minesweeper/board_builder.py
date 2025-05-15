@@ -34,3 +34,13 @@ class BoardBuilder:
                 cell.adjacent_mines = sum(1 for n in neighbours if n.is_mine)
 
         return board
+
+    @staticmethod
+    def from_ascii(ascii_str: str) -> "Board":
+        """Quick board builder from a newline-separated ASCII grid.
+
+        Example:
+            '1.\n..'   → 2×2 board, clue '1' at (0,0)
+        """
+        rows = [list(line) for line in ascii_str.strip().splitlines()]
+        return Board(rows)
