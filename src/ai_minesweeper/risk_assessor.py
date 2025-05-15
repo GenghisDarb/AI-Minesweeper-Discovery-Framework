@@ -13,8 +13,15 @@ class RiskAssessor:
 
     @staticmethod
     def estimate(board: Board) -> dict[tuple[int, int], float]:
-        constraints = collect_constraints(board)
-        clusters = split_clusters(constraints)
+        cons = collect_constraints(board)
+        if not cons:  # no clues yet → uniform risk
+            return {
+                (r, c): 0.15
+                for r in range(board.n_rows)
+                for c in range(board.n_cols)
+                if board.grid[r][c].state.name == "HIDDEN"
+            }
+        clusters = split_clusters(cons)
 
         probabilities = {}
         for cluster in clusters:
@@ -25,3 +32,7 @@ class RiskAssessor:
             probabilities.update(cluster_probs)
 
         return probabilities
+
+    @staticmethod
+    def from_ascii(ascii_str: str) -> "Board":
+        return Board.from_ascii(ascii_str)
