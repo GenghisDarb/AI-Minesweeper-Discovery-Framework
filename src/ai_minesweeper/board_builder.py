@@ -56,6 +56,9 @@ class BoardBuilder:
         return bb
 
     def build(self) -> "Board":
-        """Finalize and return a Board instance."""
-        from ai_minesweeper.board import Board  # local import to avoid cycle
-        return Board(n_rows=self.n_rows, n_cols=self.n_cols, grid=self.grid)
+        """Finalize and return a fully populated Board instance."""
+        from ai_minesweeper.board import Board   # local import to avoid cycle
+
+        board = Board(self.n_rows, self.n_cols)  # ctor wants only dims
+        board.grid = self.grid                   # inject our parsed layout
+        return board
