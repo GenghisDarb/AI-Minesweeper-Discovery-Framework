@@ -6,11 +6,11 @@ class Cluster:
     hidden: frozenset[tuple[int, int]]
     constraints: tuple
 
-def collect_constraints(board) -> list:
+def collect_constraints(board) -> list[Constraint]:
     constraints = []
     for r, row in enumerate(board.grid):
         for c, cell in enumerate(row):
-            if cell.state.name == "REVEALED" and getattr(cell, "clue", 0) > 0:
+            if cell.state is State.REVEALED and cell.clue > 0:
                 hidden = []
                 flagged = 0
                 for dr in (-1, 0, 1):
@@ -18,16 +18,18 @@ def collect_constraints(board) -> list:
                         if dr == dc == 0:
                             continue
                         nr, nc = r + dr, c + dc
-                        if hasattr(board, "in_bounds") and board.in_bounds(nr, nc):
-                            ncell = board.grid[nr][nc]
-                            if ncell.state.name == "HIDDEN":
-                                hidden.append((nr, nc))
-                            elif ncell.state.name == "FLAGGED":
-                                flagged += 1
+                        if not board.in_bounds(nr, nc):
+                            continue
+                        ncell = board.grid[nr][nc]
+                        if ncell.state is State.HIDDEN:
+                            hidden.append((nr, nc))
+                        elif getattr(ncell, "is_mine", False):
+                            flagged += 1
+                # ✱ Only create a constraint if there is **at least one** hidden neighbour
                 if hidden:
-                    # Import Constraint here to avoid circular import
-                    from .constraints import Constraint
-                    constraints.append(Constraint((r, c), tuple(hidden), getattr(cell, "clue", 0) - flagged))
+                    constraints.append(
+                        Constraint((r, c), tuple(hidden), cell.clue - flagged)
+                    )
     return constraints
 
 def split_clusters(constraints):
