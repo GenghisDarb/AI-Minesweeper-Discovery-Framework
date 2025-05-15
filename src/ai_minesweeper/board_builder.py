@@ -1,4 +1,5 @@
 from pathlib import Path
+from ai_minesweeper.cell import Cell, State
 from .board import Board, Cell, State
 
 
@@ -44,13 +45,25 @@ class BoardBuilder:
     def from_ascii(ascii_str: str) -> "BoardBuilder":
         """Create a builder from a newline-separated ASCII grid.
 
-        Example ASCII:
-            1.
-            ..
+        Symbols:
+            • digit 0-8 → revealed clue
+            • '.'       → hidden, empty
+            • '*' or '#'→ hidden mine
         """
-        rows = [list(line) for line in ascii_str.strip().splitlines()]
+        def char_to_cell(ch: str) -> Cell:
+            if ch.isdigit():
+                return Cell(state=State.REVEALED, clue=int(ch), is_mine=False)
+            if ch in ('.', ' '):
+                return Cell(state=State.HIDDEN,  clue=0,        is_mine=False)
+            if ch in ('*', '#'):
+                return Cell(state=State.HIDDEN,  clue=0,        is_mine=True)
+            raise ValueError(f"Unrecognized board char: {ch!r}")
+
+        rows = [[char_to_cell(ch) for ch in line]
+                for line in ascii_str.strip().splitlines()]
+
         bb = BoardBuilder()
-        bb.grid = rows
+        bb.grid   = rows
         bb.n_rows = len(rows)
         bb.n_cols = len(rows[0])
         return bb
