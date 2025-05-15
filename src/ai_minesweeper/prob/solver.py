@@ -17,18 +17,15 @@ def collect_constraints(board) -> list[Constraint]:
             if cell.state is State.REVEALED and cell.clue > 0:
                 hidden = []
                 flagged = 0
-                for dr in (-1, 0, 1):
-                    for dc in (-1, 0, 1):
-                        if dr == dc == 0:
-                            continue
-                        nr, nc = r + dr, c + dc
-                        if not _in_bounds(board, nr, nc):   # <- use helper
-                            continue
-                        ncell = board.grid[nr][nc]
-                        if ncell.state is State.HIDDEN:
-                            hidden.append((nr, nc))
-                        elif getattr(ncell, "is_mine", False):
-                            flagged += 1
+                for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):   # ← use 4-way moves only
+                    nr, nc = r + dr, c + dc
+                    if not _in_bounds(board, nr, nc):
+                        continue
+                    ncell = board.grid[nr][nc]
+                    if ncell.state is State.HIDDEN:
+                        hidden.append((nr, nc))
+                    elif getattr(ncell, "is_mine", False):
+                        flagged += 1
                 if hidden:
                     constraints.append(
                         Constraint((r, c), tuple(hidden), cell.clue - flagged)
