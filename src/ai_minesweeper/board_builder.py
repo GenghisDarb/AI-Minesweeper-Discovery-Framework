@@ -1,6 +1,6 @@
 from pathlib import Path
 from ai_minesweeper.cell import Cell, State
-from .board import Board, Cell, State
+from .board import Board
 
 
 class BoardBuilder:
