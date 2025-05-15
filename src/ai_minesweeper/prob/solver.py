@@ -30,42 +30,34 @@ def collect_constraints(board) -> list:
                     constraints.append(Constraint((r, c), tuple(hidden), getattr(cell, "clue", 0) - flagged))
     return constraints
 
-def split_clusters(constraints: list) -> list[Cluster]:
-    """Group constraints into clusters if their hidden sets overlap."""
-    parent = {}
-    sets = [set(con.hidden) for con in constraints]
+def split_clusters(constraints):
+    """Group constraints whose hidden-cell sets overlap."""
+    clusters = []
+    processed = set()
 
-    # Union-find helpers
-    def find(i):
-        while parent.get(i, i) != i:
-            i = parent[i]
-        return i
+    for con in constraints:
+        if con in processed:
+            continue
+        cluster_cons = {con}
+        cluster_hidden = set(con.hidden)
 
-    def union(i, j):
-        pi, pj = find(i), find(j)
-        if pi != pj:
-            parent[pi] = pj
+        changed = True
+        while changed:
+            changed = False
+            for other in constraints:
+                if other in cluster_cons:
+                    continue
+                if cluster_hidden & set(other.hidden):
+                    cluster_cons.add(other)
+                    cluster_hidden |= set(other.hidden)
+                    changed = True
 
-    # Union constraints with overlapping hidden sets
-    for i, si in enumerate(sets):
-        for j in range(i + 1, len(sets)):
-            sj = sets[j]
-            if si & sj:
-                union(i, j)
+        clusters.append(
+            Cluster(hidden=tuple(cluster_hidden), constraints=tuple(cluster_cons))
+        )
+        processed |= cluster_cons
 
-    # Group by root
-    clusters = defaultdict(list)
-    for idx, con in enumerate(constraints):
-        clusters[find(idx)].append(con)
-
-    # Build Cluster objects
-    result = []
-    for group in clusters.values():
-        all_hidden = set()
-        for con in group:
-            all_hidden.update(con.hidden)
-        result.append(Cluster(frozenset(all_hidden), tuple(group)))
-    return result
+    return clusters
 
 def combine(cluster_maps):
     """Combine probability maps from clusters into a unified map."""
@@ -93,10 +85,3 @@ def enumerate_cluster(cluster) -> dict[tuple[int, int], float]:
     if total == 0:
         return {cell: 0.0 for cell in cells}
     return {cell: freq[i] / total for i, cell in enumerate(cells)}
-
-def split_clusters(constraints):
-    """Group constraints whose hidden-cell sets overlap."""
-    clusters = []
-    seen = set()
-    # ...existing or placeholder logic...
-    return clusters
