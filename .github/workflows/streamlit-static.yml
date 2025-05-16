@@ -25,10 +25,10 @@ jobs:
         run: |
           pip install ".[dev]" streamlit-export
 
-      - name: Export Streamlit app as static HTML
-        run: |
-          mkdir build
-          streamlit-export streamlit_app.py --output build
+ruff check .
+pytest -q
+      - name: Export Streamlit app
+        run: streamlit-export streamlit_app.py --output build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
