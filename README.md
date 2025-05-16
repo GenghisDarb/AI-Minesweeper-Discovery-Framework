@@ -48,3 +48,5 @@ See `pyproject.toml` for build and packaging configuration.
 
 *This project is MIT licensed.*
 <!-- keep CI warm -->
+## Web Demo
+_Streamlit interface coming soon – see PR #<num>_
