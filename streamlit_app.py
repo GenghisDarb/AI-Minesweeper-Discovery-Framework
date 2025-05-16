@@ -59,6 +59,14 @@ if "board" not in st.session_state:
 def cached_probs(board):
     return RiskAssessor(board).compute_probabilities()
 
+def prob_to_rgba(prob):
+    # Red for high risk, green for low, alpha for visibility
+    r = int(255 * prob)
+    g = int(255 * (1 - prob))
+    b = 100
+    alpha = 0.4 + 0.5 * prob  # more opaque for higher risk
+    return f"rgba({r},{g},{b},{alpha:.2f})"
+
 def draw_board(board, probs):
     for r in range(board.n_rows):
         cols = st.columns(board.n_cols, gap="small")
@@ -66,21 +74,35 @@ def draw_board(board, probs):
             cell = board.grid[r][c]
             key = f"{r}-{c}"
             prob = probs.get((r, c), 0.0)
-            # Color and label logic
+            bg = prob_to_rgba(prob)
             if cell.state.name == "REVEALED":
-                label = f":blue[{getattr(cell, 'clue', '')}]" if not getattr(cell, "is_mine", False) else ":red[💣]"
+                if getattr(cell, "is_mine", False):
+                    label = '<span style="font-size:2em;color:#d00;">💣</span>'
+                else:
+                    clue = getattr(cell, "clue", "")
+                    label = f'<span style="font-size:1.5em;color:#06f;">{clue}</span>'
             elif getattr(cell, "is_mine", False):
-                label = ":red[💣]"
+                label = '<span style="font-size:2em;color:#d00;">💣</span>'
             else:
-                label = "⬜"
-            if cols[c].button(label, key=key, help=f"Mine risk: {prob:.0%}"):
+                label = '<span style="font-size:2em;color:#bbb;">⬜</span>'
+            # Clickable cell
+            if cols[c].button(" ", key=key, help=f"Mine risk: {prob:.0%}"):
                 if cell.state.name != "REVEALED":
                     cell.state = cell.state.REVEALED
                     st.session_state.moves.append((r, c))
                     if getattr(cell, "is_mine", False):
                         st.session_state.mines_left -= 1
                     st.experimental_rerun()
-            cols[c].markdown(f"<span style='color:gray;font-size:0.75em'>{prob:.0%}</span>", unsafe_allow_html=True)
+            # Overlay label and probability as HTML
+            cols[c].markdown(
+                f"""
+                <div style="background:{bg};border-radius:8px;padding:0.2em 0;">
+                    {label}
+                    <div style="font-size:0.7em;color:#888;">{prob:.0%}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 def main():
     board = st.session_state.board

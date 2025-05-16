@@ -50,8 +50,10 @@ See `pyproject.toml` for build and packaging configuration.
 <!-- keep CI warm -->
 ## Web Demo
 
+![screenshot](docs/screenshot.png)
+
 To launch the Streamlit UI:
 
 ```bash
-streamlit run [streamlit_app.py](http://_vscodecontentref_/3)
+streamlit run [streamlit_app.py](http://_vscodecontentref_/1)
 ```

@@ -32,3 +32,4 @@ dev = [
 # Placeholder comment for optional dev dependencies
 [project.scripts]
 minesweeper = "ai_minesweeper.cli:app"
+
