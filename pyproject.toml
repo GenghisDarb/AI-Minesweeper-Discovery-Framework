@@ -33,3 +33,6 @@ dev = [
 [project.scripts]
 minesweeper = "ai_minesweeper.cli:app"
 
+[tool.ruff]
+exclude = ["notebooks"]
+
