@@ -25,13 +25,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "coverage",
-    "pytest-cov",
+    "pytest-cov>=4.1.0",
     "ruff",
-    "mkdocs",
-        "mkdocs-material",
-    "mkdocstrings[python]"
+    "streamlit>=1.35.0",
 ]
-
+# Placeholder comment for optional dev dependencies
 [project.scripts]
 minesweeper = "ai_minesweeper.cli:app"
