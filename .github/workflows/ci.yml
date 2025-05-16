@@ -33,8 +33,18 @@ jobs:
       - name: Streamlit smoke test
         run: |
           streamlit run streamlit_app.py --server.headless true &
-          sleep 5
-          curl -sSf http://localhost:8501/ > /dev/null
+          for i in {1..15}; do
+            if curl -sSf http://localhost:8501/ > /dev/null; then
+              echo "Streamlit server is ready!"
+              break
+            fi
+            echo "Waiting for Streamlit server to start..."
+            sleep 1
+          done
+          if ! curl -sSf http://localhost:8501/ > /dev/null; then
+            echo "Streamlit server failed to start within 15 seconds."
+            exit 1
+          fi
 
   deploy:
     needs: [test, streamlit-smoke-test]
