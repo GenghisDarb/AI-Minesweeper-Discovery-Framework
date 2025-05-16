@@ -17,6 +17,16 @@ uploaded = st.sidebar.file_uploader("Load board (CSV or ASCII)", type=["csv", "t
 size = st.sidebar.selectbox("Board size", ["5x5", "9x9", "16x16"], index=1)
 size_map = {"5x5": (5, 5), "9x9": (9, 9), "16x16": (16, 16)}
 
+# Helper function to initialize the board and session state
+def initialize_board(board=None):
+    if board is None:
+        rows, cols = size_map[size]
+        ascii_board = "\n".join(["." * cols for _ in range(rows)])
+        board = BoardBuilder.from_ascii(ascii_board).build()
+    st.session_state.board = board
+    st.session_state.assessor = RiskAssessor(board)
+    st.session_state.moves = []
+    st.session_state.mines_left = getattr(board, "n_mines", 10)
 # Reset board on file upload or size change
 def reset_board():
     if uploaded:
