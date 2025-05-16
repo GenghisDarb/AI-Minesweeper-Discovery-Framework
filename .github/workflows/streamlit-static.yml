@@ -1,0 +1,39 @@
+name: Deploy Streamlit to Pages
+
+on:
+  push:
+    branches: [main]        # publish whenever main updates
+  workflow_dispatch:        # manual trigger
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          pip install ".[dev]" streamlit-export
+
+      - name: Export Streamlit app as static HTML
+        run: |
+          mkdir build
+          streamlit-export streamlit_app.py --output build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
