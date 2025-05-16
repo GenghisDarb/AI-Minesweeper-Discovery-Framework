@@ -32,6 +32,7 @@ dev = [
         "mkdocs-material",
     "mkdocstrings[python]"
 ]
+dev = { extras = ["streamlit"], version = "^1.35.0" }
 # Placeholder comment for optional dev dependencies
 [project.scripts]
 minesweeper = "ai_minesweeper.cli:app"

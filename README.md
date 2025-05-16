@@ -49,4 +49,9 @@ See `pyproject.toml` for build and packaging configuration.
 *This project is MIT licensed.*
 <!-- keep CI warm -->
 ## Web Demo
-_Streamlit interface coming soon – see PR #<num>_
+
+To launch the Streamlit UI:
+
+```bash
+streamlit run [streamlit_app.py](http://_vscodecontentref_/3)
+```
