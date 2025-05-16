@@ -35,3 +35,24 @@ jobs:
           streamlit run streamlit_app.py --server.headless true &
           sleep 5
           curl -sSf http://localhost:8501/ > /dev/null
+
+  deploy:
+    needs: [test, streamlit-smoke-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install .[dev]
+      - name: Build static Streamlit app
+        run: |
+          pip install streamlit-static
+          streamlit-static export streamlit_app.py --output-dir dist
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
