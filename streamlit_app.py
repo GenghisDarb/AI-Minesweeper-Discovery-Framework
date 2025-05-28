@@ -5,6 +5,9 @@ Run with:  streamlit run streamlit_app.py
 
 import streamlit as st
 import random
+import os
+import glob
+import pandas as pd
 
 # --- Dummy RiskAssessor for demonstration ---
 class RiskAssessor:
@@ -62,6 +65,61 @@ def check_win():
             if st.session_state.board[r][c] != "mine" and not st.session_state.revealed[r][c]:
                 return False
     return True
+
+# --- BoardBuilder stub for demonstration ---
+class BoardBuilder:
+    @staticmethod
+    def from_csv(path_or_bytes):
+        if isinstance(path_or_bytes, bytes):
+            df = pd.read_csv(pd.io.common.BytesIO(path_or_bytes))
+        else:
+            df = pd.read_csv(path_or_bytes)
+        # Convert DataFrame to your board format; here we just return the DataFrame as a list of lists
+        return df.values.tolist()
+
+    @staticmethod
+    def from_dataframe(df):
+        return df.values.tolist()
+
+def _init_state(board):
+    st.session_state.board = board
+    rows = len(board)
+    cols = len(board[0]) if rows > 0 else 0
+    st.session_state.revealed = [[False]*cols for _ in range(rows)]
+    st.session_state.moves = 0
+    st.session_state.game_over = False
+    st.session_state.win = False
+
+def load_board(source):
+    if isinstance(source, bytes):
+        return BoardBuilder.from_csv(source)
+    elif isinstance(source, str):
+        return BoardBuilder.from_csv(source)
+    elif isinstance(source, pd.DataFrame):
+        return BoardBuilder.from_dataframe(source)
+    else:
+        raise ValueError("Unsupported board source type")
+
+# --- Sidebar data source loader ---
+with st.sidebar:
+    st.header("🗂 Data source")
+    # Example boards from examples/boards/*.csv
+    example_files = sorted(glob.glob("examples/boards/*.csv"))
+    example_names = [os.path.basename(f) for f in example_files]
+    selected_example = st.selectbox("Example boards", ["(none)"] + example_names)
+    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+
+    # Load from uploaded file
+    if uploaded_file is not None:
+        board = load_board(uploaded_file.read())
+        _init_state(board)
+        st.rerun()
+    # Load from example
+    elif selected_example != "(none)":
+        board_path = os.path.join("examples/boards", selected_example)
+        board = load_board(board_path)
+        _init_state(board)
+        st.rerun()
 
 # --- Sidebar stats ---
 with st.sidebar:
