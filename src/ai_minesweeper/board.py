@@ -6,9 +6,12 @@ class Board:
         self.n_rows = n_rows
         self.n_cols = n_cols
         self.grid = [[Cell() for _ in range(n_cols)] for _ in range(n_rows)]
+        self.custom_neighbors: dict[tuple[int, int], list[tuple[int, int]]] | None = None  # Logical neighbor map
 
     def neighbors(self, r, c):
-        # Placeholder: returns list of neighbor cells
+        if self.custom_neighbors is not None:
+            return [self.grid[nr][nc] for (nr, nc) in self.custom_neighbors.get((r, c), [])]
+        # Default to physical adjacency
         nbrs = []
         for dr in (-1, 0, 1):
             for dc in (-1, 0, 1):
@@ -20,11 +23,15 @@ class Board:
         return nbrs
 
     def reveal(self, row: int, col: int, flood: bool = False) -> None:
-        """
-        Reveal the cell at (row, col).
-        If `flood` is True, recursively reveal neighboring empty cells (classic Minesweeper flood-fill).
-        Placeholder logic: just mark the target cell as REVEALED.
-        """
         cell = self.grid[row][col]
+        if cell.state != State.HIDDEN:
+            return  # Skip already revealed or flagged cells
         cell.state = State.REVEALED
-        # TODO: implement real flood logic
+        if flood and cell.adjacent_mines == 0:
+            for neighbor in self.neighbors(row, col):
+                self.reveal(neighbor.row, neighbor.col, flood=True)
+
+    def flag(self, row: int, col: int) -> None:
+        cell = self.grid[row][col]
+        if cell.state == State.HIDDEN:
+            cell.state = State.FLAGGED

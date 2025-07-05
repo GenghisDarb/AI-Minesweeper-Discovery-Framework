@@ -59,3 +59,7 @@ streamlit run [streamlit_app.py](http://_vscodecontentref_/1)
 ```
 
 [![Streamlit Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-green?logo=streamlit)](https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/)
+
+## New Domains: Recursive Structure Discovery
+- Prime spiral mod-14 structure (χ-cycle)
+- Time-series φ-phase gate discovery

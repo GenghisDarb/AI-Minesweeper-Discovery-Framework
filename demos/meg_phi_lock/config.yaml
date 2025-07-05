@@ -1,0 +1,3 @@
+dataset: "meg_signal.csv"
+mine_definition: "false hypothesis"
+clue_logic: "φ-phase reset detection"

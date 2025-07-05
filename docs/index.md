@@ -21,3 +21,8 @@ ai-minesweeper --agent=random --board-size=10 --mines=15
 ```
 
 This command runs a Minesweeper game on a 10x10 board with 15 mines, using a random AI agent.
+
+## Tutorials
+
+- [Discovering φ-Phase Reset](tutorials/discovering_phi_phase_reset.md)
+- [Prime Residue Recursion](tutorials/prime_residue_recursion.md)

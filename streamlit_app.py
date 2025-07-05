@@ -8,6 +8,8 @@ import random
 import os
 import glob
 import pandas as pd
+from ai_minesweeper.board_builder import BoardBuilder
+from ai_minesweeper.solver import ConstraintSolver
 
 # --- Dummy RiskAssessor for demonstration ---
 class RiskAssessor:
@@ -131,65 +133,30 @@ with st.sidebar:
     elif st.session_state.win:
         st.success("🎉 You Win!")
 
-st.title("AI Minesweeper")
+st.title("AI Minesweeper – Hypothesis Discovery Framework")
+st.sidebar.title("Settings")
 
-# --- Reset button ---
-if st.button("Reset Board"):
-    reset_board()
-    st.rerun()
+# Load example board
+example_path = "examples/boards/mini.csv"
+board = BoardBuilder.from_csv(example_path)
+st.session_state.board = board
 
-# --- Solver move button ---
-if not st.session_state.game_over and not st.session_state.win:
-    if st.button("Solver Move"):
-        move = RiskAssessor.choose_move([
-            ["hidden" if not st.session_state.revealed[r][c] else st.session_state.board[r][c]
-             for c in range(BOARD_COLS)] for r in range(BOARD_ROWS)
-        ])
-        if move:
-            r, c = move
-            if st.session_state.board[r][c] == "mine":
-                st.session_state.revealed[r][c] = True
-                st.session_state.moves += 1
-                st.session_state.game_over = True
+# Display board
+for r in range(board.n_rows):
+    cols = st.columns(board.n_cols)
+    for c, col in enumerate(cols):
+        cell = board.grid[r][c]
+        if cell.state == State.HIDDEN:
+            col.button("", key=f"{r}-{c}")
+        elif cell.state == State.REVEALED:
+            if cell.is_mine:
+                col.markdown("💣")
             else:
-                st.session_state.revealed[r][c] = True
-                st.session_state.moves += 1
-                if check_win():
-                    st.session_state.win = True
-            st.rerun()
+                col.markdown(f"<span style='color:blue;'>{cell.adjacent_mines}</span>", unsafe_allow_html=True)
+        elif cell.state == State.FLAGGED:
+            col.markdown("🚩")
 
-# --- Grid display ---
-for r in range(BOARD_ROWS):
-    cols = st.columns(BOARD_COLS)
-    for c in range(BOARD_COLS):
-        key = f"{r}-{c}"
-        if st.session_state.revealed[r][c]:
-            val = st.session_state.board[r][c]
-            if val == "mine":
-                cols[c].button("💣", key=key, disabled=True, help="Mine", type="secondary", use_container_width=True)
-            else:
-                num = reveal(st.session_state.board, r, c)
-                if num == "empty":
-                    cols[c].button("⬜", key=key, disabled=True, use_container_width=True)
-                else:
-                    # Use markdown for blue digits
-                    cols[c].markdown(
-                        f"<span style='color:blue;font-weight:bold'>{num}</span>",
-                        unsafe_allow_html=True,
-                    )
-        else:
-            if not st.session_state.game_over and not st.session_state.win:
-                if cols[c].button("⬜", key=key, use_container_width=True):
-                    if st.session_state.board[r][c] == "mine":
-                        st.session_state.revealed[r][c] = True
-                        st.session_state.moves += 1
-                        st.session_state.game_over = True
-                    else:
-                        st.session_state.revealed[r][c] = True
-                        st.session_state.moves += 1
-                        if check_win():
-                            st.session_state.win = True
-                    st.rerun()
-            else:
-                cols[c].button("⬜", key=key, disabled=True, use_container_width=True)
+# Solver interaction
+if st.button("Solver Move"):
+    ConstraintSolver.solve(board, max_moves=1)
 

@@ -15,3 +15,15 @@ class RiskAssessor:
                 else:
                     risk_map[(r, c)] = 0.0
         return risk_map
+
+    @staticmethod
+    def pick_cell(board: Board) -> tuple[int, int]:
+        """
+        Select the next cell to probe based on risk assessment.
+        """
+        for r in range(board.n_rows):
+            for c in range(board.n_cols):
+                cell = board.grid[r][c]
+                if cell.state == State.HIDDEN:
+                    return r, c
+        return None, None

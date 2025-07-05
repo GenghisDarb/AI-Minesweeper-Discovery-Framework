@@ -1,0 +1,4 @@
+provider: "openai"
+model: "gpt-4-turbo"
+api_key: "sk-..."
+system_prompt: "You are a recursive scientific assistant helping map hypothesis terrain..."

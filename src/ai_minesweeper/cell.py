@@ -10,5 +10,9 @@ class State(Enum):
 @dataclass
 class Cell:
     state: State = State.HIDDEN
-    is_mine: bool = False
-    adjacent_mines: int = 0
+    description: str = ""  # Human-readable hypothesis description
+    evidence: str | None = None  # Optional field for supporting data or source
+    adjacent_mines: int = 0  # Number of false hypotheses among neighbors
+    is_mine: bool = False  # Indicates a false hypothesis (mine/contradiction)
+    row: int = -1  # Row position of the cell
+    col: int = -1  # Column position of the cell
