@@ -1,0 +1,27 @@
+name: External Review Feedback
+about: Provide structured feedback for external review
+labels: feedback, external-review
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reviewing our project! Please provide your feedback below.
+
+  - type: input
+    id: clarity
+    attributes:
+      label: Clarity (1–5)
+      description: How clear was the documentation and code?
+
+  - type: textarea
+    id: confusing_term
+    attributes:
+      label: Most confusing term
+      description: Which term or concept was the hardest to understand?
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Suggestions
+      description: Any suggestions for improvement?
