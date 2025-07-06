@@ -1,5 +1,6 @@
 from .board import Board
 
+
 class ConstraintAnnotator:
     @staticmethod
     def annotate(board: Board) -> None:

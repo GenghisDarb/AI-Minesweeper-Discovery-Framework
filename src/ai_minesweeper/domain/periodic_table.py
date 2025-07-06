@@ -1,5 +1,6 @@
 from ai_minesweeper.board import Board
 
+
 class PeriodicTableDomain:
     @staticmethod
     def get_neighbors(cell, board):

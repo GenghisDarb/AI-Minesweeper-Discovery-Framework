@@ -13,9 +13,16 @@ class ConstraintSolver:
         while moves < max_moves:
             deduction_made = True
             while deduction_made:
-                deduction_made = Flagger.mark_contradictions(board) or CascadePropagator.open_safe_neighbors(board)
+                deduction_made = Flagger.mark_contradictions(
+                    board
+                ) or CascadePropagator.open_safe_neighbors(board)
 
-            if all(cell.state != State.HIDDEN for row in board.grid for cell in row if not cell.is_mine):
+            if all(
+                cell.state != State.HIDDEN
+                for row in board.grid
+                for cell in row
+                if not cell.is_mine
+            ):
                 print("All safe cells revealed. Discovery complete!")
                 return
 

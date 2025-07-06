@@ -1,5 +1,6 @@
 from .board import Board, State
 
+
 class RiskAssessor:
     """Very naïve probability map."""
 

@@ -4,6 +4,7 @@ import yaml
 
 CONFIG_PATH = "config/llm.yaml"
 
+
 def get_provider(name: str) -> LLMProvider:
     with open(CONFIG_PATH, "r") as f:
         config = yaml.safe_load(f)

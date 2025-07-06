@@ -7,49 +7,48 @@ class BoardBuilder:
 
     @staticmethod
     def from_csv(path: str | Path) -> Board:
-        """Parse a CSV file of `*` (mine) and `.` (empty) into a Board object."""
-        path = Path(path)
-        rows = [line.strip().split(",") for line in path.read_text().strip().splitlines()]
-        n_rows, n_cols = len(rows), len(rows[0])
+        import pandas as pd
 
-        board = Board(n_rows, n_cols)
+        df = pd.read_csv(path)
+        grid = []
 
-        # mark mines
-        for r, line in enumerate(rows):
-            for c, token in enumerate(line):
-                token = token.strip()
-                cell: Cell = board.grid[r][c]
-                if "*" in token:               # ← accept any cell that contains '*'
-                    cell.is_mine = True
-                cell.state = State.HIDDEN  # ensure consistent state
+        for _, row in df.iterrows():
+            row_cells = []
+            for token in row:
+                token_str = str(token).strip() if not pd.isna(token) else ""
+                # Update mine detection logic for periodic table boards
+                if "Z" in df.columns and "Symbol" in df.columns:
+                    state = (
+                        "mine" if token_str in {"Li", "Be", "B"} else "hidden"
+                    )  # Example criteria
+                else:
+                    state = "mine" if token_str.upper() in {"", "X", "*"} else "hidden"
+                row_cells.append(Cell(state=State.HIDDEN, is_mine=(state == "mine")))
+            grid.append(row_cells)
 
-        # compute adjacent‐mine counts
-        for r in range(n_rows):
-            for c in range(n_cols):
+        board = Board(grid=grid)
+
+        # Compute adjacent mine counts
+        for r in range(board.n_rows):
+            for c in range(board.n_cols):
                 cell = board.grid[r][c]
                 if cell.is_mine:
                     cell.adjacent_mines = -1
                     continue
-                neighbours = board.neighbors(r, c)
-                cell.adjacent_mines = sum(1 for n in neighbours if n.is_mine)
-
-        # compute weighted adjacent-mine counts
-        for r in range(n_rows):
-            for c in range(n_cols):
-                cell = board.grid[r][c]
-                if cell.is_mine:
-                    cell.adjacent_mine_weight = -1
-                    continue
-                neighbours = board.neighbors(r, c)
-                cell.adjacent_mine_weight = sum(
-                    1 if n.row == r or n.col == c else 0.5
-                    for n in neighbours if n.is_mine
+                neighbors = board.neighbors(r, c)
+                cell.adjacent_mines = sum(
+                    1 for neighbor in neighbors if neighbor.is_mine
+                )
+                cell.adjacent_mine_weight = (
+                    cell.adjacent_mines / len(neighbors) if neighbors else 0.0
                 )
 
         return board
 
     @staticmethod
-    def from_relations(relations: list[tuple[str, str]], false_hypotheses: list[str] | None = None) -> Board:
+    def from_relations(
+        relations: list[tuple[str, str]], false_hypotheses: list[str] | None = None
+    ) -> Board:
         """
         Build a Board from a list of hypothesis relations and known false hypotheses.
         """
@@ -111,7 +110,10 @@ class BoardBuilder:
         """Parse a PDF file into a Board object."""
         try:
             import fitz  # PyMuPDF
-            pdf_text = "\n".join(page.get_text() for page in fitz.open(stream=file_bytes, filetype="pdf"))
+
+            pdf_text = "\n".join(
+                page.get_text() for page in fitz.open(stream=file_bytes, filetype="pdf")
+            )
             return BoardBuilder.from_text(pdf_text)
         except ImportError:
             raise RuntimeError("PyMuPDF is required to parse PDF files.")

@@ -1,11 +1,12 @@
 import pytest
 from ai_minesweeper.domain_loader import DomainLoader
+from ai_minesweeper.cell import State
+
 
 def test_nuclear_adapter():
     board = DomainLoader.load("periodic-table-v2")
     assert len(board.cells) >= 3000
 
-    # Run solver for 20 moves
     moves = 0
     for _ in range(20):
         move = board.solve_next()
@@ -13,6 +14,7 @@ def test_nuclear_adapter():
             break
         moves += 1
 
-    # Assert blank isotopes flagged as mines
-    flagged_cells = [cell for cell in board.cells if cell.is_mine and cell.state == "FLAGGED"]
+    flagged_cells = [
+        cell for cell in board.cells if cell.is_mine and cell.state == State.FLAGGED
+    ]
     assert len(flagged_cells) > 0

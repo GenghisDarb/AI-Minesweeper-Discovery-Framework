@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class LLMProvider(ABC):
     @abstractmethod
     def query(self, prompt: str, system: str = "", temperature: float = 0.7) -> str:

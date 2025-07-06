@@ -11,4 +11,4 @@ class ClickEngine:
             for c, cell in enumerate(row):
                 if cell.state.name == "HIDDEN":
                     return r, c
-        return (0, 0)   # all revealed
+        return (0, 0)  # all revealed
