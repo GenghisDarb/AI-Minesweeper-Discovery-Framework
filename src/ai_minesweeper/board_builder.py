@@ -33,6 +33,19 @@ class BoardBuilder:
                 neighbours = board.neighbors(r, c)
                 cell.adjacent_mines = sum(1 for n in neighbours if n.is_mine)
 
+        # compute weighted adjacent-mine counts
+        for r in range(n_rows):
+            for c in range(n_cols):
+                cell = board.grid[r][c]
+                if cell.is_mine:
+                    cell.adjacent_mine_weight = -1
+                    continue
+                neighbours = board.neighbors(r, c)
+                cell.adjacent_mine_weight = sum(
+                    1 if n.row == r or n.col == c else 0.5
+                    for n in neighbours if n.is_mine
+                )
+
         return board
 
     @staticmethod
@@ -65,3 +78,40 @@ class BoardBuilder:
             board.custom_neighbors.setdefault((r2, c2), []).append((r1, c1))
 
         return board
+
+    @staticmethod
+    def from_text(text: str) -> Board:
+        """Parse raw text into a Board object."""
+        rows = [line.strip().split() for line in text.strip().splitlines()]
+        n_rows, n_cols = len(rows), len(rows[0])
+
+        board = Board(n_rows, n_cols)
+
+        for r, line in enumerate(rows):
+            for c, token in enumerate(line):
+                token = token.strip()
+                cell: Cell = board.grid[r][c]
+                if "mine" in token:
+                    cell.is_mine = True
+                cell.state = State.HIDDEN
+
+        for r in range(n_rows):
+            for c in range(n_cols):
+                cell = board.grid[r][c]
+                if cell.is_mine:
+                    cell.adjacent_mines = -1
+                    continue
+                neighbours = board.neighbors(r, c)
+                cell.adjacent_mines = sum(1 for n in neighbours if n.is_mine)
+
+        return board
+
+    @staticmethod
+    def from_pdf(file_bytes: bytes) -> Board:
+        """Parse a PDF file into a Board object."""
+        try:
+            import fitz  # PyMuPDF
+            pdf_text = "\n".join(page.get_text() for page in fitz.open(stream=file_bytes, filetype="pdf"))
+            return BoardBuilder.from_text(pdf_text)
+        except ImportError:
+            raise RuntimeError("PyMuPDF is required to parse PDF files.")

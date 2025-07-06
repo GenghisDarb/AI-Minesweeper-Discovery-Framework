@@ -7,4 +7,6 @@ plugins:
       default_handler: python
 nav:
   - Home: index.md
+  - Tutorials:
+      - Element Discovery: tutorials/element_discovery.md
   - API Reference: api.md

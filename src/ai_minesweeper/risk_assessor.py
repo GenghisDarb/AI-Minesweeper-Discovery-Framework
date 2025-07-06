@@ -6,10 +6,11 @@ class RiskAssessor:
     @staticmethod
     def estimate(board: Board) -> dict[tuple[int, int], float]:
         risk_map: dict[tuple[int, int], float] = {}
+        # Adjust logic for near-integer clue weights
         for r, row in enumerate(board.grid):
             for c, cell in enumerate(row):
                 if cell.state == State.HIDDEN:
-                    risk_map[(r, c)] = 0.15  # placeholder uniform risk
+                    risk_map[(r, c)] = round(cell.adjacent_mine_weight, 1)
                 elif cell.is_mine:
                     risk_map[(r, c)] = 1.0
                 else:

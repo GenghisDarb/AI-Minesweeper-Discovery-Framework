@@ -19,10 +19,18 @@ jobs:
         run: ruff check src tests
       - name: Run tests with coverage
         run: pytest --cov=src
+      - name: Enforce coverage thresholds
+        run: pytest --cov=src --cov-fail-under=85 --cov-report=term-missing
       - name: Run new unit tests
         run: |
           pytest tests/test_primes_chi.py
           pytest tests/test_phase_lock_phi.py
+      - name: Run solver tests
+        run: pytest tests/test_solver_basic.py
+      - name: Run periodic table tests
+        run: pytest tests/test_periodic_table.py
+      - name: Run meta-cell confidence tests
+        run: pytest tests/test_beta_confidence.py tests/test_confidence_policy.py tests/test_ui_widgets.py
 
   streamlit-smoke-test:
     runs-on: ubuntu-latest
@@ -70,3 +78,15 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Pandoc
+        run: sudo apt-get install -y pandoc
+      - name: Build white-paper
+        run: python scripts/build_whitepage.py

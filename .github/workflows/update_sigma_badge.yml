@@ -1,0 +1,32 @@
+name: Update Sigma Badge
+
+on:
+  push:
+    paths:
+      - "notebooks/*.ipynb"
+
+jobs:
+  update-sigma-badge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Sigma Evidence
+        run: |
+          # Example logic to extract sigma evidence from notebooks
+          sigma=$(grep -oP 'Evidence: \d+-σ' notebooks/*.ipynb | sort -r | head -n 1 | grep -oP '\d+-σ')
+          echo "sigma=$sigma" >> $GITHUB_ENV
+
+      - name: Update README
+        run: |
+          sed -i "s/\[Evidence Sigma\].*\[Evidence Sigma\]/[Evidence Sigma](https://img.shields.io/badge/evidence-$sigma-blue)/" README.md
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add README.md
+          git commit -m "Update sigma badge to $sigma"
+          git push

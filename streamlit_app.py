@@ -83,6 +83,20 @@ class BoardBuilder:
     def from_dataframe(df):
         return df.values.tolist()
 
+    @staticmethod
+    def from_text(text):
+        # Dummy implementation: split by lines and commas
+        return [line.split(",") for line in text.strip().split("\n")]
+
+    @staticmethod
+    def from_pdf(pdf_bytes):
+        import PyPDF2
+        # Dummy implementation: extract text from first page
+        with PyPDF2.PdfReader(pdf_bytes) as reader:
+            first_page = reader.pages[0]
+            text = first_page.extract_text()
+        return BoardBuilder.from_text(text)
+
 def _init_state(board):
     st.session_state.board = board
     rows = len(board)
@@ -136,6 +150,50 @@ with st.sidebar:
 st.title("AI Minesweeper – Hypothesis Discovery Framework")
 st.sidebar.title("Settings")
 
+# --- Startup Menus ---
+# LLM Selection
+llm_options = ["None (Logic-only)", "OpenAI GPT-4", "Anthropic Claude", "Local Model"]
+selected_llm = st.sidebar.selectbox("Choose an AI assistant (LLM) for parsing/heuristics:", llm_options, index=0)
+st.session_state.selected_llm = selected_llm
+
+# Domain Selection
+domains = ["Prime Number Spiral", "Phase-Lock φ Reset", "Periodic Table (Element Discovery)", "Custom Data Upload"]
+selected_domain = st.sidebar.selectbox("Choose a dataset/domain to explore:", domains)
+st.session_state.selected_domain = selected_domain
+
+# Ensure selections are made before proceeding
+if not selected_domain or not selected_llm:
+    st.warning("Please select an LLM and a domain to proceed.")
+    st.stop()
+
+# --- Board Initialization ---
+if selected_domain == "Custom Data Upload":
+    # Update file uploader logic to support text and PDF
+    uploaded_file = st.sidebar.file_uploader("Upload data (CSV, TXT, PDF, TEX)", type=["csv", "txt", "pdf", "tex"])
+    if uploaded_file:
+        file_type = uploaded_file.name.split(".")[-1].lower()
+        data = uploaded_file.read()
+        if file_type == "csv":
+            board = BoardBuilder.from_csv(data)
+        elif file_type in ["txt", "tex"]:
+            text = data.decode("utf-8", errors="ignore")
+            board = BoardBuilder.from_text(text)
+        elif file_type == "pdf":
+            board = BoardBuilder.from_pdf(data)
+        else:
+            st.error("Unsupported file type")
+            st.stop()
+        st.session_state.board = board
+        st.experimental_rerun()
+else:
+    # Load preset boards for demo domains
+    demo_boards = {
+        "Prime Number Spiral": new_board(8, 8, 10),
+        "Phase-Lock φ Reset": new_board(8, 8, 10),
+        "Periodic Table (Element Discovery)": new_board(8, 8, 10),
+    }
+    st.session_state.board = demo_boards.get(selected_domain, new_board(8, 8, 10))
+
 # Load example board
 example_path = "examples/boards/mini.csv"
 board = BoardBuilder.from_csv(example_path)
@@ -159,4 +217,58 @@ for r in range(board.n_rows):
 # Solver interaction
 if st.button("Solver Move"):
     ConstraintSolver.solve(board, max_moves=1)
+
+# Add LLM selection menu
+llm_choice = st.selectbox("Select LLM:", ["None", "OpenAI", "Anthropic Claude", "Local (ollama)"])
+
+# Add dataset menu based on LLM choice
+if llm_choice:
+    dataset_choice = st.selectbox("Select Dataset:", [
+        "TORUS demo",
+        "Cymatics demo",
+        "Prime-spiral demo",
+        "Periodic-table (isotope)",
+        "Upload file…"
+    ])
+
+    # Guard against re-runs
+    if "initialised" not in st.session_state:
+        st.session_state.initialised = False
+
+    if not st.session_state.initialised:
+        # Load domain and render grid
+        board, meta = DomainLoader.load(dataset_choice, None)  # Replace None with uploaded file logic
+        st.session_state.initialised = True
+        st.write("Board loaded:", board)
+
+class DomainLoader:
+    @staticmethod
+    def load(domain_name, uploaded_file):
+        # Placeholder logic for loading domain
+        return [["hidden"] * 5 for _ in range(5)], {"meta": "example"}
+
+# Add dataset menu entry for Periodic-table (isotope)
+dataset_choice = st.selectbox("Select Dataset:", [
+    "TORUS demo",
+    "Cymatics demo",
+    "Prime-spiral demo",
+    "Periodic-table (isotope)",
+    "Upload file…"
+])
+
+if dataset_choice == "Periodic-table (isotope)":
+    board = DomainLoader.load("periodic-table-v2")
+    st.session_state.board = board
+
+# Display tooltips for cells
+for r, row in enumerate(st.session_state.board.grid):
+    for c, cell in enumerate(row):
+        tooltip = "🟦 Weighted mine count" if cell.adjacent_mine_weight > 0 else "❔ Unexplored isotope"
+        if cell.is_mine:
+            tooltip = "🚩 Predicted unbound isotope"
+        st.write(f"Cell ({r}, {c}): {tooltip}")
+
+# Sidebar stats
+flagged_cells = sum(1 for cell in st.session_state.board.cells if cell.is_mine and cell.state == "FLAGGED")
+st.sidebar.write(f"Predicted-stable blanks flagged: {flagged_cells} / {len(st.session_state.board.cells)}")
 

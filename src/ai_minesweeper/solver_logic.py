@@ -36,3 +36,17 @@ class CascadePropagator:
                             board.reveal(nbr.row, nbr.col, flood=True)
                             revealed = True
         return revealed
+
+class SolverLogic:
+    @staticmethod
+    def flag_mines(board):
+        for cell in board.cells:
+            if cell.clue == len(cell.neighbors):
+                cell.is_mine = True
+
+    @staticmethod
+    def cascade_reveal(board):
+        for cell in board.cells:
+            if cell.clue == 0 and not cell.is_mine:
+                for neighbor in cell.neighbors:
+                    neighbor.state = "revealed"
