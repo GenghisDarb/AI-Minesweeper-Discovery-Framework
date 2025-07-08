@@ -1,0 +1,7 @@
+(* Wolfram Notebook for Deep-Zoom Explorer *)
+(* Outputs tile sets for web gallery *)
+
+zoomLevels = 10;
+For[level = 1, level <= zoomLevels, level++,
+  Export["zoom_level_" <> ToString[level] <> ".png", FractalZoom[level]]
+]

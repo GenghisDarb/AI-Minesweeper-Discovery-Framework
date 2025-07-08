@@ -109,3 +109,14 @@ Contribute by adding new domains or improving the solver logic.
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 *This project is MIT licensed.*
+
+<p align="center">
+  <img src="figures/torus_brot_demo.png" width="320"/><br/>
+  <em>χ-recursive TORUS-brot fractal</em>
+</p>
+
+![χ-value](https://img.shields.io/badge/χ-$(cat data/chi_50digits.txt | head -c 10)…-informational?style=flat&logo=wolfram)
+![τ (χ-cycle)](https://img.shields.io/badge/τ≈$(jq '.tau' data/confidence_fit_params.json | xargs printf '%.2f')-success)
+![Prime S stat](https://img.shields.io/badge/S=$(tail -n1 reports/prime_residue_S.csv)-critical)
+
+> Nightly badges auto-update via Wolfram pipeline.

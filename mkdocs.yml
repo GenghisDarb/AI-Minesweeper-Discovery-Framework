@@ -1,12 +1,19 @@
 site_name: AI Minesweeper Discovery Framework
+site_url: https://<your-gh-pages-url>
+repo_url: https://github.com/GenghisDarb/AI-Minesweeper-Discovery-Framework
 theme:
   name: material
 plugins:
   - search
   - mkdocstrings:
       default_handler: python
+extra_css:
+  - css/custom_palette.css
+  - css/badges.css
 nav:
   - Home: index.md
-  - Tutorials:
-      - Element Discovery: tutorials/element_discovery.md
-  - API Reference: api.md
+  - Fractal Demo: torus_brot_demo.md
+  - Meta-Cell Guide: meta_cell_usage.md
+  - χ-Tests:
+      - Prime Residue: prime_residue.md
+      - Confidence Oscillation: confidence_osc.md

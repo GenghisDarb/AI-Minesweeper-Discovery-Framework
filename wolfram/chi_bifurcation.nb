@@ -1,0 +1,8 @@
+(* Wolfram Notebook for χ Bifurcation Analysis *)
+(* Sweeps exponent p∈[1.8,2.2] for 14-branch Feigenbaum-style ratio *)
+
+results = Table[
+  {p, FeigenbaumRatio[p]},
+  {p, 1.8, 2.2, 0.01}
+];
+Export["bifurcation_results.csv", results];

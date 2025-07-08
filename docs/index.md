@@ -22,6 +22,29 @@ ai-minesweeper --agent=random --board-size=10 --mines=15
 
 This command runs a Minesweeper game on a 10x10 board with 15 mines, using a random AI agent.
 
+## Hero Panel
+
+![TORUS-brot Fractal](images/torus_brot_hero.png)
+
+**χ Value:** 50-digit χ = 1.41421356237309504880168872420969807856967187537694
+
+[![Try It Live](https://img.shields.io/badge/Try%20It%20Live-Streamlit-green?logo=streamlit)](https://streamlit.app/?domain=TORUS-brot)
+
+## Versions
+
+### Changelog
+
+<details>
+<summary>v0.4</summary>
+- Added TORUS-brot fractal module.
+- Enhanced Meta-Cell Confidence Module.
+</details>
+
+<details>
+<summary>v0.3</summary>
+- Initial release with Minesweeper AI.
+</details>
+
 ## Tutorials
 
 - [Discovering φ-Phase Reset](tutorials/discovering_phi_phase_reset.md)
