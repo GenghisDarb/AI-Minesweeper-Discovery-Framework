@@ -12,7 +12,9 @@ def test_from_csv():
         temp_csv.close()
         board = BoardBuilder.from_csv(temp_csv.name)
     assert isinstance(board, Board)
-    assert len(board.grid) == 3
+    assert len(board.grid) == 3, "Expected 3 rows in the board"
+    assert len(board.grid[0]) == 3, "Expected 3 columns in the board"
+    assert sum(cell.is_mine for row in board.grid for cell in row) == 3, "Expected 3 mines in the board"
 
 
 def test_from_relations():

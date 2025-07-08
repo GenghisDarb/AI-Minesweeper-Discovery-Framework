@@ -433,3 +433,12 @@ if load_trigger:
 
     st.session_state["board"] = board
     st.success("Board loaded.")
+
+# Sidebar configuration
+st.sidebar.title("Configuration")
+use_wolfram = st.sidebar.checkbox("Use Wolfram Engine", value=False)
+
+if use_wolfram:
+    st.sidebar.write("Wolfram Engine mode enabled.")
+else:
+    st.sidebar.write("Using pre-generated files.")

@@ -68,6 +68,9 @@ class RiskAssessor:
         if len(set(prob.values())) < len(prob) * 0.5:
             print("⚠ Insufficient probability variance")
 
+        # Debugging output for risk map
+        print(f"Risk map: {prob}")
+
         return prob
 
     @staticmethod

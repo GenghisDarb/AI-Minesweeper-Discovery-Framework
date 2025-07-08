@@ -5,7 +5,12 @@ class PeriodicTableDomain:
         for other in board.cells:
             if (other.group == cell.group or other.period == cell.period) and other != cell:
                 neighbors.append(other)
-        return neighbors
+        # Ensure unique neighbors and correct count
+        unique_neighbors = []
+        for neighbor in neighbors:
+            if neighbor not in unique_neighbors:
+                unique_neighbors.append(neighbor)
+        return unique_neighbors
 
     @staticmethod
     def is_mine(cell):

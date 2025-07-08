@@ -85,10 +85,23 @@ class SolverLogic:
             adj = board.adjacent_cells(*cell)
             hidden = [c for c in adj if board.is_hidden(c)]
 
+            # Debugging output for cascade reveal
+            print(f"Queue: {queue}")
+            print(f"Visited: {visited}")
+            print(f"Hidden cells: {hidden}")
+
             if clue is None or len(hidden) == 0:
                 continue
 
             if clue == len(hidden):
+                for c in hidden:
+                    board.reveal(c[0], c[1], flood=True)
+                    print(f"Revealed cell {c} based on clue {clue}")  # Debugging output
+                    changed = True
+                    if c not in visited:
+                        queue.append(c)
+                        visited.add(c)
+            elif clue == 0:
                 for c in hidden:
                     board.reveal(c[0], c[1], flood=True)
                     print(f"Revealed cell {c} based on clue {clue}")  # Debugging output

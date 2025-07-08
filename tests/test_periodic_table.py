@@ -28,3 +28,57 @@ def test_generate_clue():
     neighbors = [Cell(symbol="eka"), Cell(symbol="H")]
     clue = PeriodicTableDomain.generate_clue(Cell(), neighbors)
     assert clue == 1
+
+
+def test_generate_clue_with_multiple_mines():
+    neighbors = [Cell(symbol="eka"), Cell(symbol="li"), Cell(symbol="H")]
+    clue = PeriodicTableDomain.generate_clue(Cell(), neighbors)
+    assert clue == 2, "Clue should count all mines among neighbors"
+
+
+def test_neighbors_unique():
+    board = Board(grid=[[Cell(), Cell()], [Cell(), Cell()]])
+    neighbors = PeriodicTableDomain.get_neighbors(board.grid[0][0], board)
+    unique_neighbors = []
+    for neighbor in neighbors:
+        if neighbor not in unique_neighbors:
+            unique_neighbors.append(neighbor)
+    assert len(neighbors) == len(unique_neighbors), "Neighbors should be unique"
+
+
+def test_is_mine_edge_cases():
+    assert PeriodicTableDomain.is_mine(Cell(symbol="eka")) is True, "Eka should be detected as mine"
+    assert PeriodicTableDomain.is_mine(Cell(symbol="H")) is False, "Hydrogen should not be detected as mine"
+
+
+def test_get_neighbors_empty_board():
+    board = Board(grid=[])
+    neighbors = PeriodicTableDomain.get_neighbors(Cell(), board)
+    assert len(neighbors) == 0, "Neighbors should be empty for an empty board"
+
+
+def test_get_neighbors_no_neighbors():
+    board = Board(grid=[[Cell(group=1, period=1)]] * 3)
+    neighbors = PeriodicTableDomain.get_neighbors(board.grid[0][0], board)
+    assert len(neighbors) == 0, "Neighbors should be empty if no matching group or period"
+
+
+def test_is_mine_mixed_case():
+    cell = Cell(symbol="Li")
+    assert PeriodicTableDomain.is_mine(cell) is True, "Mixed-case symbol should be detected as mine"
+    cell = Cell(symbol="li")
+    assert PeriodicTableDomain.is_mine(cell) is True, "Lowercase symbol should be detected as mine"
+    cell = Cell(symbol="LI")
+    assert PeriodicTableDomain.is_mine(cell) is True, "Uppercase symbol should be detected as mine"
+
+
+def test_generate_clue_no_neighbors():
+    neighbors = []
+    clue = PeriodicTableDomain.generate_clue(Cell(), neighbors)
+    assert clue == 0, "Clue should be 0 if there are no neighbors"
+
+
+def test_generate_clue_all_mines():
+    neighbors = [Cell(symbol="li"), Cell(symbol="be"), Cell(symbol="b")]
+    clue = PeriodicTableDomain.generate_clue(Cell(), neighbors)
+    assert clue == len(neighbors), "Clue should count all neighbors as mines"

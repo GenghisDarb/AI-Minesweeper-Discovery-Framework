@@ -10,10 +10,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Run Wolfram Scripts
+      - name: Check configuration flag
         run: |
-          echo "Running Wolfram scripts..."
-          wolfram -script wolfram/run_all.wls || echo "Error: Wolfram script execution failed"
+          if [ "$USE_WOLFRAM" != "true" ]; then
+            echo "Skipping Wolfram scripts – using pre-generated files."
+            exit 0
+          fi
+
+      - name: Skip Wolfram batch execution
+        if: runner.os != 'Windows'
+        run: echo "Skipping Wolfram scripts – no engine"
 
       - name: Commit results
         run: |
