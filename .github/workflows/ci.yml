@@ -39,10 +39,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          flags: unittests
-          fail_ci_if_error: true
-        # Ensure CODECOV_TOKEN is added to repository secrets under Settings > Secrets and variables > Actions.
+          # Ensure CODECOV_TOKEN is added to repository secrets under Settings > Secrets and variables > Actions.
 
   streamlit-smoke-test:
     runs-on: ubuntu-latest

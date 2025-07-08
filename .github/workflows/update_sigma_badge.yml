@@ -31,6 +31,7 @@ jobs:
             echo "changed=false" >> $GITHUB_ENV
           else
             echo "changed=true" >> $GITHUB_ENV
+            # Ensure the export step sets 'changed' exactly as a string for evaluation.
 
       - name: Commit and Push
         if: ${{ env.changed == 'true' }}
