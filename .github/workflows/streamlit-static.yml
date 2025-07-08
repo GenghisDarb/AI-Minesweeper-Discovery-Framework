@@ -25,13 +25,6 @@ jobs:
         run: |
           pip install -e .[dev] streamlit-export
 
-      - name: Verify CODECOV_TOKEN
-        if: env.CODECOV_TOKEN == ''
-        run: |
-          echo "::error::CODECOV_TOKEN secret is missing. Add it under Settings → Secrets → Actions." && exit 1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
       - name: Export Streamlit app
         run: streamlit-export streamlit_app.py --output build
 
@@ -43,4 +36,4 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -29,15 +29,3 @@ jobs:
         run: |
           pip install mkdocs mkdocs-material
           mkdocs gh-deploy --force
-      - name: verify CODECOV_TOKEN
-        if: env.CODECOV_TOKEN == ''
-        run: |
-          echo "::error::CODECOV_TOKEN secret is missing. Add it under Settings → Secrets → Actions." && exit 1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          # Ensure CODECOV_TOKEN is added to repository secrets under Settings > Secrets and variables > Actions.
