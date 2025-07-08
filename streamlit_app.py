@@ -8,9 +8,14 @@ import random
 import os
 import glob
 import pandas as pd
+import json
+import sys
+
+sys.path.append("src")  # Add src directory to Python path
+
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.solver import ConstraintSolver
-from torus_brot.renderers.torus_brot_renderer import TorusBrotRenderer
+from torus_brot.renderers.torus_brot_renderer import render_grid
 
 
 # --- Dummy RiskAssessor for demonstration ---
@@ -230,6 +235,12 @@ example_path = "examples/boards/mini.csv"
 board = BoardBuilder.from_csv(example_path)
 st.session_state.board = board
 
+# Debugging output
+print(f"Board type: {type(board)}")
+
+# Debugging output after BoardBuilder.from_csv
+print(f"Board type after from_csv: {type(board)}")
+
 # Display board
 for r in range(board.n_rows):
     cols = st.columns(board.n_cols)
@@ -366,3 +377,90 @@ if st.button("Solver Move"):
         solver.confidence.update(prediction=solver.last_prob, outcome=outcome)
         st.session_state.moves += 1
         st.experimental_rerun()
+
+# Sidebar constants section
+st.sidebar.markdown("### χ‑Phase Constants")
+
+# Load χ
+with open("data/chi_50digits.txt") as f:
+    chi = f.read().strip()
+
+# Load fit params
+with open("data/confidence_fit_params.json") as f:
+    params = json.load(f)
+
+# Load S
+with open("reports/prime_residue_S.csv") as f:
+    s_row = f.read().strip().split(",")
+    S = float(s_row[-1])
+
+st.sidebar.text(f"χ = {chi}")
+st.sidebar.text(f"τ ≈ {params['τ']:.2f}")
+st.sidebar.text(f"S‑stat = {S:.6f}")
+
+# Visual tabs
+tab1, tab2, tab3 = st.tabs(["Game Board", "χ‑brot Visualizer", "Confidence Fit"])
+
+with tab1:
+    # existing game UI goes here
+    pass
+
+with tab2:
+    st.image("figures/torus_brot_demo.png", caption="χ‑brot Escape Field", use_column_width=True)
+
+with tab3:
+    st.image("figures/confidence_fit.png", caption="Confidence Oscillation Fit", use_column_width=True)
+    st.json(params)
+
+# Load constants
+with open("data/chi_50digits.txt") as f:
+    chi = f.read().strip()
+
+with open("data/confidence_fit_params.json") as f:
+    fit_params = json.load(f)
+    tau = fit_params["τ"]
+
+s_statistic = pd.read_csv("reports/prime_residue_S.csv", header=None).iloc[0, -1]
+
+# Sidebar display
+st.sidebar.title("Constants")
+st.sidebar.write(f"χ (Golden Log): {chi}")
+st.sidebar.write(f"τ (Oscillation Period): {tau}")
+st.sidebar.write(f"S-statistic: {s_statistic}")
+
+# Tabs for visuals
+tab1, tab2 = st.tabs(["χ-brot Visualizer", "Oscillation Curve Fit"])
+
+# χ-brot Visualizer
+with tab1:
+    st.header("χ-brot Visualizer")
+    # Generate χ-brot fractal visualization
+    img = render_grid(n=400)
+    st.image(img, caption="χ-brot Fractal Field", use_column_width=True)
+
+# Oscillation Curve Fit
+with tab2:
+    st.header("Oscillation Curve Fit")
+    st.image("figures/confidence_fit.png", caption="Damped χ Oscillation Curve")
+    st.write(f"τ (Oscillation Period): {tau}")
+
+# Board loader logic cleanup
+source = st.radio("Board source", ["Example", "Dataset"])
+
+if source == "Example":
+    board_name = st.selectbox("Select example board:", ["corner trap", "triple mine", "box pattern"])
+elif source == "Dataset":
+    uploaded = st.file_uploader("Upload dataset JSON")
+
+load_trigger = st.button("Load board")
+
+if load_trigger:
+    if source == "Example":
+        board = load_example(board_name)  # Replace with existing logic
+    elif uploaded:
+        board = parse_uploaded(uploaded)  # Replace with existing logic
+    else:
+        st.warning("Please select a board or upload data.")
+
+    st.session_state["board"] = board
+    st.success("Board loaded.")
