@@ -24,13 +24,6 @@ jobs:
             mkdocs-git-revision-date-localized-plugin==1.2.* \
             mkdocstrings[python]==0.24.*
 
-      - name: Verify CODECOV_TOKEN
-        run: |
-          if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
-            echo "::error::CODECOV_TOKEN missing – add under Settings → Secrets → Actions"
-            exit 1
-          fi
-
       - name: Install TinyTeX (pdflatex)
         run: |
           sudo apt-get update -qq
@@ -41,20 +34,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y texlive-xetex texlive-fonts-recommended texlive-latex-extra
 
-      - name: Install Wolfram Engine (headless)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wolfram-engine
-
       - name: Build static site (MkDocs)
         # compiles markdown in /docs into site/
         run: mkdocs build --strict --verbose
 
       - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: site
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site
 
       - name: Echo site URL
         if: steps.deploy.outputs.page_url != ''
