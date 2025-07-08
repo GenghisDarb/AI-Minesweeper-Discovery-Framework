@@ -1,5 +1,3 @@
-import pytest
-from ai_minesweeper.domain.periodic_table import PeriodicTableDomain
 from ai_minesweeper.board_builder import BoardBuilder
 
 

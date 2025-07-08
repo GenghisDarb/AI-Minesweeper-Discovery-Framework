@@ -1,4 +1,4 @@
-from ai_minesweeper.board import Board
+from ai_minesweeper.board import Board, State
 from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 
 

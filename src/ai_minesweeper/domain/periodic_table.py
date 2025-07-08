@@ -1,4 +1,3 @@
-from ai_minesweeper.board import Board
 
 
 class PeriodicTableDomain:

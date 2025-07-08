@@ -3,8 +3,6 @@ Phase-Lock Minesweeper Module
 """
 
 import numpy as np
-from scipy.signal import hilbert
-from scipy.stats import rayleigh
 
 
 def evaluate_cell(t0: int, signal: np.ndarray, sampling_rate: int):

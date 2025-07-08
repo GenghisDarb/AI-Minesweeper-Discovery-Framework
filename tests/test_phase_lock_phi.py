@@ -4,7 +4,7 @@ Unit tests for Phase-Lock Minesweeper Module
 
 import unittest
 import numpy as np
-from ai_minesweeper.domain.phase_lock_phi import evaluate_cell, detect_phi_reset
+from ai_minesweeper.domain.phase_lock_phi import detect_phi_reset
 
 
 class TestPhaseLockPhi(unittest.TestCase):
