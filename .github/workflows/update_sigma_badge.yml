@@ -31,13 +31,21 @@ jobs:
             echo "changed=false" >> $GITHUB_ENV
           else
             echo "changed=true" >> $GITHUB_ENV
-          # Ensure the export step sets 'changed' exactly as a string for evaluation.
+          fi
+        # Ensure the export step sets 'changed' exactly as a string for evaluation.
 
-      - name: Commit and Push
-        if: ${{ env.changed == 'true' }}
+      - name: Set Flag
+        id: setflag
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add .
-          git commit -m "Update sigma badge"
+          if git diff --quiet README.md; then
+            echo "changed=false" >> $GITHUB_ENV
+          else
+            echo "changed=true" >> $GITHUB_ENV
+          fi
+
+      - name: Commit Badge
+        if: env.changed == 'true'
+        run: |
+          git add README.md
+          git commit -m "auto-badge" || echo "no diff"
           git push
