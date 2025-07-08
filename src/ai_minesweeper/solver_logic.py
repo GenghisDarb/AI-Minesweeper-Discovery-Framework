@@ -55,13 +55,45 @@ class CascadePropagator:
 class SolverLogic:
     @staticmethod
     def flag_mines(board):
-        for cell in board.cells:
-            if cell.clue == len(cell.neighbors):
-                cell.is_mine = True
+        changed = False
+        for cell in board.revealed_cells():
+            clue = board.clue(cell)
+            adj = board.adjacent_cells(cell.row, cell.col)  # Pass row and col explicitly
+            hidden = [c for c in adj if board.is_hidden(c)]
+            flagged = [c for c in adj if board.is_flagged(c)]
+
+            if clue is None:
+                continue
+
+            if clue - len(flagged) == len(hidden):
+                for c in hidden:
+                    board.flag(c)
+                    print(f"Flagged cell {c} based on clue {clue}")  # Debugging output
+                    changed = True
+        return changed
 
     @staticmethod
     def cascade_reveal(board):
-        for cell in board.cells:
-            if cell.clue == 0 and not cell.is_mine:
-                for neighbor in cell.neighbors:
-                    neighbor.state = "revealed"
+        changed = False
+        queue = list(board.revealed_cells())
+
+        visited = set(queue)
+
+        while queue:
+            cell = queue.pop(0)
+            clue = board.clue(cell)
+            adj = board.adjacent_cells(*cell)
+            hidden = [c for c in adj if board.is_hidden(c)]
+
+            if clue is None or len(hidden) == 0:
+                continue
+
+            if clue == len(hidden):
+                for c in hidden:
+                    board.reveal(c[0], c[1], flood=True)
+                    print(f"Revealed cell {c} based on clue {clue}")  # Debugging output
+                    changed = True
+                    if c not in visited:
+                        queue.append(c)
+                        visited.add(c)
+        return changed

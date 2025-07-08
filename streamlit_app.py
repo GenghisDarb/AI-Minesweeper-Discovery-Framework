@@ -89,37 +89,6 @@ def check_win():
     return True
 
 
-# --- BoardBuilder stub for demonstration ---
-class BoardBuilder:
-    @staticmethod
-    def from_csv(path_or_bytes):
-        if isinstance(path_or_bytes, bytes):
-            df = pd.read_csv(pd.io.common.BytesIO(path_or_bytes))
-        else:
-            df = pd.read_csv(path_or_bytes)
-        # Convert DataFrame to your board format; here we just return the DataFrame as a list of lists
-        return df.values.tolist()
-
-    @staticmethod
-    def from_dataframe(df):
-        return df.values.tolist()
-
-    @staticmethod
-    def from_text(text):
-        # Dummy implementation: split by lines and commas
-        return [line.split(",") for line in text.strip().split("\n")]
-
-    @staticmethod
-    def from_pdf(pdf_bytes):
-        import PyPDF2
-
-        # Dummy implementation: extract text from first page
-        with PyPDF2.PdfReader(pdf_bytes) as reader:
-            first_page = reader.pages[0]
-            text = first_page.extract_text()
-        return BoardBuilder.from_text(text)
-
-
 def _init_state(board):
     st.session_state.board = board
     rows = len(board)

@@ -2,7 +2,6 @@
 Render TORUS-brot fractal.
 Usage: `python torus_brot_renderer.py --out image.png`
 """
-import json
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt

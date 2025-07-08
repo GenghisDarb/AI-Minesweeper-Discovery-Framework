@@ -9,21 +9,17 @@ class BoardBuilder:
     def from_csv(path: str | Path) -> Board:
         import pandas as pd
 
-        df = pd.read_csv(path)
+        df = pd.read_csv(path, header=0)  # Use headers for periodic table boards
+        print(f"CSV DataFrame: {df}")  # Debugging output
         grid = []
 
         for _, row in df.iterrows():
             row_cells = []
             for token in row:
                 token_str = str(token).strip() if not pd.isna(token) else ""
-                # Update mine detection logic for periodic table boards
-                if "Z" in df.columns and "Symbol" in df.columns:
-                    state = (
-                        "mine" if token_str in {"Li", "Be", "B"} else "hidden"
-                    )  # Example criteria
-                else:
-                    state = "mine" if token_str.upper() in {"", "X", "*"} else "hidden"
-                row_cells.append(Cell(state=State.HIDDEN, is_mine=(state == "mine")))
+                # Refined mine detection logic for periodic table boards
+                state = "mine" if token_str.lower() in {"li", "be", "b", "f", "cl", "br", "i", "eka"} else "hidden"
+                row_cells.append(Cell(state=State.HIDDEN, is_mine=(state == "mine"), symbol=token_str))
             grid.append(row_cells)
 
         board = Board(grid=grid)
@@ -36,12 +32,7 @@ class BoardBuilder:
                     cell.adjacent_mines = -1
                     continue
                 neighbors = board.neighbors(r, c)
-                cell.adjacent_mines = sum(
-                    1 for neighbor in neighbors if neighbor.is_mine
-                )
-                cell.adjacent_mine_weight = (
-                    cell.adjacent_mines / len(neighbors) if neighbors else 0.0
-                )
+                cell.adjacent_mines = sum(neighbor.is_mine for neighbor in neighbors)
 
         return board
 
@@ -81,6 +72,9 @@ class BoardBuilder:
     @staticmethod
     def from_text(text: str) -> Board:
         """Parse raw text into a Board object."""
+        if not text.strip():
+            return Board(grid=[])  # Return an empty board for empty text
+
         rows = [line.strip().split() for line in text.strip().splitlines()]
         n_rows, n_cols = len(rows), len(rows[0])
 
@@ -109,11 +103,67 @@ class BoardBuilder:
     def from_pdf(file_bytes: bytes) -> Board:
         """Parse a PDF file into a Board object."""
         try:
-            import fitz  # PyMuPDF
+            import pdfplumber
 
-            pdf_text = "\n".join(
-                page.get_text() for page in fitz.open(stream=file_bytes, filetype="pdf")
-            )
+            with pdfplumber.open(file_bytes) as pdf:
+                pdf_text = "\n".join(page.extract_text() for page in pdf.pages)
             return BoardBuilder.from_text(pdf_text)
         except ImportError:
-            raise RuntimeError("PyMuPDF is required to parse PDF files.")
+            raise RuntimeError("pdfplumber is required to parse PDF files.")
+
+    @staticmethod
+    def random_board(rows: int, cols: int, mines: int) -> Board:
+        """Generate a random board with the specified dimensions and number of mines."""
+        import random
+
+        board = Board(rows, cols)
+        mine_positions = random.sample(range(rows * cols), mines)
+
+        for pos in mine_positions:
+            r, c = divmod(pos, cols)
+            board.grid[r][c].is_mine = True
+
+        for r in range(rows):
+            for c in range(cols):
+                cell = board.grid[r][c]
+                if cell.is_mine:
+                    cell.adjacent_mines = -1
+                    continue
+                neighbors = board.neighbors(r, c)
+                cell.adjacent_mines = sum(1 for neighbor in neighbors if neighbor.is_mine)
+
+        return board
+
+    @staticmethod
+    def fixed_board(layout, mines):
+        n_rows = len(layout)
+        n_cols = len(layout[0])
+        grid = []
+
+        for r, row in enumerate(layout):
+            grid_row = []
+            for c, char in enumerate(row):
+                if (r, c) in mines:
+                    grid_row.append(Cell(is_mine=True, state=State.HIDDEN))
+                else:
+                    grid_row.append(Cell(state=State.HIDDEN))
+            grid.append(grid_row)
+
+        board = Board(n_rows=n_rows, n_cols=n_cols, grid=grid)
+
+        # Initialize neighbors
+        for i, row in enumerate(board.grid):
+            for j, cell in enumerate(row):
+                cell.neighbors = [
+                    board.grid[x][y]
+                    for x in range(max(0, i - 1), min(board.n_rows, i + 2))
+                    for y in range(max(0, j - 1), min(board.n_cols, j + 2))
+                    if (x, y) != (i, j)
+                ]
+
+        # Calculate and set correct clue values
+        for i, row in enumerate(board.grid):
+            for j, cell in enumerate(row):
+                cell.clue = sum(neighbor.is_mine for neighbor in cell.neighbors)
+
+        return board

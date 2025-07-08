@@ -31,10 +31,16 @@ class ConfidencePolicy:
                 for cell in row
                 if cell.state == State.HIDDEN
             }
-        tau = 0.05 + self.confidence.mean() * (0.25 - 0.05)
+        # Λ-ladder curve (Observer-State §2.3):
+        # early confidence moves the threshold quickly; high confidence tapers.
+        tau_min, tau_max = 0.05, 0.25
+        tau = tau_min + (tau_max - tau_min) * (1 - self.confidence.mean()) ** 2
+
+        print(f"Using Λ-ladder threshold: {tau}")
 
         # Find safe cells under the threshold
         safe_cells = [(r, c) for (r, c), p in prob_map.items() if p <= tau]
+        print(f"Filtered safe cells: {safe_cells}")
         if safe_cells:
             chosen_cell = min(safe_cells, key=lambda cell: prob_map[cell])
         elif prob_map:
@@ -57,5 +63,23 @@ class ConfidencePolicy:
                         return r, c
 
             raise RuntimeError("No valid moves remaining on the board.")
+
+        # Adjust probability map based on threshold
+        prob_map = {
+            coords: p * (1 - tau) if tau < 0.5 else p * tau
+            for coords, p in prob_map.items()
+        }
+
+        # Re-filter safe cells after adjustment
+        safe_cells = [(r, c) for (r, c), p in prob_map.items() if p <= tau]
+        print(f"Re-filtered safe cells: {safe_cells}")
+
+        # Select move based on adjusted probabilities
+        if tau < 0.5:
+            # Low confidence: prioritize exploration
+            chosen_cell = min(safe_cells, key=lambda cell: prob_map[cell]) if safe_cells else min(prob_map.keys(), key=lambda cell: prob_map[cell])
+        else:
+            # High confidence: prioritize safety
+            chosen_cell = max(safe_cells, key=lambda cell: prob_map[cell]) if safe_cells else max(prob_map.keys(), key=lambda cell: prob_map[cell])
 
         return chosen_cell

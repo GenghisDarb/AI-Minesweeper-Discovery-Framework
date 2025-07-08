@@ -7,6 +7,10 @@ class Board:
     def __init__(self, n_rows=None, n_cols=None, grid=None):
         if isinstance(grid, list):
             self.grid = [[Cell.from_token(token) for token in row] for row in grid]
+            for i, row in enumerate(self.grid):
+                for j, cell in enumerate(row):
+                    cell.row = i
+                    cell.col = j
             self.n_rows = len(grid)
             self.n_cols = len(grid[0]) if self.n_rows > 0 else 0
         elif n_rows is not None and n_cols is not None:
@@ -21,9 +25,21 @@ class Board:
             self.grid = []
         else:
             raise ValueError("Either grid or n_rows and n_cols must be provided.")
+        if self.n_rows < 0 or self.n_cols < 0:
+            raise ValueError("Board dimensions must be non-negative integers.")
+
+        for row in self.grid:
+            for cell in row:
+                if cell.row < 0 or cell.col < 0:
+                    raise ValueError("Cell coordinates must be non-negative.")
         self.custom_neighbors: dict[tuple[int, int], list[tuple[int, int]]] | None = (
             None  # Logical neighbor map
         )
+        self.last_safe_reveal: tuple[int, int] | None = None  # Track the last safe cell revealed
+
+        for row in self.grid:
+            for cell in row:
+                cell.neighbors = self.adjacent_cells(cell.row, cell.col)
 
     @staticmethod
     def from_grid(grid):
@@ -59,6 +75,7 @@ class Board:
         if cell.state != State.HIDDEN:
             return  # Skip already revealed or flagged cells
         cell.state = State.REVEALED
+        self.last_safe_reveal = (row, col)  # Update the last safe reveal position
         if flood and cell.adjacent_mines == 0:
             for neighbor in self.neighbors(row, col):
                 self.reveal(neighbor.row, neighbor.col, flood=True)
@@ -102,3 +119,51 @@ class Board:
                     cell.state = State.REVEALED
                     return cell.row, cell.col
         raise RuntimeError("No moves left to solve.")
+
+    def hidden_cells(self) -> list[tuple[int, int]]:
+        """Return a list of coordinates for all hidden cells."""
+        hidden = [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.HIDDEN]
+        print("DEBUG hidden cells:", len(hidden))  # Debug print statement
+        return hidden
+
+    @property
+    def mines_remaining(self) -> int:
+        """Return the number of mines remaining on the board."""
+        total_mines = sum(cell.is_mine for row in self.grid for cell in row)
+        flagged_mines = sum(cell.state == State.FLAGGED for row in self.grid for cell in row)
+        return total_mines - flagged_mines
+
+    def adjacent_cells(self, row: int, col: int) -> list[tuple[int, int]]:
+        """Return a list of coordinates for all adjacent cells."""
+        neighbors = []
+        for dr in [-1, 0, 1]:
+            for dc in [-1, 0, 1]:
+                if dr == 0 and dc == 0:
+                    continue
+                r, c = row + dr, col + dc
+                if 0 <= r < self.n_rows and 0 <= c < self.n_cols:
+                    neighbors.append((r, c))
+        return neighbors
+
+    def is_flagged(self, cell: tuple[int, int]) -> bool:
+        """Check if a cell is flagged."""
+        r, c = cell
+        return self.grid[r][c].state == State.FLAGGED
+
+    def is_hidden(self, cell: tuple[int, int]) -> bool:
+        """Check if a cell is hidden."""
+        r, c = cell
+        return self.grid[r][c].state == State.HIDDEN
+
+    def revealed_cells(self):
+        """Return all revealed cells."""
+        return [cell for row in self.grid for cell in row if cell.state == State.REVEALED]
+
+    def print_board(self):
+        """Print the board for debugging purposes."""
+        for row in self.grid:
+            print("".join(str(cell) for cell in row))
+
+    def clue(self, cell) -> int:
+        """Return the clue value for a given cell."""
+        return cell.clue

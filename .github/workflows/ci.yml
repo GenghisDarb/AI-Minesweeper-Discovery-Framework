@@ -50,6 +50,18 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           # Ensure CODECOV_TOKEN is added to repository secrets under Settings > Secrets and variables > Actions.
+      - name: Run tests
+        run: |
+          pytest --cov=ai_minesweeper --cov-report=xml
+
+      - name: Fail if coverage <85
+        run: |
+          python - <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          cov = float(ET.parse('coverage.xml').getroot().attrib['line-rate'])*100
+          print(f"coverage={cov:.1f}%")
+          sys.exit(0 if cov >= 85 else 1)
+          PY
 
   streamlit-smoke-test:
     runs-on: ubuntu-latest
@@ -111,5 +123,9 @@ jobs:
           python-version: '3.11'
       - name: Install Pandoc
         run: sudo apt-get install -y pandoc
+      - name: Install pdflatex
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
       - name: Build white-paper
         run: python scripts/build_whitepage.py

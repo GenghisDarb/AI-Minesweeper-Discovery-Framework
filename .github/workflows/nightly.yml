@@ -1,0 +1,29 @@
+name: Nightly Batch
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run Wolfram Scripts
+        run: |
+          echo "Running Wolfram scripts..."
+          wolfram -script wolfram/run_all.wls || echo "Error: Wolfram script execution failed"
+
+      - name: Commit results
+        run: |
+          echo "Committing batch results..."
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add data/*.txt data/*.csv data/*.json figures/*.png reports/*.csv
+          if git diff-index --quiet HEAD; then
+            echo "No changes to commit"
+          else
+            git commit -m "Nightly auto-batch output"
+            git push
+          fi

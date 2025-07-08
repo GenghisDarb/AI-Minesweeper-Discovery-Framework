@@ -12,6 +12,7 @@ class BetaConfidence:
         """
         self.alpha = alpha
         self.beta = beta
+        self.threshold = None  # Initialize threshold attribute
 
     def update(self, prediction: float, outcome: bool):
         """Update alpha and beta based on the prediction and outcome."""
@@ -26,3 +27,11 @@ class BetaConfidence:
         :return: Confidence level (alpha / (alpha + beta)).
         """
         return self.alpha / (self.alpha + self.beta)
+
+    def set_threshold(self, threshold: float):
+        """Set a confidence threshold for decision-making."""
+        self.threshold = threshold
+
+    def get_threshold(self) -> float:
+        """Retrieve the current confidence threshold."""
+        return self.threshold

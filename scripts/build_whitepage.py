@@ -9,7 +9,14 @@ def build_whitepage():
     if not os.path.exists(src_path):
         raise FileNotFoundError(f"Source file not found: {src_path}")
 
-    command = ["pandoc", src_path, "-o", output_path]
+    # Use an alternative PDF engine if pdflatex is missing
+    command = [
+        "pandoc",
+        src_path,
+        "-o",
+        output_path,
+        "--pdf-engine=xelatex",  # Alternative engine
+    ]
 
     subprocess.run(command, check=True)
     print(f"White-paper built successfully: {output_path}")

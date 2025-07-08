@@ -24,6 +24,10 @@ class Cell:
     z: int | None = None  # Atomic number
     n: int | None = None  # Neutron number
     confidence: float = 0.0  # Solver's confidence level for this cell
+    neighbors: list["Cell"] = None  # List of neighboring cells
+    symbol: str = ""  # Chemical symbol for periodic table cells
+    group: int | None = None  # Group number for periodic table cells
+    period: int | None = None  # Period number for periodic table cells
 
     def __repr__(self) -> str:
         """
