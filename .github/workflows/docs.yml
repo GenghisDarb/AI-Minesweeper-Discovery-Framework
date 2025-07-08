@@ -28,6 +28,13 @@ jobs:
         with:
           path: site
 
+      - name: verify CODECOV_TOKEN
+        if: env.CODECOV_TOKEN == ''
+        run: |
+          echo "::error::CODECOV_TOKEN secret is missing. Add it under Settings → Secrets → Actions." && exit 1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   deploy:
     needs: build
     runs-on: ubuntu-latest

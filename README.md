@@ -114,3 +114,13 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ![Prime S stat](https://img.shields.io/badge/S=$(tail -n1 reports/prime_residue_S.csv)-critical)
 
 > Nightly badges auto-update via Wolfram pipeline.
+
+## Installation
+
+1. Clone the repository.
+2. Install dependencies: `pip install -r requirements.txt`.
+3. Run the Streamlit app: `streamlit run streamlit_app.py`.
+
+> **CI secret required**  
+> Add `CODECOV_TOKEN` under **Settings → Secrets → Actions** to enable  
+> coverage reporting. See `docs/ci_setup.md` for full instructions.

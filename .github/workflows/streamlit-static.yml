@@ -25,8 +25,13 @@ jobs:
         run: |
           pip install ".[dev]" streamlit-export
 
-ruff check .
-pytest -q
+      - name: Verify CODECOV_TOKEN
+        if: env.CODECOV_TOKEN == ''
+        run: |
+          echo "::error::CODECOV_TOKEN secret is missing. Add it under Settings → Secrets → Actions." && exit 1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Export Streamlit app
         run: streamlit-export streamlit_app.py --output build
 

@@ -5,6 +5,10 @@ on:
     - cron:  '0 0 * * *'     # midnight UTC
   workflow_dispatch:
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,3 +29,9 @@ jobs:
         run: |
           pip install mkdocs mkdocs-material
           mkdocs gh-deploy --force
+      - name: verify CODECOV_TOKEN
+        if: env.CODECOV_TOKEN == ''
+        run: |
+          echo "::error::CODECOV_TOKEN secret is missing. Add it under Settings → Secrets → Actions." && exit 1
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
