@@ -3,6 +3,9 @@
 ## Overview
 The Meta-Cell Confidence Module introduces a feedback loop to dynamically adjust the solver's risk tolerance based on its prediction accuracy. Inspired by TORUS Theory's controller dimension, this module ensures the solver maintains a balanced strategy between exploration and exploitation.
 
+## Rationale
+The Meta-Cell Confidence Module dynamically adjusts risk tolerance based on solver accuracy. Using a Beta distribution, it tracks success rates and tunes the solver's behavior.
+
 ## BetaConfidence Class
 Tracks solver confidence using a Beta distribution. Updates confidence based on prediction accuracy using the Brier score.
 
@@ -17,3 +20,15 @@ Confidence oscillates over time, reflecting the solver's self-correcting mechani
 
 ## Usage
 To enable the confidence module, wrap the base solver with ConfidencePolicy and use BetaConfidence for tracking.
+
+Wrap your solver with `ConfidencePolicy`:
+```python
+from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
+from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
+
+confidence = BetaConfidence()
+policy = ConfidencePolicy(base_solver=RiskAssessor, confidence=confidence)
+move = policy.choose_move(board)
+```
+
+See the `confidence_oscillation_demo.ipynb` notebook for a practical demonstration.

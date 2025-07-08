@@ -23,9 +23,24 @@ class Cell:
     clue: int | None = None  # Numeric clue shown to user
     z: int | None = None  # Atomic number
     n: int | None = None  # Neutron number
+    confidence: float = 0.0  # Solver's confidence level for this cell
+
+    def __repr__(self) -> str:
+        """
+        Returns a string representation of the Cell object.
+
+        :return: A string describing the cell's state, mine status, position, clue, and confidence.
+        """
+        return f"Cell(state={self.state}, is_mine={self.is_mine}, row={self.row}, col={self.col}, clue={self.clue}, confidence={self.confidence:.2f})"
 
     @staticmethod
     def from_token(token: Union[str, "Cell"]) -> "Cell":
+        """
+        Creates a Cell object from a token.
+
+        :param token: A string or Cell object representing the cell's state.
+        :return: A Cell object initialized based on the token.
+        """
         if isinstance(token, Cell):
             return token
         token = str(token).strip().upper()
@@ -35,7 +50,6 @@ class Cell:
             return Cell(is_mine=True)
         elif token.isdigit() and int(token) > 100:
             return Cell(is_mine=True)
-        return Cell()
-
-    def __repr__(self):
-        return f"Cell(state={self.state}, is_mine={self.is_mine}, row={self.row}, col={self.col}, clue={self.clue})"
+        cell = Cell()
+        cell.confidence = 0.0  # Default confidence level
+        return cell

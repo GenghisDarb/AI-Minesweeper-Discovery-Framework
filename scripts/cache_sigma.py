@@ -1,6 +1,7 @@
 import json
 import os
 
+
 def cache_sigma(sigma_value):
     cache_path = "reports/evidence_state.json"
     if os.path.exists(cache_path):
@@ -13,6 +14,7 @@ def cache_sigma(sigma_value):
     with open(cache_path, "w") as f:
         json.dump({"sigma": sigma_value}, f)
     print("Sigma value updated.")
+
 
 if __name__ == "__main__":
     # Example usage

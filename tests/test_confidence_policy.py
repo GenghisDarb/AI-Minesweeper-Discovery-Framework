@@ -30,3 +30,29 @@ def test_policy_choose_move():
     move = policy.choose_move(board)
     assert move is not None
     assert board.grid[move[0]][move[1]].state == State.HIDDEN
+
+
+def test_confidence_threshold_mapping():
+    """
+    Test that the confidence threshold mapping in the Meta-Cell module
+    changes solver behavior as confidence values drift.
+    """
+    board = Board(
+        grid=[
+            [Cell(state=State.HIDDEN), Cell(state=State.HIDDEN)],
+            [Cell(state=State.HIDDEN), Cell(is_mine=True)],
+        ]
+    )
+    confidence = BetaConfidence()
+    policy = ConfidencePolicy(RiskAssessor, confidence)
+
+    # Simulate confidence drift
+    confidence.set_threshold(0.1)
+    move_low_confidence = policy.choose_move(board)
+
+    confidence.set_threshold(0.9)
+    move_high_confidence = policy.choose_move(board)
+
+    assert move_low_confidence != move_high_confidence
+    assert board.grid[move_low_confidence[0]][move_low_confidence[1]].state == State.HIDDEN
+    assert board.grid[move_high_confidence[0]][move_high_confidence[1]].state == State.HIDDEN

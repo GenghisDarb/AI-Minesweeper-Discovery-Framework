@@ -2,6 +2,7 @@ from .click_engine import ClickEngine
 from .board import Board, State  # Import State to resolve NameError
 from .solver_logic import Flagger, CascadePropagator
 from .risk_assessor import RiskAssessor
+import logging
 
 
 class ConstraintSolver:
@@ -23,13 +24,14 @@ class ConstraintSolver:
                 for cell in row
                 if not cell.is_mine
             ):
-                print("All safe cells revealed. Discovery complete!")
+                logging.info("All safe cells revealed. Discovery complete!")
                 return
 
             r, c = RiskAssessor.pick_cell(board)
             if r is None or c is None:
-                print("No moves left to make.")
+                logging.info("No moves left to make.")
                 return
 
+            logging.debug(f"Revealing cell at ({r}, {c})")
             board.reveal(r, c, flood=True)
             moves += 1

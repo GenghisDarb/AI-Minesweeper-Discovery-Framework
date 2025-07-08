@@ -4,6 +4,8 @@
 - **χ-Cycle**: A recursive oscillatory pattern predicted by TORUS Theory (~14 moves).
 - **Controller Dimension**: A stabilizing layer in recursive systems, ensuring balanced cycles.
 - **ERC**: Empirical Recursive Calibration, a method for validating recursive predictions.
+- **TORUS-brot**: A TORUS-theory inspired fractal analogous to the Mandelbrot set, exhibiting 14-fold symmetry (χ-cycle) instead of period-doubling.
+- **Meta-Cell**: A meta-level "cell" or module in the solver that monitors and adjusts the solver’s confidence, inspired by TORUS’s controller dimension.
 
 ## FAQ
 ### What is the significance of 8-σ evidence?

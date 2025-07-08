@@ -10,6 +10,7 @@ import glob
 import pandas as pd
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.solver import ConstraintSolver
+from torus_brot.renderers.torus_brot_renderer import TorusBrotRenderer
 
 
 # --- Dummy RiskAssessor for demonstration ---
@@ -326,3 +327,42 @@ flagged_cells = sum(
 st.sidebar.write(
     f"Predicted-stable blanks flagged: {flagged_cells} / {len(st.session_state.board.cells)}"
 )
+
+# Handle the TORUS-brot domain selection
+if selected_domain == "TORUS-brot Fractal":
+    # Load default parameters for the fractal
+    fractal_params_path = "torus_brot/data/sample_params.json"
+    renderer = TorusBrotRenderer(fractal_params_path)
+
+    # Render the fractal image
+    fractal_image_path = renderer.render_to_image("torus_brot_output.png")
+
+    # Display the fractal image in the UI
+    st.image(fractal_image_path, caption="TORUS-brot Fractal", use_column_width=True)
+
+# Add Meta-Cell Confidence Module toggle
+use_meta = st.sidebar.checkbox("Enable Meta-Cell (Adaptive Confidence)", value=True)
+
+# Initialize solver based on toggle
+if use_meta:
+    from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
+    from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
+
+    solver = ConfidencePolicy(RiskAssessor, BetaConfidence())
+else:
+    solver = RiskAssessor()
+
+# Display solver confidence in sidebar
+if use_meta:
+    st.sidebar.write(f"Solver confidence: {solver.confidence.mean():.2f}")
+    st.sidebar.progress(solver.confidence.mean())
+
+# Update solver logic for moves
+if st.button("Solver Move"):
+    move = solver.choose_move(st.session_state.board)
+    if move:
+        r, c = move
+        outcome = reveal(st.session_state.board, r, c) != "mine"
+        solver.confidence.update(prediction=solver.last_prob, outcome=outcome)
+        st.session_state.moves += 1
+        st.experimental_rerun()

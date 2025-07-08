@@ -23,10 +23,19 @@ jobs:
         run: |
           sed -i "s/\[Evidence Sigma\].*\[Evidence Sigma\]/[Evidence Sigma](https://img.shields.io/badge/evidence-$sigma-blue)/" README.md
 
-      - name: Commit changes
+      - name: Check Sigma Value
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add README.md
-          git commit -m "Update sigma badge to $sigma"
+          python scripts/cache_sigma.py
+          if [ $? -eq 0 ]; then
+            echo "Sigma unchanged. Skipping commit."
+            exit 0
+          fi
+
+      - name: Commit and Push
+        if: ${{ steps.check.outputs.changed == 'true' }}
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add .
+          git commit -m "Update sigma badge"
           git push
