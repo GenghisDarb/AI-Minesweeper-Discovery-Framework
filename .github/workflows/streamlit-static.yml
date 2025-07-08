@@ -23,7 +23,7 @@ jobs:
 
       - name: Install deps
         run: |
-          pip install ".[dev]" streamlit-export
+          pip install "[dev]" streamlit-export
 
       - name: Verify CODECOV_TOKEN
         if: env.CODECOV_TOKEN == ''

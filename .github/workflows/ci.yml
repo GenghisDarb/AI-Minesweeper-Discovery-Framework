@@ -48,7 +48,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: 716ceacd-e64c-43e7-813f-a3653ce07b67
           # Ensure CODECOV_TOKEN is added to repository secrets under Settings > Secrets and variables > Actions.
 
   streamlit-smoke-test:

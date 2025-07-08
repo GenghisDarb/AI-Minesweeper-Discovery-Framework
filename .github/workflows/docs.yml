@@ -1,8 +1,7 @@
 name: Docs
 
 on:
-  us  pull_request:
-    branches: [main]h:
+  pull_request:
     branches: [main]
 
 permissions:
