@@ -1,16 +1,11 @@
 # Why TORUS Matters
 
-TORUS Theory provides the mathematical foundation for the Minesweeper Discovery Framework. Key principles include:
+The χ-cycle and controller dimension principles are central to the Minesweeper Discovery Framework (MDF). These concepts enable hypothesis discovery by transforming complex domains into Minesweeper-style puzzles.
 
-## χ-Cycle
-A recursive pattern observed in complex systems, validated with 8-σ evidence.
+## χ-cycle
+The χ-cycle represents recursive patterns in data, such as prime residue distributions or noise patterns in gravitational wave detectors.
 
 ## Controller Dimension
-Stabilizes recursive cycles, enabling breakthroughs in dynamic systems.
+Controller dimension theory explains dynamic stabilization in systems, such as bicycle ghost-rider simulations.
 
-## Applications
-- **Gravitational Waves**: Noise pattern analysis.
-- **Prime Spirals**: Residue pattern predictions.
-- **Periodic Table**: Discovery of super-heavy elements.
-
-For more details, refer to the TORUS Theory white-paper.
+For more details, refer to the TORUS Theory paper.

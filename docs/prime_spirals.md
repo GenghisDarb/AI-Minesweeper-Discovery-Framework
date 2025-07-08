@@ -1,3 +1,9 @@
 # Prime Spirals Validation
 
-This document will detail the validation of recursive prime residue patterns matching χ-cycle predictions. Placeholder content for now.
+Prime residue distributions exhibit recursive χ-cycle patterns, matching theoretical predictions.
+
+## Key Findings
+- Mod-14 prime spirals demonstrate χ-cycle recursion.
+- Validation performed using computational simulations.
+
+For detailed results, refer to the validation report.

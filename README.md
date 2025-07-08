@@ -21,12 +21,6 @@ The χ-cycle and controller dimension principles underpin MDF's hypothesis disco
 - **Prime Spirals**: Recursive prime residue patterns match χ-cycle predictions. [Full validation](docs/prime_spirals.md).
 - **Bicycle Ghost-Rider**: Dynamic stabilization mirrors controller dimension. [Full validation](docs/bicycle_validation.md).
 
-## Project Structure
-
-- **Minesweeper Framework**: Demonstrates χ-spiral recursion in hypothesis discovery.
-- **Confidence Module**: Tracks solver calibration and adjusts risk dynamically.
-- **Bicycle Simulation**: Validates controller dimension in dynamic systems.
-
 ## Glossary & FAQ
 
 See [Glossary](docs/glossary.md) for quick definitions of χ-cycle, controller dimension, ERC, and more.
@@ -59,7 +53,7 @@ streamlit run [streamlit_app.py](http://_vscodecontentref_/1)
 
 [![Streamlit Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-green?logo=streamlit)](https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/<org>/AI-Minesweeper-Discovery-Framework/HEAD?filepath=notebooks/confidence_oscillation_demo.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GenghisDarb/AI-Minesweeper-Discovery-Framework/HEAD?filepath=notebooks/confidence_oscillation_demo.ipynb)
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GenghisDarb/AI-Minesweeper-Discovery-Framework/HEAD?filepath=notebooks/prime_spiral_validation.ipynb)
 
