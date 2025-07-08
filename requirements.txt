@@ -1,5 +1,7 @@
 streamlit>=1.35
 mkdocs
 mkdocs-material
+mkdocs-autorefs==1.3.1
+mkdocstrings==0.24.0
 matplotlib
 numpy

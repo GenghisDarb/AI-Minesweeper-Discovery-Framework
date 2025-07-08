@@ -25,8 +25,19 @@ jobs:
           pip install -e .[dev]
       - name: Lint with ruff
         run: ruff check src tests
+      - name: Install coverage tools
+        run: pip install coverage pytest-cov
       - name: Run tests with coverage
-        run: pytest --cov=src
+        run: |
+          coverage run -m pytest
+          coverage xml
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}  # Not needed for public repos
+          files: coverage.xml
+          flags: unittests
+          name: codecov-ai-minesweeper
       - name: Enforce coverage thresholds
         run: pytest --cov=src --cov-fail-under=90 --cov-report=term-missing
       - name: Run new unit tests

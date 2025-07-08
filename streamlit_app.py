@@ -266,8 +266,20 @@ if llm_choice:
 class DomainLoader:
     @staticmethod
     def load(domain_name, uploaded_file):
-        # Placeholder logic for loading domain
-        return [["hidden"] * 5 for _ in range(5)], {"meta": "example"}
+        if domain_name == "TORUS demo":
+            # Example logic for loading TORUS demo
+            return [["hidden"] * 10 for _ in range(10)], {"meta": "TORUS demo metadata"}
+        elif domain_name == "Cymatics demo":
+            # Example logic for loading Cymatics demo
+            return [["hidden"] * 8 for _ in range(8)], {"meta": "Cymatics demo metadata"}
+        elif domain_name == "Prime-spiral demo":
+            # Example logic for loading Prime-spiral demo
+            return [["hidden"] * 12 for _ in range(12)], {"meta": "Prime-spiral demo metadata"}
+        elif domain_name == "Periodic-table (isotope)":
+            # Example logic for loading Periodic-table demo
+            return [["hidden"] * 7 for _ in range(7)], {"meta": "Periodic-table metadata"}
+        else:
+            raise ValueError(f"Unknown domain: {domain_name}")
 
 
 # Add dataset menu entry for Periodic-table (isotope)

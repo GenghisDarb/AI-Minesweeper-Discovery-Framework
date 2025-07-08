@@ -23,4 +23,6 @@ def compute_ridge_score():
     """
     Compute ridge score as var(ρ_k) / mean(ρ_k) across mod 14 bins.
     """
-    return 3.5  # Placeholder value for testing
+    import numpy as np
+    rho_k = np.random.rand(14)  # Example data for testing
+    return np.var(rho_k) / np.mean(rho_k)

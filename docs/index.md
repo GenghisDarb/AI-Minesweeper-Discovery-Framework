@@ -50,6 +50,7 @@ This command runs a Minesweeper game on a 10x10 board with 15 mines, using a ran
 - [Discovering φ-Phase Reset](tutorials/discovering_phi_phase_reset.md)
 - [Prime Residue Recursion](tutorials/prime_residue_recursion.md)
 - [Periodic Table Demo](tutorials/element_discovery.md)
+- [Fractal Demo](torus_brot_demo.md): Explore the χ-recursive observer-state projection and its implications in Minesweeper theory.
 
 ## White-paper
 

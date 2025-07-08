@@ -1,5 +1,9 @@
 # Minesweeper Discovery Framework (MDF)
 
+![Build Status](https://github.com/genghisdarb/AI-Minesweeper-Discovery-Framework/actions/workflows/ci.yml/badge.svg)
+![Docs](https://img.shields.io/badge/docs-online-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 The Minesweeper Discovery Framework transforms complex domains into Minesweeper-style puzzles to uncover hidden patterns and anomalies. By leveraging advanced theories like the χ-cycle and controller dimension, MDF enables hypothesis discovery in fields ranging from nuclear physics to prime number distributions.
 
 ## Key Features
@@ -11,6 +15,9 @@ The Minesweeper Discovery Framework transforms complex domains into Minesweeper-
 1. Clone the repository.
 2. Install dependencies: `pip install -r requirements.txt`.
 3. Run the Streamlit app: `streamlit run streamlit_app.py`.
+
+## LLM Configuration
+MDF supports optional integration with LLMs for advanced reasoning. To enable, configure `llm.yaml` in the `config/` directory with your LLM API credentials. If no LLM is configured, MDF will gracefully fall back to deterministic logic.
 
 ## TORUS Theory
 The χ-cycle and controller dimension principles underpin MDF's hypothesis discovery engine. See [Why TORUS Matters](docs/why_torus_matters.md) for an in-depth explanation.
@@ -39,7 +46,7 @@ Explore the full theory, simulations, and empirical tests in [Roadmap Overview](
 
 ## White-paper
 
-See [Framework Overview (PDF)](docs/whitepaper.pdf) for the full technical overview.
+The full white-paper is available in [PDF format](docs/whitepaper.pdf).
 
 ## Web Demo
 

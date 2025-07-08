@@ -10,7 +10,7 @@ where = ["src"]
 
 [project]
 name = "ai-minesweeper"
-version = "0.1.0"
+version = "1.0.0"
 description = "AI Minesweeper Discovery Framework"
 authors = [
     { name = "Your Name", email = "your@email.com" }
@@ -24,12 +24,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "pytest-cov>=4.1.0",
-    "ruff",
-    "streamlit>=1.35.0",
+    "pytest>=7.0",
+    "black>=23.0",
+    "ruff>=0.0.285",
+    "mypy>=1.0",
 ]
-# Placeholder comment for optional dev dependencies
+
 [project.scripts]
 minesweeper = "ai_minesweeper.cli:app"
 

@@ -1,6 +1,5 @@
 import sys
 import os
-import random
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from ai_minesweeper.board import Board
@@ -61,7 +60,7 @@ def test_confidence_threshold_mapping():
         # candidate set = cells with adjusted p ≤ τ (fallback to all)
         # Prioritize cells with probabilities closest to the threshold
         safe = [c for c, p in prob.items() if abs(p - tau) <= tau] or list(prob)
-        return min(safe, key=lambda c: (abs(prob[c] - tau), c))
+        result = min(safe, key=lambda c: (abs(prob[c] - tau), c))
 
         # Debugging output
         print(f"Original probabilities: {prob}")
