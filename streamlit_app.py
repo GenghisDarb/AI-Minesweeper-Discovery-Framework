@@ -1,5 +1,5 @@
 """
-Minimal Streamlit UI for the AI-Minesweeper solver.
+Minimal Streamlit UI for the AI-Hypothesis Discovery solver.
 Run with:  streamlit run streamlit_app.py
 """
 

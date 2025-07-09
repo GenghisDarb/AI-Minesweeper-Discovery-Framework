@@ -1,26 +1,26 @@
-# AI Minesweeper Discovery Framework
+# AI Hypothesis Discovery Framework
 
-The AI Minesweeper Discovery Framework is a comprehensive toolkit designed to facilitate the development and testing of AI algorithms for the classic Minesweeper game. It provides a robust environment for researchers and enthusiasts to explore various AI techniques and strategies, enabling them to understand and improve the performance of their algorithms in a controlled setting.
+The AI Hypothesis Discovery Framework is a comprehensive toolkit designed to facilitate the development and testing of AI algorithms for systematic hypothesis exploration. It provides a robust environment for researchers and enthusiasts to explore various AI techniques and strategies, enabling them to understand and improve the performance of their algorithms in a controlled setting.
 
-With a focus on ease of use and extensibility, the framework offers a range of features including customizable game boards, AI agent integration, and performance analysis tools. Whether you're a seasoned AI researcher or a newcomer to the field, this framework provides the resources you need to delve into the world of AI-driven Minesweeper.
+With a focus on ease of use and extensibility, the framework offers a range of features including customizable hypothesis grids, AI agent integration, and performance analysis tools. Whether you're a seasoned AI researcher or a newcomer to the field, this framework provides the resources you need to delve into the world of AI-driven hypothesis discovery.
 
 ## Installation
 
 To install the framework, use the following command:
 
 ```bash
-pip install ai-minesweeper-framework
+pip install ai-hypothesis-discovery-framework
 ```
 
 ## Quick CLI Example
 
-Here's a quick example of how to run a Minesweeper game with an AI agent using the CLI:
+Here's a quick example of how to run a hypothesis discovery session with an AI agent using the CLI:
 
 ```bash
-ai-minesweeper --agent=random --board-size=10 --mines=15
+ai-hypothesis-discovery --agent=random --grid-size=10 --false-hypotheses=15
 ```
 
-This command runs a Minesweeper game on a 10x10 board with 15 mines, using a random AI agent.
+This command runs a hypothesis discovery session on a 10x10 grid with 15 false hypotheses, using a random AI agent.
 
 ## Hero Panel
 
@@ -42,7 +42,7 @@ This command runs a Minesweeper game on a 10x10 board with 15 mines, using a ran
 
 <details>
 <summary>v0.3</summary>
-- Initial release with Minesweeper AI.
+- Initial release with Hypothesis Discovery AI.
 </details>
 
 ## Tutorials
@@ -50,8 +50,8 @@ This command runs a Minesweeper game on a 10x10 board with 15 mines, using a ran
 - [Discovering φ-Phase Reset](tutorials/discovering_phi_phase_reset.md)
 - [Prime Residue Recursion](tutorials/prime_residue_recursion.md)
 - [Periodic Table Demo](tutorials/element_discovery.md)
-- [Fractal Demo](torus_brot_demo.md): Explore the χ-recursive observer-state projection and its implications in Minesweeper theory.
+- [Fractal Demo](torus_brot_demo.md): Explore the χ-recursive observer-state projection and its implications in Hypothesis Discovery theory.
 
 ## White-paper
 
-- [What is AI-Minesweeper?](whitepage.pdf)
+- [What is AI-Hypothesis Discovery?](whitepage.pdf)

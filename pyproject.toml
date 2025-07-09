@@ -9,9 +9,9 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [project]
-name = "ai-minesweeper"
+name = "ai-hypothesis-discovery"
 version = "1.0.0"
-description = "AI Minesweeper Discovery Framework"
+description = "AI Hypothesis Discovery Framework"
 authors = [
     { name = "Your Name", email = "your@email.com" }
 ]
@@ -31,7 +31,7 @@ dev = [
 ]
 
 [project.scripts]
-minesweeper = "ai_minesweeper.cli:app"
+hypothesis_discovery = "ai_hypothesis_discovery.cli:app"
 
 [tool.ruff]
 exclude = ["notebooks"]
