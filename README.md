@@ -15,6 +15,13 @@ The Minesweeper Discovery Framework transforms complex domains into Minesweeper-
 1. Clone the repository.
 2. Install dependencies: `pip install -r requirements.txt`.
 3. Run the Streamlit app: `streamlit run streamlit_app.py`.
+4. Note: This framework can operate in LLM-assisted or LLM-free modes. LLMs are optional and used only for unstructured hypothesis generation.
+
+## What This Is
+This framework is not a game. It uses Minesweeper-like reasoning structures to recursively resolve hypotheses in uncertain domains using logic, constraint propagation, and confidence-driven risk assessment.
+
+## LLM-Free Mode
+This tool can operate in fully symbolic, LLM-free mode using human-supplied or structured input data.
 
 ## LLM Configuration
 MDF supports optional integration with LLMs for advanced reasoning. To enable, configure `llm.yaml` in the `config/` directory with your LLM API credentials. If no LLM is configured, MDF will gracefully fall back to deterministic logic.

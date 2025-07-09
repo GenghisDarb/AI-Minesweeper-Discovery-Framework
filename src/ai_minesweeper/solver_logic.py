@@ -5,7 +5,7 @@ class Flagger:
     @staticmethod
     def mark_contradictions(board: Board) -> bool:
         """
-        Flag cells as mines based on logical deduction.
+        Flag cells as potentially false hypotheses based on logical deduction.
         """
         flagged = False
         for r in range(board.n_rows):
@@ -17,7 +17,7 @@ class Flagger:
                         for nbr in board.neighbors(r, c)
                         if nbr.state == State.HIDDEN
                     ]
-                    if len(hidden_neighbors) == cell.adjacent_mines:
+                    if len(hidden_neighbors) == cell.adjacent_mines:  # Adjusted to inferred risk
                         for nbr in hidden_neighbors:
                             board.flag(nbr.row, nbr.col)
                             flagged = True

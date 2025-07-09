@@ -33,25 +33,25 @@ class RiskAssessor:
 
 
 # --- Board helpers ---
-def new_board(rows, cols, mines):
+def new_board(rows, cols, false_hypotheses):  # Previously mines
     board = [["hidden" for _ in range(cols)] for _ in range(rows)]
-    mine_positions = set(random.sample(range(rows * cols), mines))
-    for idx in mine_positions:
+    false_hypothesis_positions = set(random.sample(range(rows * cols), false_hypotheses))
+    for idx in false_hypothesis_positions:
         r, c = divmod(idx, cols)
-        board[r][c] = "mine"
+        board[r][c] = "false_hypothesis"  # Previously "mine"
     return board
 
 
 def reveal(board, r, c):
-    if board[r][c] == "mine":
-        return "mine"
-    # Count adjacent mines
+    if board[r][c] == "false_hypothesis":  # Previously "mine"
+        return "false_hypothesis"
+    # Count adjacent false hypotheses
     rows, cols = len(board), len(board[0])
     count = 0
     for dr in [-1, 0, 1]:
         for dc in [-1, 0, 1]:
             nr, nc = r + dr, c + dc
-            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] == "mine":
+            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] == "false_hypothesis":  # Previously "mine"
                 count += 1
     return str(count) if count > 0 else "empty"
 
@@ -59,30 +59,30 @@ def reveal(board, r, c):
 # --- Session state ---
 BOARD_ROWS = 8
 BOARD_COLS = 8
-BOARD_MINES = 10
+BOARD_FALSE_HYPOTHESES = 10  # Previously BOARD_MINES
 
 if "board" not in st.session_state:
-    st.session_state.board = new_board(BOARD_ROWS, BOARD_COLS, BOARD_MINES)
+    st.session_state.board = new_board(BOARD_ROWS, BOARD_COLS, BOARD_FALSE_HYPOTHESES)
     st.session_state.revealed = [[False] * BOARD_COLS for _ in range(BOARD_ROWS)]
     st.session_state.moves = 0
-    st.session_state.game_over = False
-    st.session_state.win = False
+    st.session_state.discovery_halted = False  # Previously game_over
+    st.session_state.discovery_converged = False  # Previously win
 
 
 def reset_board():
-    st.session_state.board = new_board(BOARD_ROWS, BOARD_COLS, BOARD_MINES)
+    st.session_state.board = new_board(BOARD_ROWS, BOARD_COLS, BOARD_FALSE_HYPOTHESES)
     st.session_state.revealed = [[False] * BOARD_COLS for _ in range(BOARD_ROWS)]
     st.session_state.moves = 0
-    st.session_state.game_over = False
-    st.session_state.win = False
+    st.session_state.discovery_halted = False
+    st.session_state.discovery_converged = False
 
 
-def check_win():
-    # Win if all non-mine cells are revealed
+def check_discovery_converged():  # Previously check_win
+    # Converged if all non-false-hypothesis cells are resolved
     for r in range(BOARD_ROWS):
         for c in range(BOARD_COLS):
             if (
-                st.session_state.board[r][c] != "mine"
+                st.session_state.board[r][c] != "false_hypothesis"  # Previously "mine"
                 and not st.session_state.revealed[r][c]
             ):
                 return False
@@ -95,8 +95,8 @@ def _init_state(board):
     cols = len(board[0]) if rows > 0 else 0
     st.session_state.revealed = [[False] * cols for _ in range(rows)]
     st.session_state.moves = 0
-    st.session_state.game_over = False
-    st.session_state.win = False
+    st.session_state.discovery_halted = False
+    st.session_state.discovery_converged = False
 
 
 def load_board(source):
@@ -136,12 +136,12 @@ with st.sidebar:
     st.header("Stats")
     st.write(f"Moves: {st.session_state.moves}")
     st.write(
-        f"Mines: {sum(cell == 'mine' for row in st.session_state.board for cell in row)}"
+        f"False Hypotheses: {sum(cell == 'false_hypothesis' for row in st.session_state.board for cell in row)}"
     )
-    if st.session_state.game_over:
-        st.error("💥 Game Over!")
-    elif st.session_state.win:
-        st.success("🎉 You Win!")
+    if st.session_state.discovery_halted:  # Previously game_over
+        st.error("💥 Discovery Halted!")
+    elif st.session_state.discovery_converged:  # Previously win
+        st.success("🎉 Discovery Converged!")
 
 st.title("AI Minesweeper – Hypothesis Discovery Framework")
 st.sidebar.title("Settings")
@@ -219,18 +219,26 @@ for r in range(board.n_rows):
             col.button("", key=f"{r}-{c}")
         elif cell.state == State.REVEALED:
             if cell.is_mine:
-                col.markdown("💣")
+                col.markdown(f"🧠 Unresolved Hypotheses: {len(board.unresolved_cells())}")
             else:
                 col.markdown(
                     f"<span style='color:blue;'>{cell.adjacent_mines}</span>",
                     unsafe_allow_html=True,
                 )
         elif cell.state == State.FLAGGED:
-            col.markdown("🚩")
+            col.markdown(f"⚠️ Flagged as Possibly False: {len(board.flagged_cells())}")
 
 # Solver interaction
 if st.button("Solver Move"):
     ConstraintSolver.solve(board, max_moves=1)
+
+    # Check if discovery is complete
+    if check_discovery_converged():
+        st.session_state.discovery_converged = True
+        st.success(f"✔️ Discovery complete: {len(board.resolved_cells())} resolved, {len(board.flagged_cells())} flagged, {len(board.unresolved_cells())} unresolved.")
+    elif not board.has_safe_moves():
+        st.session_state.discovery_halted = True
+        st.warning("⚠️ Discovery Halted: Risk exceeded confidence threshold.")
 
 # Add LLM selection menu
 llm_choice = st.selectbox(

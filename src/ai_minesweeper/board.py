@@ -1,4 +1,6 @@
 from .cell import Cell, State  # re-export so tests can import State here
+import json
+from datetime import datetime
 
 __all__ = ["Board", "State"]  # optional but nice
 
@@ -40,6 +42,8 @@ class Board:
         for row in self.grid:
             for cell in row:
                 cell.neighbors = self.adjacent_cells(cell.row, cell.col)
+
+        self.log_file = "board_state_log.jsonl"
 
     @staticmethod
     def from_grid(grid):
@@ -167,3 +171,23 @@ class Board:
     def clue(self, cell) -> int:
         """Return the clue value for a given cell."""
         return cell.clue
+
+    def log_state(self, hypothesis_id, action, confidence):
+        """Log the current board state to a .jsonl file."""
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "hypothesis_id": hypothesis_id,
+            "action": action,  # e.g., 'flagged' or 'clicked'
+            "confidence": confidence,
+            "belief_state": [
+                {
+                    "row": cell.row,
+                    "col": cell.col,
+                    "state": cell.state.name,
+                    "flagged": cell.state == State.FLAGGED,
+                }
+                for row in self.grid for cell in row
+            ],
+        }
+        with open(self.log_file, "a") as log:
+            log.write(json.dumps(log_entry) + "\n")
