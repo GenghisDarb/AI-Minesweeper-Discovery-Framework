@@ -28,7 +28,11 @@ def render_grid(n=400):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=str, default="torus_brot.png", help="Output image filename")
+    parser.add_argument("--mode", type=str, choices=["discovery", "evaluation"], required=True, help="Mode of operation: discovery or evaluation")
     args = parser.parse_args()
+
+    # Log the selected mode
+    print(f"Running in {args.mode} mode")
 
     img = render_grid(n=400)
     plt.imshow(img, cmap="inferno", extent=[-2, 2, -2, 2])

@@ -173,7 +173,9 @@ class Board:
         return cell.clue
 
     def log_state(self, hypothesis_id, action, confidence):
-        """Log the current board state to a .jsonl file."""
+        """Log the current board state to a .jsonl file with session-scoped rotation."""
+        session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = f"observer_state_log_{session_id}.jsonl"
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "hypothesis_id": hypothesis_id,
@@ -189,5 +191,5 @@ class Board:
                 for row in self.grid for cell in row
             ],
         }
-        with open(self.log_file, "a") as log:
+        with open(log_file, "a") as log:
             log.write(json.dumps(log_entry) + "\n")

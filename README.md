@@ -138,3 +138,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 > **CI secret required**  
 > Add `CODECOV_TOKEN` under **Settings → Secrets → Actions** to enable  
 > coverage reporting. See `docs/ci_setup.md` for full instructions.
+
+## TORUS-Brot Demo
+
+![TORUS-Brot Fractal](docs/figures/torus_brot_hero_labeled.png)
+
+The TORUS-Brot fractal visualization demonstrates recursive χ-phase pattern generation derived from the TORUS-brot symbolic seed map. This fractal highlights the depth and beauty of the recursive discovery process at the heart of the framework.
