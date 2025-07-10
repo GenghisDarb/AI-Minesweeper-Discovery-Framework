@@ -144,3 +144,16 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ![TORUS-Brot Fractal](docs/figures/torus_brot_hero_labeled.png)
 
 The TORUS-Brot fractal visualization demonstrates recursive χ-phase pattern generation derived from the TORUS-brot symbolic seed map. This fractal highlights the depth and beauty of the recursive discovery process at the heart of the framework.
+
+## TORUS 14-Lane Recursion Mode
+
+The AI Minesweeper Discovery Framework now includes a 14-lane recursion engine based on TORUS Theory. This engine simulates parallel solving across 14 dimensions, tracking χ values and detecting resonance zones.
+
+### Features
+- **Deep Parallel Processing (DPP)**: 14 parallel lanes with cross-lane propagation.
+- **χ Tracking**: Computes χ values for each lane and aggregates them into χ₁₄.
+- **Resonance Detection**: Identifies stable regions and propagates knowledge across lanes.
+- **Divergence Handling**: Handles lane collapses and updates surviving lanes.
+
+### How to Use
+Run the Streamlit app and click "Run 14-Lane Recursion Engine" to see the results of the multi-lane simulation.

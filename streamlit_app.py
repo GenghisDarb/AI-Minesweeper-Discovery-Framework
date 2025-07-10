@@ -16,6 +16,7 @@ sys.path.append("src")  # Add src directory to Python path
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.solver import ConstraintSolver
 from torus_brot.renderers.torus_brot_renderer import render_grid
+from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14RecursionEngine
 
 
 # --- Dummy RiskAssessor for demonstration ---
@@ -462,3 +463,13 @@ if use_wolfram:
     st.sidebar.write("Wolfram Engine mode enabled.")
 else:
     st.sidebar.write("Using pre-generated files.")
+
+# Add a button to run the 14-lane recursion engine
+if st.button("Run 14-Lane Recursion Engine"):
+    engine = DPP14RecursionEngine(st.session_state.board, RiskAssessor)
+    results = engine.run()
+
+    st.write("### Recursion Results")
+    st.write(f"Final χ₁₄: {results['final_chi14']}")
+    st.write("Collapsed Lanes:", results["collapsed_lanes"])
+    st.write("Resonance Zones:", results["resonance_zones"])
