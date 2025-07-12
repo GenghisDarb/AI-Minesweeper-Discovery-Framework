@@ -32,3 +32,17 @@ move = policy.choose_move(board)
 ```
 
 See the `confidence_oscillation_demo.ipynb` notebook for a practical demonstration.
+
+# Meta-Cell Confidence Design
+
+## Overview
+The meta-cell confidence module tracks the accuracy of mine-probability predictions and adjusts the solver's risk threshold dynamically. This is inspired by the TORUS "controller dimension" concept, which harmonizes observer-state interactions.
+
+## Key Concepts
+- **Beta Confidence**: A Beta distribution is used to model prediction confidence.
+- **Confidence Policy**: Modulates exploration vs. exploitation based on confidence.
+- **χ-Cycle**: The confidence oscillation period aligns with the χ-cycle (~14 moves).
+
+## References
+- TORUS Theory and Bicycle Self-Stability §3, §4
+- Unified Glossary – entries "χ-cycle", "Controller Dimension".

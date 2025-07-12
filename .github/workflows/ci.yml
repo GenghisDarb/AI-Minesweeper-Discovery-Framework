@@ -129,3 +129,15 @@ jobs:
           sudo apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
       - name: Build white-paper
         run: python scripts/build_whitepage.py
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm install
+      - run: npm run build --if-present
+      - run: npm test -- --coverage
