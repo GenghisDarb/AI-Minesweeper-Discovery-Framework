@@ -37,7 +37,6 @@ jobs:
           files: ./coverage.xml
           flags: unittests
           name: minesweeper-ci
-          token: ${{ secrets.CODECOV_TOKEN }}  # Optional for public repos
       - name: Enforce coverage thresholds
         run: pytest --cov=src --cov-fail-under=90 --cov-report=term-missing
       - name: Run new unit tests
