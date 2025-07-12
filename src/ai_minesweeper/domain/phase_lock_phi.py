@@ -18,6 +18,7 @@ def detect_phi_reset(signal: np.ndarray, sampling_rate: int):
     Check for φ-phase reset near 2π/φ.
     """
     import numpy as np
+
     hilbert_transform = np.angle(np.fft.fft(signal))
     phase_diff = np.diff(hilbert_transform)
     return np.any(np.abs(phase_diff) > (2 * np.pi / sampling_rate))

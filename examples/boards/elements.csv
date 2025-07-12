@@ -102,3 +102,5 @@ atomic_number,symbol,group,period,is_discovered
 101,Md,15,7,False
 102,No,16,7,False
 103,Lr,17,7,False
+H,He,Li,Be,B,C,N,O,F,Ne
+Na,Mg,Al,Si,P,S,Cl,Ar,K,X

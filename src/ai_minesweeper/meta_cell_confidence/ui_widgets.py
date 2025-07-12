@@ -8,14 +8,16 @@ def display_confidence(conf: float, mode: str = "gui"):
     :param mode: Display mode ('gui' for Streamlit, 'cli' for terminal).
     """
     if mode == "gui":
+        st.markdown("### Solver Confidence")
         st.progress(conf)
-        st.write(f"Solver Confidence: {conf * 100:.1f}%")
+        st.write(f"Confidence Level: {conf * 100:.1f}%")
     elif mode == "cli":
         bar_length = 20
         green_length = int(conf * bar_length)
         red_length = bar_length - green_length
-        bar = f"\x1b[42m{'█' * green_length}\x1b[41m{'█' * red_length}\x1b[0m"
+        bar = f"\x1b[42m{'\u2588' * green_length}\x1b[41m{'\u2588' * red_length}\x1b[0m"
         print(f"Confidence: {conf * 100:.1f}% [{bar}]")
+
 
 class BarMeter:
     """
@@ -39,6 +41,8 @@ class BarMeter:
 
     def render_gui(self):
         """
-        Placeholder for GUI rendering.
+        Renders the confidence bar in the GUI.
         """
-        pass
+        st.markdown("### Solver Confidence")
+        st.progress(self.confidence)
+        st.write(f"Confidence Level: {self.confidence * 100:.1f}%")

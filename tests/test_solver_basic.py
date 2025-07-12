@@ -10,11 +10,27 @@ from ai_minesweeper.board_builder import BoardBuilder
 
 def test_solver_basic():
     # Adjust test setup to ensure realistic conditions
-    board = Board(n_rows=3, n_cols=3, grid=[
-            [Cell(state=State.HIDDEN, clue=0, neighbors=[]), Cell(is_mine=True, clue=0, neighbors=[]), Cell(state=State.HIDDEN, clue=0, neighbors=[])],
-            [Cell(state=State.HIDDEN, clue=1, neighbors=[]), Cell(is_mine=True, clue=0, neighbors=[]), Cell(state=State.HIDDEN, clue=1, neighbors=[])],
-            [Cell(state=State.HIDDEN, clue=0, neighbors=[]), Cell(state=State.HIDDEN, clue=0, neighbors=[]), Cell(state=State.HIDDEN, clue=0, neighbors=[])],
-        ])
+    board = Board(
+        n_rows=3,
+        n_cols=3,
+        grid=[
+            [
+                Cell(state=State.HIDDEN, clue=0, neighbors=[]),
+                Cell(is_mine=True, clue=0, neighbors=[]),
+                Cell(state=State.HIDDEN, clue=0, neighbors=[]),
+            ],
+            [
+                Cell(state=State.HIDDEN, clue=1, neighbors=[]),
+                Cell(is_mine=True, clue=0, neighbors=[]),
+                Cell(state=State.HIDDEN, clue=1, neighbors=[]),
+            ],
+            [
+                Cell(state=State.HIDDEN, clue=0, neighbors=[]),
+                Cell(state=State.HIDDEN, clue=0, neighbors=[]),
+                Cell(state=State.HIDDEN, clue=0, neighbors=[]),
+            ],
+        ],
+    )
 
     # Initialize neighbors
     for i, row in enumerate(board.grid):
@@ -33,17 +49,32 @@ def test_solver_basic():
 
     print("Initial board state:")
     for row in board.grid:
-        print([f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}" for cell in row])
+        print(
+            [
+                f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}"
+                for cell in row
+            ]
+        )
 
     SolverLogic.flag_mines(board)
     print("Board state after flagging mines:")
     for row in board.grid:
-        print([f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}" for cell in row])
+        print(
+            [
+                f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}"
+                for cell in row
+            ]
+        )
 
     SolverLogic.cascade_reveal(board)
     print("Board state after cascade reveal:")
     for row in board.grid:
-        print([f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}" for cell in row])
+        print(
+            [
+                f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}"
+                for cell in row
+            ]
+        )
 
     assert all(
         cell.state == State.REVEALED
@@ -60,7 +91,7 @@ def test_solver_propagation():
             "...",
             "...",
         ],
-        mines=[(0,1)]
+        mines=[(0, 1)],
     )
     solver = SolverLogic()
     board.reveal(0, 0)  # Corrected reveal method usage

@@ -13,7 +13,9 @@ def test_from_csv():
     assert isinstance(board, Board)
     assert len(board.grid) == 3, "Expected 3 rows in the board"
     assert len(board.grid[0]) == 3, "Expected 3 columns in the board"
-    assert sum(cell.is_mine for row in board.grid for cell in row) == 3, "Expected 3 mines in the board"
+    assert sum(cell.is_mine for row in board.grid for cell in row) == 3, (
+        "Expected 3 mines in the board"
+    )
 
 
 def test_from_relations():
@@ -35,7 +37,9 @@ def test_from_text():
 def test_from_pdf():
     # Mock PDF input
     pdf_bytes = b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\nstartxref\n0\n%%EOF"
-    with tempfile.NamedTemporaryFile(delete=False, mode="wb", suffix=".pdf") as temp_pdf:
+    with tempfile.NamedTemporaryFile(
+        delete=False, mode="wb", suffix=".pdf"
+    ) as temp_pdf:
         temp_pdf.write(pdf_bytes)
         temp_pdf.close()
         board = BoardBuilder.from_pdf(temp_pdf.name)

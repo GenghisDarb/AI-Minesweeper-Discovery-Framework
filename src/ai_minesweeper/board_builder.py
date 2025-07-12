@@ -1,5 +1,6 @@
 from pathlib import Path
 from .board import Board, Cell, State
+import pandas as pd
 
 
 class BoardBuilder:
@@ -7,52 +8,23 @@ class BoardBuilder:
 
     @staticmethod
     def from_csv(path: str | Path) -> Board:
-        import pandas as pd
-
-        df = pd.read_csv(path, header=None)  # Adjusted to handle CSVs without headers
+        df = pd.read_csv(path, header=0)  # Assume the first row is a header
         print(f"CSV DataFrame: {df}")  # Debugging output
         grid = []
 
         for _, row in df.iterrows():
             row_cells = []
             for token in row:
-                token_str = str(token).strip() if not pd.isna(token) else ""
-                # Refined mine detection logic
-                is_mine = token_str in {"1", "*", "mine"}  # Adjusted to match test cases
-                row_cells.append(Cell(state=State.HIDDEN, is_mine=is_mine, symbol=token_str))
-            grid.append(row_cells)
+                token_str = str(token).strip().upper() if not pd.isna(token) else ""
+                row_cells.append(Cell.from_token(token_str))
+            if row_cells:  # Only add non-empty rows
+                grid.append(row_cells)
 
-        # Adjust dimensions to match expected test cases
-        n_rows = len(grid)
-        n_cols = max(len(row) for row in grid)
-        board = Board(n_rows=n_rows, n_cols=n_cols)
-        board.grid = grid
-
-        # Ensure all rows have consistent column count
+        # Debug: Print the state of each cell after initialization
         for row in grid:
-            while len(row) < n_cols:
-                row.append(Cell(state=State.HIDDEN))
+            print(" ".join(cell.state.name for cell in row))
 
-        # Debugging output for board dimensions
-        print(f"Board dimensions: {n_rows} rows, {n_cols} columns")
-
-        # Compute adjacent mine counts
-        for r in range(board.n_rows):
-            for c in range(board.n_cols):
-                cell = board.grid[r][c]
-                if cell.is_mine:
-                    cell.adjacent_mines = -1
-                    continue
-                neighbors = board.neighbors(r, c)
-                cell.adjacent_mines = sum(neighbor.is_mine for neighbor in neighbors)
-
-        # Set row and column attributes for each cell
-        for r, row in enumerate(grid):
-            for c, cell in enumerate(row):
-                cell.row = r
-                cell.col = c
-
-        return board
+        return Board(grid)
 
     @staticmethod
     def from_relations(
@@ -148,7 +120,9 @@ class BoardBuilder:
                     cell.adjacent_mines = -1
                     continue
                 neighbors = board.neighbors(r, c)
-                cell.adjacent_mines = sum(1 for neighbor in neighbors if neighbor.is_mine)
+                cell.adjacent_mines = sum(
+                    1 for neighbor in neighbors if neighbor.is_mine
+                )
 
         return board
 
@@ -187,7 +161,9 @@ class BoardBuilder:
         return board
 
     @classmethod
-    def from_manual(cls, grid: list[list[str | int]], *, invalidate: bool = True) -> "Board":
+    def from_manual(
+        cls, grid: list[list[str | int]], *, invalidate: bool = True
+    ) -> "Board":
         """
         Build a Board directly from an in-memory grid.
 
@@ -228,7 +204,9 @@ class BoardBuilder:
         All cells are initialized as hidden and empty.
         """
         board = Board(n_rows=rows, n_cols=cols)
-        board.grid = [[Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)]
+        board.grid = [
+            [Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)
+        ]
         return board
 
     @staticmethod
@@ -250,3 +228,7 @@ class BoardBuilder:
                     cell.state = State.REVEALED
                     cell.adjacent_mines = value
                 # Hidden empty cells are already initialized by default
+                if pd.isna(value) or str(value).strip().upper() in {"", "X"}:
+                    cell.is_mine = True
+                else:
+                    cell.state = State.HIDDEN

@@ -1,8 +1,12 @@
 import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parent.parent / "src" / "ai_minesweeper"))
+from constants import chi
+
 import os
 import json
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from ai_minesweeper.ui_widgets import display_confidence
 
 
@@ -24,6 +28,7 @@ def test_sidebar_constants():
     assert chi.startswith("3.141"), "χ constant should be loaded correctly"
     assert params["τ"] > 0, "τ constant should be positive"
     assert S > 0, "S-stat should be positive"
+    assert 0.78 < chi < 0.80, "χ constant should be in the range (0.78, 0.80)"
 
 
 def test_tabs_functionality():

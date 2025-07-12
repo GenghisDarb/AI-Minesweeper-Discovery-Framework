@@ -3,7 +3,9 @@ class PeriodicTableDomain:
     def get_neighbors(cell, board):
         neighbors = []
         for other in board.cells:
-            if (other.group == cell.group or other.period == cell.period) and other != cell:
+            if (
+                other.group == cell.group or other.period == cell.period
+            ) and other != cell:
                 neighbors.append(other)
         # Ensure unique neighbors and correct count
         unique_neighbors = []
@@ -16,7 +18,16 @@ class PeriodicTableDomain:
     def is_mine(cell):
         print(f"Checking if cell is mine: symbol={cell.symbol}")  # Debugging output
         # Refined mine detection logic to include edge cases like 'eka'
-        mine_symbols = {"li", "be", "b", "f", "cl", "br", "i", "eka"}  # Expanded criteria
+        mine_symbols = {
+            "li",
+            "be",
+            "b",
+            "f",
+            "cl",
+            "br",
+            "i",
+            "eka",
+        }  # Expanded criteria
         return cell.symbol.lower() in mine_symbols
 
     @staticmethod

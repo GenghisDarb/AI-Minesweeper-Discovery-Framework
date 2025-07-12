@@ -3621,6 +3621,20 @@ function parse (pattern, isSub) {
     // this is a huge pita.  We now have to re-walk
     // the contents of the would-be class to re-translate
     // any characters that were passed through as-is
+    // an invalid re. if so, re-walk the contents of the
+    // would-be class to re-translate any characters that
+    // were passed through as-is
+    // TODO: It would probably be faster to determine this
+    // without a try/catch and a new RegExp, but it's tricky
+    // to do safely.  For now, this is safe and works.
+    console.time('regex-validation');
+    var cs = pattern.substring(classStart + 1, i)
+    try {
+      RegExp('[' + cs + ']')
+    } catch (er) {
+      // not a valid class!
+    }
+    console.timeEnd('regex-validation');
     cs = pattern.substr(classStart + 1)
     sp = this.parse(cs, SUBPARSE)
     re = re.substr(0, reClassStart) + '\\[' + sp[0]

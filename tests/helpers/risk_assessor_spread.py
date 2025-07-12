@@ -1,8 +1,10 @@
 from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.board import State
 
+
 class SpreadRiskAssessor(RiskAssessor):
     """Deterministic stub: spreads probability evenly across all hidden cells."""
+
     def __init__(self, tau_getter=None):
         """
         Initialize SpreadRiskAssessor with an optional tau getter.

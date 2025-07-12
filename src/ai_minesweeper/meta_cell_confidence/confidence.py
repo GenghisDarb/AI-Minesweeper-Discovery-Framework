@@ -1,35 +1,51 @@
 class BetaConfidence:
     """
-    Tracks confidence in mine-probability predictions using a Beta distribution.
+    Tracks confidence in false-hypothesis predictions using a Beta distribution.
 
     Attributes:
-        alpha (float): Success count parameter of the Beta distribution.
-        beta (float): Failure count parameter of the Beta distribution.
+        alpha (float): Success count parameter of the Beta distribution, representing correct predictions.
+        beta (float): Failure count parameter of the Beta distribution, representing incorrect predictions.
+        _tau (float): Risk threshold, representing the probability of encountering a false hypothesis.
     """
 
     def __init__(self, alpha: float = 1.0, beta: float = 1.0, tau: float = 0.10):
+        """
+        Initialize the BetaConfidence object with parameters for the Beta distribution.
+
+        Args:
+            alpha (float): Initial success count parameter of the Beta distribution.
+            beta (float): Initial failure count parameter of the Beta distribution.
+            tau (float): Initial risk threshold, representing the probability of encountering a false hypothesis.
+        """
         self.alpha = alpha
         self.beta = beta
-        self._tau = tau            # initial risk threshold
+        self._tau = tau  # initial risk threshold
 
     def get_threshold(self) -> float:
-        """Return current risk threshold τ = β / (α+β)."""
+        """
+        Return the current risk threshold τ, representing the probability of encountering a false hypothesis.
+        """
         return self._tau
 
     def set_threshold(self, tau: float) -> None:
-        """Force risk threshold into [0.01, 0.49]."""
+        """
+        Set the risk threshold τ, ensuring it remains within the range [0.01, 0.49].
+
+        Args:
+            tau (float): The desired risk threshold.
+        """
         self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
 
-    def update(self, prob_pred: float, revealed_is_mine: bool) -> None:
+    def update(self, prob_pred: float, revealed_is_false_hypothesis: bool) -> None:
         """
         Bayesian calibration:
-        • actual = 1 if mine, 0 otherwise
+        • actual = 1 if false hypothesis, 0 otherwise
         • Brier error = (pred-actual)^2
         • α accumulates correct predictions, β accumulates errors
         τ (risk threshold) tracks empirical failure rate.
         """
-        actual = 1.0 if revealed_is_mine else 0.0
-        if revealed_is_mine:
+        actual = 1.0 if revealed_is_false_hypothesis else 0.0
+        if revealed_is_false_hypothesis:
             self.alpha += 0.5
         else:
             self.beta += 0.5
@@ -42,19 +58,39 @@ class BetaConfidence:
         Returns the mean of the Beta distribution.
 
         Returns:
-            float: The mean confidence value.
+            float: The mean confidence value, representing the probability of a false hypothesis.
         """
         return self.alpha / (self.alpha + self.beta)
 
-    def choose_move(self, board):
+    def choose_move(self, board) -> tuple[int, int] | None:
         """
         Select the next cell to probe based on confidence and risk assessment.
         """
         prob_map = self.assessor.estimate(board)  # keys are Cell objects
         tau = self.confidence.get_threshold()
         safe = [cell for cell, p in prob_map.items() if p <= tau]
-        pick = min(
-            safe,
-            key=lambda cell: (prob_map[cell], cell.row, cell.col)
-        ) if safe else None
+        pick = (
+            min(safe, key=lambda cell: (prob_map[cell], cell.row, cell.col))
+            if safe
+            else None
+        )
+        if pick is None:  # Fallback logic
+            for r in range(board.n_rows):
+                for c in range(board.n_cols):
+                    if board[r, c].is_hidden() and not board[r, c].is_flagged():
+                        return (r, c)
         return pick
+
+    def choose_move(self, board) -> tuple[int, int] | None:
+        prob_map = self.estimate(board)
+
+        legal_moves = [
+            (r, c) for (r, c), prob in prob_map.items()
+            if board[r, c].is_hidden() and not board[r, c].is_flagged()
+        ]
+        if not legal_moves:
+            return None
+
+        # Pick the move with lowest risk
+        best = min(legal_moves, key=lambda pos: prob_map[pos])
+        return best

@@ -17,7 +17,9 @@ class Flagger:
                         for nbr in board.neighbors(r, c)
                         if nbr.state == State.HIDDEN
                     ]
-                    if len(hidden_neighbors) == cell.adjacent_mines:  # Adjusted to inferred risk
+                    if (
+                        len(hidden_neighbors) == cell.adjacent_mines
+                    ):  # Adjusted to inferred risk
                         for nbr in hidden_neighbors:
                             board.flag(nbr.row, nbr.col)
                             flagged = True
@@ -58,7 +60,9 @@ class SolverLogic:
         changed = False
         for cell in board.revealed_cells():
             clue = board.clue(cell)
-            adj = board.adjacent_cells(cell.row, cell.col)  # Pass row and col explicitly
+            adj = board.adjacent_cells(
+                cell.row, cell.col
+            )  # Pass row and col explicitly
             hidden = [c for c in adj if board.is_hidden(c)]
             flagged = [c for c in adj if board.is_flagged(c)]
 
@@ -118,3 +122,11 @@ class SolverLogic:
                         n for n in cell.neighbors() if n.state.is_hidden()
                     )  # Ensure only hidden neighbors are appended
         return changed
+
+    def cascade_reveal(self, r: int, c: int):
+        cell = self.board[r, c]
+        if cell.clue == 0:
+            for n in self.board.get_neighbors(r, c):
+                if n.is_hidden():
+                    self.board.reveal(n.r, n.c)
+                    self.cascade_reveal(n.r, n.c)

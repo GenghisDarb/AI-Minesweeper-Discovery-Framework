@@ -38,10 +38,7 @@ def test_confidence_threshold_mapping():
         # candidate set = cells with adjusted p ≤ τ (fallback to all)
         # Prioritize cells with probabilities closest to the threshold
         safe = [c for c, p in prob.items() if abs(p - tau) <= tau] or list(prob)
-        result = min(
-            safe,
-            key=lambda c: (abs(prob[c] - tau), c.row, c.col)
-        )
+        result = min(safe, key=lambda c: (abs(prob[c] - tau), c.row, c.col))
 
         return result
 
@@ -54,5 +51,11 @@ def test_confidence_threshold_mapping():
     move_high_confidence = _pick_with_tau(board, tau_high)
 
     assert move_low_confidence != move_high_confidence
-    assert board.grid[move_low_confidence.row][move_low_confidence.col].state == State.HIDDEN
-    assert board.grid[move_high_confidence.row][move_high_confidence.col].state == State.HIDDEN
+    assert (
+        board.grid[move_low_confidence.row][move_low_confidence.col].state
+        == State.HIDDEN
+    )
+    assert (
+        board.grid[move_high_confidence.row][move_high_confidence.col].state
+        == State.HIDDEN
+    )

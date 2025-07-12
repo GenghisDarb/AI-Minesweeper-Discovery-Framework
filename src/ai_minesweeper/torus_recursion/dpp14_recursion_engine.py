@@ -2,10 +2,11 @@ import concurrent.futures
 import random
 from typing import Dict, Any
 
+
 class DPP14RecursionEngine:
     """
     Implements a 14-lane Deep Parallel Processing (DPP) recursion engine
-    aligned with TORUS Theory for AI Minesweeper.
+    aligned with TORUS Theory for hypothesis discovery.
     """
 
     class RecursionLane:
@@ -17,8 +18,9 @@ class DPP14RecursionEngine:
             self.resonance_zones = []
             self.collapsed = False
 
-    def __init__(self, board: Any, solver_policy_class: Any):
+    def __init__(self, board: Any, solver_policy_class: Any, debug_mode: bool = False):
         self.lanes = []
+        self.debug_mode = debug_mode
         for lane_id in range(14):
             lane_board = self._copy_board(board)
             solver_policy = solver_policy_class()
@@ -27,51 +29,76 @@ class DPP14RecursionEngine:
     def _copy_board(self, board: Any) -> Any:
         """Creates a deep copy of the board for each lane."""
         import copy
+
         return copy.deepcopy(board)
 
     def run(self) -> Dict[str, Any]:
         """Executes the 14-lane recursion engine."""
-        with concurrent.futures.ThreadPoolExecutor(max_workers=14) as executor:
-            futures = [executor.submit(self._run_lane, lane) for lane in self.lanes]
-            concurrent.futures.wait(futures)
+        print("[DPP14] Starting engine...")
+        if self.debug_mode:
+            print("[DPP14] Debug mode ON – limiting recursion depth.")
+
+        for lane in self.lanes[: 2 if self.debug_mode else len(self.lanes)]:
+            self._run_lane(lane)
 
         # Aggregate results
-        chi_values = [lane.chi_value for lane in self.lanes if lane.chi_value is not None]
+        chi_values = [
+            lane.chi_value for lane in self.lanes if lane.chi_value is not None
+        ]
         final_chi14 = sum(chi_values) / len(chi_values) if chi_values else None
 
         return {
-            "chi_values": chi_values,
             "final_chi14": final_chi14,
-            "resonance_zones": [lane.resonance_zones for lane in self.lanes],
-            "collapsed_lanes": [lane.lane_id for lane in self.lanes if lane.collapsed],
+            "lane_results": [lane.resonance_zones for lane in self.lanes],
         }
 
-    def _run_lane(self, lane: RecursionLane):
+    def _run_lane(self, lane: RecursionLane) -> None:
         """Runs the solver for a single lane."""
-        try:
-            while not lane.collapsed:
-                cell = lane.solver_policy.choose_move(lane.board)
-                if cell is None:
-                    cell = min((c for c in lane.board.hidden_cells()),
-                               key=lambda c: lane.solver_policy.estimate(lane.board)[c])
+        max_steps = 1000
+        steps = 0
 
-                r, c = cell.row, cell.col
-                result = self._reveal_cell(lane, r, c)
+        while not lane.collapsed:
+            if steps > max_steps:
+                print(
+                    f"[DPP14] Lane {lane.lane_id} hit max steps ({max_steps}). Aborting."
+                )
+                break
 
-                if result == "false_hypothesis":
-                    lane.collapsed = True
-                else:
-                    self._update_chi(lane)
+            print(f"[DPP14] Lane {lane.lane_id}, Step {steps}")
+            move = lane.solver_policy.choose_move(lane.board)
+            if move is None:
+                print(
+                    f"[DPP14] Lane {lane.lane_id} – No valid moves returned. Terminating."
+                )
+                break
 
-        except Exception as e:
-            print(f"Error in lane {lane.lane_id}: {e}")
+            if not lane.board.has_unresolved_cells():
+                print(f"[DPP14] Lane {lane.lane_id} – Discovery converged.")
+                break
 
-    def _reveal_cell(self, lane: RecursionLane, r: int, c: int) -> str:
-        """Reveals a cell on the board and returns the result."""
-        # Simulate revealing a cell (placeholder logic)
-        return "empty"  # Replace with actual board logic
+            print(f"[DPP14] Lane {lane.lane_id}, Board State: {lane.board}")
+            print(f"[DPP14] Lane {lane.lane_id}, Move: {move}")
 
-    def _update_chi(self, lane: RecursionLane):
-        """Updates the χ value for the lane based on its current state."""
-        # Placeholder for χ computation logic
-        lane.chi_value = random.random()  # Replace with actual χ computation
+            result = self._test_hypothesis(lane.board, move)
+            print(
+                f"[DPP14] Step {steps} – Chose cell ({move.row},{move.col}), result={result}"
+            )
+            print(lane.board.visualize())
+
+            if result == "contradiction":
+                print(
+                    f"[DPP14] Lane {lane.lane_id} collapsed: Contradiction encountered."
+                )
+                lane.collapsed = True
+            else:
+                lane.resonance_zones.append(result)
+            steps += 1
+
+    def _test_hypothesis(self, board: Any, move: Any) -> str:
+        """Simulates testing a hypothesis."""
+        cell = board[move.row][move.col]
+        if cell.state == "mine":  # adjust for actual cell structure
+            return "contradiction"
+        else:
+            board.reveal(move.row, move.col)
+            return "valid"

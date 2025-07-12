@@ -37,13 +37,26 @@ class Board:
         self.custom_neighbors: dict[tuple[int, int], list[tuple[int, int]]] | None = (
             None  # Logical neighbor map
         )
-        self.last_safe_reveal: tuple[int, int] | None = None  # Track the last safe cell revealed
+        self.last_safe_reveal: tuple[int, int] | None = (
+            None  # Track the last safe cell revealed
+        )
 
         for row in self.grid:
             for cell in row:
                 cell.neighbors = self.adjacent_cells(cell.row, cell.col)
 
         self.log_file = "board_state_log.jsonl"
+        self.false_hypotheses_remaining: int = (
+            0  # Tracks the number of false hypotheses remaining on the board
+        )
+        self.mines_remaining: int = (
+            0  # Tracks the number of mines remaining on the board
+        )
+
+        # Debugging: Print the initialized grid state
+        print("[DEBUG] Board initialized with grid:")
+        for row in self.grid:
+            print(" ".join(cell.state.name for cell in row))
 
     @staticmethod
     def from_grid(grid):
@@ -126,16 +139,31 @@ class Board:
 
     def hidden_cells(self) -> list[Cell]:
         """Return a list of all hidden Cell objects."""
-        hidden = [cell for row in self.grid for cell in row if cell.state == State.HIDDEN]
-        print("DEBUG hidden cells:", len(hidden))  # Debug print statement
+        print("[DEBUG] Checking hidden cells...")
+        print(f"[DEBUG] State.HIDDEN id: {id(State.HIDDEN)}")
+        hidden = []
+        for row in self.grid:
+            for cell in row:
+                print(f"[DEBUG] Cell at ({cell.row}, {cell.col}): State={cell.state}, State id={id(cell.state)}, Match with HIDDEN={cell.state == State.HIDDEN}")
+                if cell.state == State.HIDDEN:
+                    hidden.append(cell)
+        print(f"[DEBUG] Total hidden cells found: {len(hidden)}")
         return hidden
 
     @property
     def mines_remaining(self) -> int:
         """Return the number of mines remaining on the board."""
         total_mines = sum(cell.is_mine for row in self.grid for cell in row)
-        flagged_mines = sum(cell.state == State.FLAGGED for row in self.grid for cell in row)
+        flagged_mines = sum(
+            cell.state == State.FLAGGED for row in self.grid for cell in row
+        )
         return total_mines - flagged_mines
+
+    @mines_remaining.setter
+    def mines_remaining(self, value: int) -> None:
+        if value < 0:
+            raise ValueError("Mines remaining cannot be negative.")
+        self._mines_remaining = value
 
     def adjacent_cells(self, row: int, col: int) -> list[tuple[int, int]]:
         """Return a list of coordinates for all adjacent cells."""
@@ -161,7 +189,9 @@ class Board:
 
     def revealed_cells(self):
         """Return all revealed cells."""
-        return [cell for row in self.grid for cell in row if cell.state == State.REVEALED]
+        return [
+            cell for row in self.grid for cell in row if cell.state == State.REVEALED
+        ]
 
     def print_board(self):
         """Print the board for debugging purposes."""
@@ -188,8 +218,35 @@ class Board:
                     "state": cell.state.name,
                     "flagged": cell.state == State.FLAGGED,
                 }
-                for row in self.grid for cell in row
+                for row in self.grid
+                for cell in row
             ],
         }
         with open(log_file, "a") as log:
             log.write(json.dumps(log_entry) + "\n")
+
+    def has_unresolved_cells(self) -> bool:
+        """
+        Check if there are any hidden cells remaining on the board.
+
+        Returns:
+            bool: True if there are hidden cells, False otherwise.
+        """
+        for row in self.grid:
+            for cell in row:
+                if cell.state == State.HIDDEN:
+                    return True
+        return False
+
+    def __getitem__(self, pos: tuple[int, int]) -> Cell:
+        """
+        Allow grid-style access to the board.
+
+        Args:
+            pos (tuple[int, int]): A tuple containing row and column indices.
+
+        Returns:
+            Cell: The cell at the specified position.
+        """
+        r, c = pos
+        return self.grid[r][c]

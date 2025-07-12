@@ -40,4 +40,8 @@ class ConfidencePolicy:
         print(f"Using Λ-ladder threshold: {tau}")
 
         safe_cells = [cell for cell, prob in prob_map.items() if prob <= tau]
-        return min(safe_cells, key=lambda cell: (prob_map[cell], cell.row, cell.col)) if safe_cells else None
+        return (
+            min(safe_cells, key=lambda cell: (prob_map[cell], cell.row, cell.col))
+            if safe_cells
+            else None
+        )

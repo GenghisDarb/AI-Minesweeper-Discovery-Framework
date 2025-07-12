@@ -12,8 +12,12 @@ class ConstraintAnnotator:
                 cell = board.grid[r][c]
                 if cell is None:
                     continue  # Skip unused cells
-                if cell.is_mine:
-                    cell.adjacent_mines = -1  # Convention: -1 for mines
+                if cell.is_false_hypothesis:
+                    cell.adjacent_false_hypotheses = (
+                        -1
+                    )  # Convention: -1 for false hypotheses
                 else:
                     neighbors = board.neighbors(r, c)
-                    cell.adjacent_mines = sum(1 for nbr in neighbors if nbr.is_mine)
+                    cell.adjacent_false_hypotheses = sum(
+                        1 for nbr in neighbors if nbr.is_false_hypothesis
+                    )

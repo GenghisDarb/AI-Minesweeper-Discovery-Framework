@@ -2,6 +2,7 @@ import concurrent.futures
 import random
 from typing import Dict, Any
 
+
 class DPP14RecursionEngine:
     """
     Implements a 14-lane Deep Parallel Processing (DPP) recursion engine
@@ -27,6 +28,7 @@ class DPP14RecursionEngine:
     def _copy_board(self, board: Any) -> Any:
         """Creates a deep copy of the board for each lane."""
         import copy
+
         return copy.deepcopy(board)
 
     def run(self) -> Dict[str, Any]:
@@ -36,8 +38,12 @@ class DPP14RecursionEngine:
             concurrent.futures.wait(futures)
 
         # Aggregate results
-        chi_values = [lane.chi_value for lane in self.lanes if lane.chi_value is not None]
-        final_chi14 = sum(chi_values) / len(chi_values) if chi_values else 0.0  # Default to 0.0 if no chi_values
+        chi_values = [
+            lane.chi_value for lane in self.lanes if lane.chi_value is not None
+        ]
+        final_chi14 = (
+            sum(chi_values) / len(chi_values) if chi_values else 0.0
+        )  # Default to 0.0 if no chi_values
 
         return {
             "chi_values": chi_values,
@@ -65,7 +71,9 @@ class DPP14RecursionEngine:
                     lane.collapsed = True
                 else:
                     self._update_chi(lane)
-                    print(f"Lane {lane.lane_id}: Updated chi_value to {lane.chi_value}.")
+                    print(
+                        f"Lane {lane.lane_id}: Updated chi_value to {lane.chi_value}."
+                    )
 
         except Exception as e:
             print(f"Error in lane {lane.lane_id}: {e}")

@@ -1,7 +1,7 @@
 # Meta-Cell Confidence Module
 
 ## Overview
-The Meta-Cell Confidence Module enhances the AI Minesweeper Discovery Framework by introducing a feedback mechanism that dynamically adjusts the solver's strategy based on its confidence. Inspired by TORUS Theory, this module acts as a controller that stabilizes the solver's decision-making process, ensuring a balance between cautious exploration and bold exploitation.
+The Meta-Cell Confidence Module enhances the AI Discovery Framework by introducing a feedback mechanism that dynamically adjusts the hypothesis solver's strategy based on its confidence. Inspired by TORUS Theory, this module acts as a controller that stabilizes the solver's decision-making process, ensuring a balance between cautious exploration and bold exploitation.
 
 ## Features
 - **Bayesian Confidence Tracking**: Tracks the solver's calibration using a Beta distribution.
@@ -31,15 +31,10 @@ confidence.set_threshold(0.1)  # Set a custom threshold
 ```
 
 ## Theory
-The module draws inspiration from TORUS Theory's controller dimension, which ensures stability in recursive systems. Similarly, the Meta-Cell Confidence Module uses a feedback loop to modulate the solver's risk-taking behavior, mimicking the periodic reset and self-correction observed in TORUS's χ-cycle.
+The module draws inspiration from TORUS Theory's controller dimension, which ensures stability in recursive systems. Similarly, the Meta-Cell Confidence Module uses a feedback loop to modulate the solver's risk-taking behavior, mimicking the periodic reset and self-correction observed in TORUS's \\chi-cycle.
 
 ## Results
-Empirical tests show that the confidence-aware solver achieves higher win rates and exhibits a characteristic oscillatory pattern in confidence levels, confirming the intended behavior.
+Empirical tests show that the confidence-aware solver achieves higher success rates and exhibits a characteristic oscillatory pattern in confidence levels, confirming the intended behavior.
 
 ## Future Work
-- **Visualization**: Add a confidence bar to the Minesweeper UI.
-- **Fail-Safe Mechanisms**: Integrate external help for scenarios with low confidence.
-
-## References
-- TORUS Theory: Controller Dimension and χ-Cycle
-- Bayesian Inference and Beta Distributions
+- **Visualization**: Add a confidence bar to the hypothesis solver UI.

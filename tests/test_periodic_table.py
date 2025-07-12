@@ -47,8 +47,12 @@ def test_neighbors_unique():
 
 
 def test_is_mine_edge_cases():
-    assert PeriodicTableDomain.is_mine(Cell(symbol="eka")) is True, "Eka should be detected as mine"
-    assert PeriodicTableDomain.is_mine(Cell(symbol="H")) is False, "Hydrogen should not be detected as mine"
+    assert PeriodicTableDomain.is_mine(Cell(symbol="eka")) is True, (
+        "Eka should be detected as mine"
+    )
+    assert PeriodicTableDomain.is_mine(Cell(symbol="H")) is False, (
+        "Hydrogen should not be detected as mine"
+    )
 
 
 def test_get_neighbors_empty_board():
@@ -60,16 +64,24 @@ def test_get_neighbors_empty_board():
 def test_get_neighbors_no_neighbors():
     board = Board(grid=[[Cell(group=1, period=1)]] * 3)
     neighbors = PeriodicTableDomain.get_neighbors(board.grid[0][0], board)
-    assert len(neighbors) == 0, "Neighbors should be empty if no matching group or period"
+    assert len(neighbors) == 0, (
+        "Neighbors should be empty if no matching group or period"
+    )
 
 
 def test_is_mine_mixed_case():
     cell = Cell(symbol="Li")
-    assert PeriodicTableDomain.is_mine(cell) is True, "Mixed-case symbol should be detected as mine"
+    assert PeriodicTableDomain.is_mine(cell) is True, (
+        "Mixed-case symbol should be detected as mine"
+    )
     cell = Cell(symbol="li")
-    assert PeriodicTableDomain.is_mine(cell) is True, "Lowercase symbol should be detected as mine"
+    assert PeriodicTableDomain.is_mine(cell) is True, (
+        "Lowercase symbol should be detected as mine"
+    )
     cell = Cell(symbol="LI")
-    assert PeriodicTableDomain.is_mine(cell) is True, "Uppercase symbol should be detected as mine"
+    assert PeriodicTableDomain.is_mine(cell) is True, (
+        "Uppercase symbol should be detected as mine"
+    )
 
 
 def test_generate_clue_no_neighbors():

@@ -27,16 +27,17 @@ class ConstraintSolver:
                 cell.state != State.HIDDEN
                 for row in board.grid
                 for cell in row
-                if not cell.is_mine
+                if not cell.is_false_hypothesis
             ):
-                logging.info("All safe cells revealed. Discovery complete!")
+                logging.info("All valid hypotheses resolved. Discovery complete!")
+                logging.debug(f"Final board state: {board}")
                 return
 
             move = policy.choose_move(board)
             if move is None:
                 logging.info("No moves left to make.")
+                logging.debug(f"Board state when no moves left: {board}")
                 return
 
-            logging.debug(f"Revealing cell at ({move.row}, {move.col})")
-            board.reveal(move.row, move.col, flood=True)
-            moves += 1
+            logging.debug(f"Testing hypothesis at ({move.row}, {move.col})")
+            logging.debug(f"Current board state: {board}")

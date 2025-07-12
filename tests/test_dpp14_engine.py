@@ -5,6 +5,7 @@ from pathlib import Path
 
 FIXTURE_DIR = Path(__file__).resolve().parent.parent / "examples" / "boards"
 
+
 def test_dpp14_engine_phase_locked():
     """Test the 14-lane engine on a simple board where all lanes should converge."""
     board = BoardBuilder.from_csv(FIXTURE_DIR / "simple.csv")
@@ -13,6 +14,7 @@ def test_dpp14_engine_phase_locked():
 
     assert results["final_chi14"] is not None
     assert len(results["collapsed_lanes"]) == 0  # No lanes should collapse
+
 
 def test_dpp14_engine_divergence():
     """Test the 14-lane engine on a board that forces divergence."""
