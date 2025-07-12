@@ -1,4 +1,3 @@
-
 /* Avoid breaking parameter names, etc. in table cells. */
 .doc-contents td code {
   word-break: normal !important;
@@ -6,7 +5,7 @@
 
 /* No line break before first paragraph of descriptions. */
 .doc-md-description,
-.doc-md-description>p:first-child {
+.doc-md-description > p:first-child {
   display: inline;
 }
 
@@ -55,7 +54,7 @@
 /* Backlinks crumb separator. */
 .doc-backlink-crumb {
   display: inline-flex;
-  gap: .2rem;
+  gap: 0.2rem;
   white-space: nowrap;
   align-items: center;
   vertical-align: middle;
@@ -75,7 +74,8 @@
 }
 
 /* Symbols in Navigation and ToC. */
-:root, :host,
+:root,
+:host,
 [data-md-color-scheme="default"] {
   --doc-symbol-parameter-fg-color: #df50af;
   --doc-symbol-attribute-fg-color: #953800;
@@ -109,9 +109,9 @@
 }
 
 code.doc-symbol {
-  border-radius: .1rem;
-  font-size: .85em;
-  padding: 0 .3em;
+  border-radius: 0.1rem;
+  font-size: 0.85em;
+  padding: 0 0.3em;
   font-weight: bold;
 }
 

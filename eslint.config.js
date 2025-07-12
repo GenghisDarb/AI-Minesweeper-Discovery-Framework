@@ -1,17 +1,17 @@
-import js from '@eslint/js';
-import react from 'eslint-plugin-react';
-import globals from 'globals';
+import js from "@eslint/js";
+import react from "eslint-plugin-react";
+import globals from "globals";
 
 export default [
   js.configs.recommended,
   {
-    files: ['**/*.{js,jsx}'],
+    files: ["**/*.{js,jsx}"],
     plugins: {
       react,
     },
     languageOptions: {
       ecmaVersion: 2021,
-      sourceType: 'module',
+      sourceType: "module",
       globals: {
         ...globals.browser,
         ...globals.node,
@@ -25,25 +25,25 @@ export default [
     },
     rules: {
       ...react.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
     },
     settings: {
       react: {
-        version: 'detect',
+        version: "detect",
       },
     },
   },
   {
     ignores: [
-      'dist/',
-      'node_modules/',
-      'coverage/',
-      'archive/',
-      '.DS_Store',
-      'site/**/*',
-      '**/*.min.js',
-      '**/bundle.*.js',
+      "dist/",
+      "node_modules/",
+      "coverage/",
+      "archive/",
+      ".DS_Store",
+      "site/**/*",
+      "**/*.min.js",
+      "**/bundle.*.js",
     ],
   },
 ];

@@ -3,7 +3,9 @@
 This folder contains unit tests for the AI Minesweeper Discovery Framework.
 
 ## Notes
+
 Run the tests using:
+
 ```bash
 pytest
 ```

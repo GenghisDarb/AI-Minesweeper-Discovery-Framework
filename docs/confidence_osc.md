@@ -5,6 +5,7 @@ Visualize the damped χ-wave fit to solver confidence history. The chart below d
 ![Confidence Fit](figures/confidence_fit.png)
 
 Parameters:
+
 - Amplitude: Initial confidence level.
 - Decay rate (τ): Rate at which confidence stabilizes.
 - Period: Time between oscillation peaks.

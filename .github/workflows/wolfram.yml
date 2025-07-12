@@ -2,7 +2,7 @@ name: Nightly-Wolfram-Update
 
 on:
   schedule:
-    - cron:  '0 0 * * *'     # midnight UTC
+    - cron: "0 0 * * *" # midnight UTC
   workflow_dispatch:
 
 permissions:

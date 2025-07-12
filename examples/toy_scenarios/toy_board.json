@@ -1,7 +1,7 @@
 {
   "cells": [
-    {"id": 1, "state": "hidden", "adjacent_mines": 1},
-    {"id": 2, "state": "hidden", "adjacent_mines": 0},
-    {"id": 3, "state": "hidden", "adjacent_mines": 1}
+    { "id": 1, "state": "hidden", "adjacent_mines": 1 },
+    { "id": 2, "state": "hidden", "adjacent_mines": 0 },
+    { "id": 3, "state": "hidden", "adjacent_mines": 1 }
   ]
 }

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button } from '@/components/ui/Button';
+import React from "react";
+import { Button } from "@/components/ui/Button";
 
 // Basic functional root component (to be extended with actual UI)
 export default function App() {

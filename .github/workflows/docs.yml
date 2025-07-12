@@ -10,8 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read          # we only read from repo
-      pages: write            # needed by deploy-pages
+      contents: read # we only read from repo
+      pages: write # needed by deploy-pages
 
     steps:
       - uses: actions/checkout@v4

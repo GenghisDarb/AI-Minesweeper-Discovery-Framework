@@ -2,8 +2,8 @@ name: Deploy Streamlit to Pages
 
 on:
   push:
-    branches: [main]        # publish whenever main updates
-  workflow_dispatch:        # manual trigger
+    branches: [main] # publish whenever main updates
+  workflow_dispatch: # manual trigger
 
 permissions:
   contents: read
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install deps
         run: |
