@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(222.2 84% 4.9%);
+    --primary: hsl(222.2 47.4% 11.2%);
+    --primary-foreground: hsl(210 40% 98%);
+    --secondary: hsl(210 40% 96%);
+    --secondary-foreground: hsl(222.2 84% 4.9%);
+    --muted: hsl(210 40% 96%);
+    --muted-foreground: hsl(215.4 16.3% 46.9%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(210 40% 98%);
+    --border: hsl(214.3 31.8% 91.4%);
+    --input: hsl(214.3 31.8% 91.4%);
+    --ring: hsl(222.2 84% 4.9%);
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
