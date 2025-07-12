@@ -1,6 +1,8 @@
 from .board import Board, State  # Import State to resolve NameError
 from .solver_logic import Flagger, CascadePropagator
 from .risk_assessor import RiskAssessor
+from .meta_cell_confidence.confidence import BetaConfidence
+from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
 import logging
 
 
@@ -9,6 +11,10 @@ class ConstraintSolver:
 
     @staticmethod
     def solve(board: Board, max_moves: int = 10) -> None:
+        # Initialize confidence module
+        confidence = BetaConfidence()
+        policy = ConfidencePolicy(base_solver=RiskAssessor, confidence=confidence)
+
         moves = 0
         while moves < max_moves:
             deduction_made = True
@@ -26,11 +32,11 @@ class ConstraintSolver:
                 logging.info("All safe cells revealed. Discovery complete!")
                 return
 
-            r, c = RiskAssessor.pick_cell(board)
-            if r is None or c is None:
+            move = policy.choose_move(board)
+            if move is None:
                 logging.info("No moves left to make.")
                 return
 
-            logging.debug(f"Revealing cell at ({r}, {c})")
-            board.reveal(r, c, flood=True)
+            logging.debug(f"Revealing cell at ({move.row}, {move.col})")
+            board.reveal(move.row, move.col, flood=True)
             moves += 1

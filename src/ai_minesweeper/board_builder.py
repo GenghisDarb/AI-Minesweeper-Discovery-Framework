@@ -185,3 +185,68 @@ class BoardBuilder:
                 cell.clue = sum(neighbor.is_mine for neighbor in cell.neighbors)
 
         return board
+
+    @classmethod
+    def from_manual(cls, grid: list[list[str | int]], *, invalidate: bool = True) -> "Board":
+        """
+        Build a Board directly from an in-memory grid.
+
+        grid: 2-D list where each element is
+              - "M" or "X"  → mine
+              - "" or "."   → hidden empty
+              - 0-8 (int)   → pre-revealed clue
+        invalidate: if True, verify clue numbers
+        """
+        if invalidate:
+            cls._validate_grid(grid)
+        board = cls._empty_board(len(grid), len(grid[0]))
+        cls._populate_board(board, grid)
+        return board
+
+    @staticmethod
+    def _validate_grid(grid: list[list[str | int]]) -> None:
+        """
+        Validate the grid for consistency.
+
+        Ensures that:
+        - Clue numbers (0-8) are valid.
+        - Mines are marked as "M" or "X".
+        - Empty cells are "" or ".".
+        """
+        for row in grid:
+            for cell in row:
+                if isinstance(cell, int) and not (0 <= cell <= 8):
+                    raise ValueError(f"Invalid clue number: {cell}")
+                if isinstance(cell, str) and cell not in {"M", "X", "", "."}:
+                    raise ValueError(f"Invalid cell value: {cell}")
+
+    @staticmethod
+    def _empty_board(rows: int, cols: int) -> Board:
+        """
+        Create an empty board with the specified dimensions.
+
+        All cells are initialized as hidden and empty.
+        """
+        board = Board(n_rows=rows, n_cols=cols)
+        board.grid = [[Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)]
+        return board
+
+    @staticmethod
+    def _populate_board(board: Board, grid: list[list[str | int]]) -> None:
+        """
+        Populate the board with cells based on the provided grid.
+
+        grid: 2-D list where each element is
+              - "M" or "X"  → mine
+              - "" or "."   → hidden empty
+              - 0-8 (int)   → pre-revealed clue
+        """
+        for r, row in enumerate(grid):
+            for c, value in enumerate(row):
+                cell = board.grid[r][c]
+                if value in {"M", "X"}:
+                    cell.is_mine = True
+                elif isinstance(value, int):
+                    cell.state = State.REVEALED
+                    cell.adjacent_mines = value
+                # Hidden empty cells are already initialized by default

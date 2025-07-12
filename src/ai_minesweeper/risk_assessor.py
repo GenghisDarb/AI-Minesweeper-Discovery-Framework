@@ -26,13 +26,13 @@ class RiskAssessor:
 
         prob = {}
         for cell in hidden:
-            r, c = cell
+            r, c = cell.row, cell.col
             adj = board.adjacent_cells(r, c)
             flagged = sum(1 for v in adj if board.is_flagged(v))
             hidden_adj = sum(1 for v in adj if board.is_hidden(v))
 
             local_risk = (flagged / hidden_adj) if hidden_adj else 0
-            dist_risk = manhattan(cell, last_safe) / (board.n_rows + board.n_cols)
+            dist_risk = manhattan((r, c), last_safe) / (board.n_rows + board.n_cols)
 
             prob[cell] = min(0.95,
                              base_p
@@ -84,3 +84,13 @@ class RiskAssessor:
                 if cell.state == State.HIDDEN:
                     return r, c
         return None, None
+
+    @staticmethod
+    def choose_move(board: Board):
+        """
+        Return the Cell with the **lowest** mine‐probability.
+        If multiple cells tie, choose the one with minimal (row,col).
+        """
+        pm = RiskAssessor.estimate(board)
+        safe = [c for c in pm if c.state == State.HIDDEN]
+        return min(safe, key=lambda c: (pm[c], c.row, c.col)) if safe else None

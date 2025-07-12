@@ -124,9 +124,9 @@ class Board:
                     return cell.row, cell.col
         raise RuntimeError("No moves left to solve.")
 
-    def hidden_cells(self) -> list[tuple[int, int]]:
-        """Return a list of coordinates for all hidden cells."""
-        hidden = [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.HIDDEN]
+    def hidden_cells(self) -> list[Cell]:
+        """Return a list of all hidden Cell objects."""
+        hidden = [cell for row in self.grid for cell in row if cell.state == State.HIDDEN]
         print("DEBUG hidden cells:", len(hidden))  # Debug print statement
         return hidden
 

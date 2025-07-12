@@ -57,3 +57,15 @@ class Cell:
         cell = Cell()
         cell.confidence = 0.0  # Default confidence level
         return cell
+
+    def __hash__(self):
+        """
+        Make the Cell class hashable by using its row and column as unique identifiers.
+        """
+        return hash((self.row, self.col))
+
+    def __eq__(self, other):
+        """
+        Ensure equality comparison is based on row and column.
+        """
+        return isinstance(other, Cell) and self.row == other.row and self.col == other.col

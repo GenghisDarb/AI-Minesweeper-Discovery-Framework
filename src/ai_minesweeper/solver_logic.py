@@ -82,7 +82,7 @@ class SolverLogic:
         while queue:
             cell = queue.pop(0)
             clue = board.clue(cell)
-            adj = board.adjacent_cells(*cell)
+            adj = board.adjacent_cells(cell.row, cell.col)
             hidden = [c for c in adj if board.is_hidden(c)]
 
             # Debugging output for cascade reveal
@@ -109,4 +109,12 @@ class SolverLogic:
                     if c not in visited:
                         queue.append(c)
                         visited.add(c)
+            else:
+                if not cell.state.is_hidden():
+                    continue
+                cell.reveal()
+                if cell.clue == 0:
+                    queue.extend(
+                        n for n in cell.neighbors() if n.state.is_hidden()
+                    )  # Ensure only hidden neighbors are appended
         return changed

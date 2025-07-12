@@ -37,7 +37,7 @@ class DPP14RecursionEngine:
 
         # Aggregate results
         chi_values = [lane.chi_value for lane in self.lanes if lane.chi_value is not None]
-        final_chi14 = sum(chi_values) / len(chi_values) if chi_values else 0.0  # Default to 0.0 if no chi_values
+        final_chi14 = sum(chi_values) / len(chi_values) if chi_values else None
 
         return {
             "chi_values": chi_values,
@@ -50,22 +50,18 @@ class DPP14RecursionEngine:
         """Runs the solver for a single lane."""
         try:
             while not lane.collapsed:
-                move = lane.solver_policy.choose_move(lane.board)
-                if move is None:
-                    print(f"Lane {lane.lane_id}: No more moves available.")
-                    break  # No more moves available
+                cell = lane.solver_policy.choose_move(lane.board)
+                if cell is None:
+                    cell = min((c for c in lane.board.hidden_cells()),
+                               key=lambda c: lane.solver_policy.estimate(lane.board)[c])
 
-                r, c = move.row, move.col  # Always use .row and .col
-
-                print(f"Lane {lane.lane_id}: Revealing cell at ({r}, {c}).")
+                r, c = cell.row, cell.col
                 result = self._reveal_cell(lane, r, c)
 
                 if result == "false_hypothesis":
-                    print(f"Lane {lane.lane_id}: Collapsed due to false hypothesis.")
                     lane.collapsed = True
                 else:
                     self._update_chi(lane)
-                    print(f"Lane {lane.lane_id}: Updated chi_value to {lane.chi_value}.")
 
         except Exception as e:
             print(f"Error in lane {lane.lane_id}: {e}")
