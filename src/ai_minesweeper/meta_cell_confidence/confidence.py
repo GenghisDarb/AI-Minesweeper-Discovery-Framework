@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 class BetaConfidence:
     """
     Tracks confidence in mine-probability predictions using a Beta distribution.

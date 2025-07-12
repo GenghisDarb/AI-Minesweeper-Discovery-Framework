@@ -1,5 +1,5 @@
+from .confidence import BetaConfidence
 from ai_minesweeper.board import Board, State
-from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 
 
 class ConfidencePolicy:
@@ -83,42 +83,3 @@ class ConfidencePolicy:
             chosen_cell = max(safe_cells, key=lambda cell: prob_map[cell]) if safe_cells else max(prob_map.keys(), key=lambda cell: prob_map[cell])
 
         return chosen_cell
-
-
-from typing import Any
-from .confidence import BetaConfidence
-
-
-class ConfidencePolicy:
-    """
-    Wraps a solver with a confidence-based policy for move selection.
-
-    Attributes:
-        solver (Any): The original solver instance.
-        confidence_tracker (BetaConfidence): Tracks confidence in predictions.
-    """
-
-    def __init__(self, solver: Any):
-        self.solver = solver
-        self.confidence_tracker = BetaConfidence()
-
-    def choose_move(self, board: Any) -> Any:
-        """
-        Chooses the next move based on confidence and risk threshold.
-
-        Args:
-            board (Any): The current game board state.
-
-        Returns:
-            Any: The chosen move.
-        """
-        probability_map = self.solver.get_probability_map(board)
-        confidence = self.confidence_tracker.mean()
-        risk_threshold = 0.05 + 0.2 * confidence
-
-        for cell, prob in probability_map.items():
-            if prob < risk_threshold:
-                return cell
-
-        # Default to the most informative hidden cell
-        return max(probability_map, key=probability_map.get)

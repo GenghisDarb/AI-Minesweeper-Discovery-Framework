@@ -51,7 +51,6 @@ def test_confidence_threshold_mapping():
         ]
     )
     confidence = BetaConfidence()
-    policy = ConfidencePolicy(SpreadRiskAssessor, confidence)
 
     def _pick_with_tau(board, tau):
         prob = SpreadRiskAssessor().estimate(board)

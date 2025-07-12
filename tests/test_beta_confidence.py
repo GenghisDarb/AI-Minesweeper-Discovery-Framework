@@ -1,4 +1,5 @@
 import pytest
+
 from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 
 
