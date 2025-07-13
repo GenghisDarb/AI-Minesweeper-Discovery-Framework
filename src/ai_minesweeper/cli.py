@@ -42,6 +42,7 @@ def play(csv_path: str):
             logger.info(board)
 
         logger.info("Game completed! All hypotheses resolved.")
+        print("Game completed!")
     except FileNotFoundError:
         logger.error(f"Error: File '{csv_path}' not found.")
     except Exception as e:
