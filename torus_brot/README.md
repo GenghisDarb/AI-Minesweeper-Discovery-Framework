@@ -12,6 +12,7 @@ TORUS-brot is the TORUS analogue of Mandelbrot. Instead of iterating z->z^2 + c 
 - `data/`: JSON presets for fractal parameters.
 - `renderers/`: Python renderer script.
 - `notebooks/`: Example Jupyter notebooks.
+- `examples/torus_brot/`: Moved torus_brot directory.
 
 **Next steps:**
 Explore higher-order fractals, mini satellite copies, or observer effects.
