@@ -8,5 +8,4 @@ numpy
 pandas>=1.4
 griffe==0.34.*
 pdfplumber>=0.10.0
-streamlit==1.25.0
 typer==0.9.0
