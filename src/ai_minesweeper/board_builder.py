@@ -7,7 +7,7 @@ class BoardBuilder:
     """Factory helpers for Board objects."""
 
     @staticmethod
-    def from_csv(path: str | Path, header: bool = False) -> Board:
+    def from_csv(path: str | Path, header: int | None = None) -> Board:
         """Parse a CSV file into a Board object."""
         df = pd.read_csv(path, header=header)
         grid = [
