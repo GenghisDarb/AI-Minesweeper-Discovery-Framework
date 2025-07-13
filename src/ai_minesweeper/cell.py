@@ -94,5 +94,5 @@ class Cell:
     def is_flagged(self) -> bool:
         return self.state == State.FLAGGED
 
-    def is_mine(self) -> bool:
-        return self.state == State.MINE
+    # def is_mine(self) -> bool:
+    #     return self.state == State.MINE

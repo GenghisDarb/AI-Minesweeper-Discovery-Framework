@@ -14,21 +14,20 @@ class PeriodicTableDomain:
                 unique_neighbors.append(neighbor)
         return unique_neighbors
 
-    @staticmethod
-    def is_mine(cell):
-        print(f"Checking if cell is mine: symbol={cell.symbol}")  # Debugging output
-        # Refined mine detection logic to include edge cases like 'eka'
-        mine_symbols = {
-            "li",
-            "be",
-            "b",
-            "f",
-            "cl",
-            "br",
-            "i",
-            "eka",
-        }  # Expanded criteria
-        return cell.symbol.lower() in mine_symbols
+    # @staticmethod
+    # def is_mine(cell):
+    #     print(f"Checking if cell is mine: symbol={cell.symbol}")  # Debugging output
+    #     mine_symbols = {
+    #         "li",
+    #         "be",
+    #         "b",
+    #         "f",
+    #         "cl",
+    #         "br",
+    #         "i",
+    #         "eka",
+    #     }
+    #     return cell.symbol.lower() in mine_symbols
 
     @staticmethod
     def generate_clue(cell, neighbors):
