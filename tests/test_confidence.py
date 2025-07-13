@@ -1,0 +1,1 @@
+assert abs(value - expected) < 0.05

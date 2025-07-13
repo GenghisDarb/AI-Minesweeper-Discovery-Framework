@@ -254,6 +254,8 @@ class Board:
             Cell: The cell at the specified position.
         """
         r, c = pos
+        if not (0 <= r < len(self.grid) and 0 <= c < len(self.grid[0])):
+            raise IndexError("Board access out of bounds.")
         return self.grid[r][c]
 
     def __repr__(self):

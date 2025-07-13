@@ -9,7 +9,7 @@ class BoardBuilder:
     @staticmethod
     def from_csv(path: str | Path, header: bool = False) -> Board:
         """Parse a CSV file into a Board object."""
-        df = pd.read_csv(path, header=0 if header else None)
+        df = pd.read_csv(path, header=None)
         grid = [
             [Cell.from_token(str(token).strip()) for token in row]
             for _, row in df.iterrows()
