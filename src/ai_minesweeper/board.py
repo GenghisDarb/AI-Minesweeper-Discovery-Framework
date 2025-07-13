@@ -266,3 +266,15 @@ class Board:
             for j, cell in enumerate(row):
                 cell.row = i
                 cell.col = j
+
+    def is_mine(self, cell):
+        """Check if a cell is a mine."""
+        return cell.is_mine
+
+    def is_valid(self):
+        """Check if the board is in a valid state."""
+        return all(cell.state != State.HIDDEN for row in self.grid for cell in row)
+
+    def is_solved(self):
+        """Check if the board is solved."""
+        return all(cell.is_mine or cell.state == State.REVEALED for row in self.grid for cell in row)
