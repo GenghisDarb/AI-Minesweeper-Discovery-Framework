@@ -7,3 +7,4 @@ matplotlib
 numpy
 pandas>=1.4
 griffe==0.34.*
+pdfplumber

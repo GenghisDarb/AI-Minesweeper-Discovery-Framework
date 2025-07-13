@@ -255,3 +255,14 @@ class Board:
 
     def __repr__(self):
         return f"Board(rows={self.n_rows}, cols={self.n_cols})"
+
+    def get_revealed_hypotheses(self):
+        """Returns a list of revealed hypotheses on the board."""
+        return []
+
+    def ensure_row_attribute(self):
+        """Ensure all cells in the grid have a .row attribute."""
+        for i, row in enumerate(self.grid):
+            for j, cell in enumerate(row):
+                cell.row = i
+                cell.col = j

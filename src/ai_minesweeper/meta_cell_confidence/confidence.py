@@ -36,17 +36,18 @@ class BetaConfidence:
         """
         self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
 
-    def update(self, success: bool) -> None:
+    def update(self, success: bool, count: int = 1) -> None:
         """
         Update the Beta distribution based on prediction success or failure.
 
         Args:
             success (bool): True if the prediction was correct, False otherwise.
+            count (int): The number of successes or failures to update the distribution by.
         """
         if success:
-            self.alpha += 1
+            self.alpha += count
         else:
-            self.beta += 1
+            self.beta += count
 
     def mean(self) -> float:
         """
