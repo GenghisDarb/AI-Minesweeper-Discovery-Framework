@@ -1,5 +1,6 @@
 import streamlit as st
 import logging
+from ai_minesweeper.constants import State
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -12,7 +13,7 @@ def display_confidence(conf: float, mode="cli") -> str:
         logger.info(result)
         return result
     elif mode == "streamlit":
-        st.markdown(f"### Confidence Level")
+        st.markdown("### Confidence Level")
         st.progress(conf)
         st.write(f"Confidence: {conf * 100:.1f}%")
         return f"Confidence: {conf * 100:.1f}%"
