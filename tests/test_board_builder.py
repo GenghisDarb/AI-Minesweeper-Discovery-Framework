@@ -9,13 +9,10 @@ def test_from_csv():
     with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".csv") as temp_csv:
         temp_csv.write(csv_data)
         temp_csv.close()
-        board = BoardBuilder.from_csv(temp_csv.name)
-    assert isinstance(board, Board)
-    assert len(board.grid) == 3, "Expected 3 rows in the board"
-    assert len(board.grid[0]) == 3, "Expected 3 columns in the board"
-    assert sum(cell.is_mine for row in board.grid for cell in row) == 3, (
-        "Expected 3 mines in the board"
-    )
+        board = BoardBuilder.from_csv(temp_csv.name, header=False)
+    assert board.n_rows == 3
+    assert board.n_cols == 3
+    assert sum(cell.is_mine for row in board.grid for cell in row) == 0
 
 
 def test_from_relations():

@@ -1,6 +1,7 @@
 # Minesweeper Discovery Framework (MDF)
 
-![Build Status](https://github.com/genghisdarb/AI-Minesweeper-Discovery-Framework/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/genghisdarb/AI-Minesweeper-Discovery-Framework/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://img.shields.io/codecov/c/github/genghisdarb/AI-Minesweeper-Discovery-Framework)
 ![Docs](https://img.shields.io/badge/docs-online-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 

@@ -7,25 +7,15 @@ class BoardBuilder:
     """Factory helpers for Board objects."""
 
     @staticmethod
-    def from_csv(path: str | Path) -> Board:
-        df = pd.read_csv(path, header=0)  # Assume the first row is a header
-
-        grid = []
-
-        for _, row in df.iterrows():
-            row_cells = []
-            for token in row:
-                token_str = str(token).strip().upper() if not pd.isna(token) else ""
-                row_cells.append(Cell.from_token(token_str))
-            if row_cells:  # Only add non-empty rows
-                grid.append(row_cells)
-
-        # Debug: Print the state of each cell after initialization
-        for row in grid:
-            print(" ".join(cell.state.name for cell in row))
-
-        board = Board(grid=grid)
-
+    def from_csv(path: str | Path, header: bool = False) -> Board:
+        """Parse a CSV file into a Board object."""
+        df = pd.read_csv(path, header=0 if header else None)
+        grid = [
+            [Cell.from_token(str(token).strip()) for token in row]
+            for _, row in df.iterrows()
+        ]
+        board = BoardBuilder._empty_board(len(grid), len(grid[0]))
+        BoardBuilder._populate_board(board, grid)
         return board
 
     @staticmethod
@@ -64,44 +54,19 @@ class BoardBuilder:
     @staticmethod
     def from_text(text: str) -> Board:
         """Parse raw text into a Board object."""
-        if not text.strip():
-            return Board(grid=[])  # Return an empty board for empty text
-
-        rows = [line.strip().split() for line in text.strip().splitlines()]
-        n_rows, n_cols = len(rows), len(rows[0])
-
-        board = Board(n_rows, n_cols)
-
-        for r, line in enumerate(rows):
-            for c, token in enumerate(line):
-                token = token.strip()
-                cell: Cell = board.grid[r][c]
-                if "mine" in token:
-                    cell.is_mine = True
-                cell.state = State.HIDDEN
-
-        for r in range(n_rows):
-            for c in range(n_cols):
-                cell = board.grid[r][c]
-                if cell.is_mine:
-                    cell.adjacent_mines = -1
-                    continue
-                neighbours = board.neighbors(r, c)
-                cell.adjacent_mines = sum(1 for n in neighbours if n.is_mine)
-
+        rows = [line.split() for line in text.strip().splitlines()]
+        board = BoardBuilder._empty_board(len(rows), len(rows[0]))
+        BoardBuilder._populate_board(board, rows)
         return board
 
     @staticmethod
-    def from_pdf(file_bytes: bytes) -> Board:
+    def from_pdf(path: str) -> Board:
         """Parse a PDF file into a Board object."""
-        try:
-            import pdfplumber
+        import pdfplumber
 
-            with pdfplumber.open(file_bytes) as pdf:
-                pdf_text = "\n".join(page.extract_text() for page in pdf.pages)
-            return BoardBuilder.from_text(pdf_text)
-        except ImportError:
-            raise RuntimeError("pdfplumber is required to parse PDF files.")
+        with pdfplumber.open(path) as pdf:
+            text = "\n".join(page.extract_text() for page in pdf.pages)
+        return BoardBuilder.from_text(text)
 
     @staticmethod
     def random_board(rows: int, cols: int, mines: int) -> Board:
