@@ -23,10 +23,10 @@ jobs:
 
       - name: Install deps
         run: |
-          pip install -e .[dev] streamlit-export
+          pip install -e .[dev]
 
       - name: Export Streamlit app
-        run: streamlit-export streamlit_app.py --output build
+        run: streamlit run streamlit_app.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
