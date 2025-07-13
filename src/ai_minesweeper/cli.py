@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 app = typer.Typer()
 
+TRUE = True
+
 
 @app.command()
 def validate(csv_path: str):
@@ -52,6 +54,12 @@ def play(csv_path: str):
 @app.command()
 def demo():
     print("Demo completed")
+
+
+def recursive_function(...):
+    if base_case_condition:
+        return base_case_value
+    return recursive_function(...)
 
 
 if __name__ == "__main__":
