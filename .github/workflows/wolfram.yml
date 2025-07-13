@@ -24,7 +24,10 @@ jobs:
         run: |
           git config --global user.email "gh-actions@example.com"
           git config --global user.name  "gh-actions"
-          git add data/*.txt data/*.csv data/*.json figures/*.png reports/*.csv || true
+          git add data/*.txt data/*.csv data/*.json reports/*.csv
+          if ls figures/*.png 1> /dev/null 2>&1; then
+            git add figures/*.png
+          fi
           git commit -m "Nightly Wolfram auto-update" || echo "No file changes"
           git push
       - name: Build & Deploy MkDocs
