@@ -1,7 +1,7 @@
 import logging
 import typer
-from ai_minesweeper.board_builder import BoardBuilder
-from ai_minesweeper.constraint_solver import ConstraintSolver
+from .board_builder import BoardBuilder
+from .constraint_solver import ConstraintSolver
 
 
 # Configure logging
