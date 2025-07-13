@@ -19,13 +19,24 @@ def main():
         step_by_step = st.checkbox("Step-by-step mode", value=True)
 
         # Auto-discover toggle
-        auto_discover = st.checkbox("Auto-discover")
+        auto_discover = st.sidebar.checkbox("Auto-discover mode", value=False)
+        st.session_state.auto_discover = auto_discover
 
         # Revealed Hypotheses Summary Panel
         revealed_hypotheses = []
 
+        # Initialize session state for solver pause
+        if "solver_paused" not in st.session_state:
+            st.session_state.solver_paused = True
+
         if st.button("Start Discovery"):
             solver = RiskAssessor()
+
+            # Main loop logic for step-by-step mode
+            if not st.session_state.solver_paused or auto_discover:
+                result = solver.step(board)
+                if not auto_discover:
+                    st.session_state.solver_paused = True
 
             if auto_discover:
                 while not board.is_solved():
@@ -38,13 +49,14 @@ def main():
                 st.write(board)
 
         # Solver Move button for step-by-step mode
-        if step_by_step and st.button("Solver Move"):
-            move = solver.choose_move(board)
-            revealed_cells = board.reveal(move)
-            revealed_hypotheses.extend(revealed_cells)
-            st.write(f"Revealed {len(revealed_cells)} new hypotheses:")
-            for cell in revealed_cells:
-                st.write(f"- ({cell.row}, {cell.col}) is {cell.state}")
+        if step_by_step:
+            # Add button to trigger a solver step
+            if st.button("🔍 Solver Move (Step)"):
+                st.session_state.solver_paused = False
+
+            if not st.session_state.solver_paused:
+                result = solver.step(board)
+                st.session_state.solver_paused = True
 
         # Display the summary panel
         if revealed_hypotheses:
@@ -61,6 +73,15 @@ def main():
         if board.is_solved():
             st.write("All hypotheses resolved. Discovery complete!")
             return
+
+        # Confidence History & τ Trajectory Visualization
+        if "confidence_history" not in st.session_state:
+            st.session_state.confidence_history = []
+
+        if st.button("Update Confidence History"):
+            current_confidence = board.get_current_confidence()
+            st.session_state.confidence_history.append(current_confidence)
+            st.line_chart(st.session_state.confidence_history)
 
         # Export Board Functionality
         if st.button("Export Board State"):
@@ -93,13 +114,6 @@ def main():
     if user_feedback:
         st.write(f"You said: {user_feedback}")
         # Placeholder for future AI interaction logic
-
-    # Confidence History & τ Trajectory
-    confidence_history = []
-
-    if st.button("Update Confidence History"):
-        confidence_history.append(board.get_current_confidence())
-        st.line_chart(confidence_history)
 
 if __name__ == "__main__":
     main()

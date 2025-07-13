@@ -51,4 +51,143 @@ def test_render_cell_with_tooltip():
     assert "background-color: green" in html
     assert "This cell is safe." in html
 
+def test_add_accessibility_labels_to_cells():
+    from src.ai_minesweeper.ui_widgets import add_accessibility_labels_to_cells
+    from ai_minesweeper.board_builder import BoardBuilder
+
+    board = BoardBuilder.from_csv(CSV_PATH)
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        add_accessibility_labels_to_cells(board)
+    except Exception as e:
+        pytest.fail(f"add_accessibility_labels_to_cells raised an exception: {e}")
+
+def test_update_hypotheses_panel():
+    from src.ai_minesweeper.ui_widgets import update_hypotheses_panel
+    from ai_minesweeper.board_builder import BoardBuilder
+
+    board = BoardBuilder.from_csv(CSV_PATH)
+    # Mock Streamlit's markdown and write functions
+    st.markdown = lambda x: None
+    st.write = lambda x: None
+
+    try:
+        update_hypotheses_panel(board)
+    except Exception as e:
+        pytest.fail(f"update_hypotheses_panel raised an exception: {e}")
+
+def test_ensure_grid_styling_consistency():
+    from src.ai_minesweeper.ui_widgets import ensure_grid_styling_consistency
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        ensure_grid_styling_consistency()
+    except Exception as e:
+        pytest.fail(f"ensure_grid_styling_consistency raised an exception: {e}")
+
+def test_align_chat_input_with_ui():
+    from src.ai_minesweeper.ui_widgets import align_chat_input_with_ui
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        align_chat_input_with_ui()
+    except Exception as e:
+        pytest.fail(f"align_chat_input_with_ui raised an exception: {e}")
+
+def test_render_hypotheses_with_tooltips():
+    from src.ai_minesweeper.ui_widgets import render_hypotheses_with_tooltips
+    from ai_minesweeper.board_builder import BoardBuilder
+
+    board = BoardBuilder.from_csv(CSV_PATH)
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        render_hypotheses_with_tooltips(board)
+    except Exception as e:
+        pytest.fail(f"render_hypotheses_with_tooltips raised an exception: {e}")
+
+def test_highlight_zero_value_reveals():
+    from src.ai_minesweeper.ui_widgets import highlight_zero_value_reveals
+    from ai_minesweeper.board_builder import BoardBuilder
+    from ai_minesweeper.cell import Cell
+
+    board = BoardBuilder.from_csv(CSV_PATH)
+    revealed_cells = [Cell(row=0, col=0, clue=0), Cell(row=1, col=1, clue=0)]
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        highlight_zero_value_reveals(board, revealed_cells)
+    except Exception as e:
+        pytest.fail(f"highlight_zero_value_reveals raised an exception: {e}")
+
+def test_ensure_persistent_unexplored_cells():
+    from src.ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
+    from ai_minesweeper.board_builder import BoardBuilder
+
+    board = BoardBuilder.from_csv(CSV_PATH)
+
+    # Mock Streamlit's button function
+    st.button = lambda x: None
+
+    try:
+        ensure_persistent_unexplored_cells(board)
+    except Exception as e:
+        pytest.fail(f"ensure_persistent_unexplored_cells raised an exception: {e}")
+
+def test_highlight_newly_revealed_cells():
+    from src.ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
+    from ai_minesweeper.cell import Cell
+
+    revealed_cells = [Cell(row=0, col=0), Cell(row=1, col=1)]
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        highlight_newly_revealed_cells(revealed_cells)
+    except Exception as e:
+        pytest.fail(f"highlight_newly_revealed_cells raised an exception: {e}")
+
+def test_apply_grid_styling():
+    from src.ai_minesweeper.ui_widgets import apply_grid_styling
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        apply_grid_styling()
+    except Exception as e:
+        pytest.fail(f"apply_grid_styling raised an exception: {e}")
+
+def test_add_high_contrast_mode():
+    from src.ai_minesweeper.ui_widgets import add_high_contrast_mode
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        add_high_contrast_mode()
+    except Exception as e:
+        pytest.fail(f"add_high_contrast_mode raised an exception: {e}")
+
+def test_add_colorblind_friendly_palette():
+    from src.ai_minesweeper.ui_widgets import add_colorblind_friendly_palette
+
+    # Mock Streamlit's markdown function
+    st.markdown = lambda x, unsafe_allow_html: None
+
+    try:
+        add_colorblind_friendly_palette()
+    except Exception as e:
+        pytest.fail(f"add_colorblind_friendly_palette raised an exception: {e}")
+
 logger.debug(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in test_quick")

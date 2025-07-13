@@ -73,6 +73,10 @@ streamlit run [streamlit_app.py](http://_vscodecontentref_/1)
 
 [![codecov](https://codecov.io/gh/GenghisDarb/AI-Minesweeper-Discovery-Framework/branch/main/graph/badge.svg)](https://codecov.io/gh/GenghisDarb/AI-Minesweeper-Discovery-Framework)
 
+## [Live Demo](https://minesweeper-discovery.streamlit.app)
+
+Experience the Minesweeper Discovery Framework live on Streamlit Cloud. Explore the interactive UI, confidence charts, and dynamic board expansion.
+
 ## New Domains: Recursive Structure Discovery
 - Prime spiral mod-14 structure (χ-cycle)
 - Time-series φ-phase gate discovery
@@ -180,3 +184,9 @@ The AI Minesweeper Discovery Framework now includes a 14-lane recursion engine b
 
 ### How to Use
 Run the Streamlit app and click "Run 14-Lane Recursion Engine" to see the results of the multi-lane simulation.
+
+## [1.0.0] - 2025-07-13
+- Full Streamlit UI with copy/export/chat/confidence history
+- Dynamic board expansion and visual feedback loop
+- Debug matrix resolved (Tiers 1–3)
+- Fractal χ-brot visualizer and prime/periodic examples included
