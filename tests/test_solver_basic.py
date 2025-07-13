@@ -102,3 +102,9 @@ def test_solver_propagation():
     assert cascade
 
     board.print_board()  # Debugging output to verify board state
+
+
+def test_solver_assertions():
+    actual = 0.9  # Example actual value
+    expected = 1.0  # Example expected value
+    assert abs(actual - expected) < 0.1

@@ -9,7 +9,7 @@ class BoardBuilder:
     @staticmethod
     def from_csv(path: str | Path, header: int | None = None) -> Board:
         """Parse a CSV file into a Board object."""
-        df = pd.read_csv(path, header=header)
+        df = pd.read_csv(path, header=None)
         grid = [
             [Cell.from_token(str(token).strip()) for token in row]
             for _, row in df.iterrows()
@@ -199,3 +199,16 @@ class BoardBuilder:
                     cell.is_mine = True
                 else:
                     cell.state = State.HIDDEN
+
+        # Safety checks for list accesses
+        for r in range(board.n_rows):
+            for c in range(board.n_cols):
+                if r < len(board.grid) and c < len(board.grid[r]):
+                    cell = board.grid[r][c]
+                    if cell:
+                        cell.neighbors = [
+                            board.grid[x][y]
+                            for x in range(max(0, r - 1), min(board.n_rows, r + 2))
+                            for y in range(max(0, c - 1), min(board.n_cols, c + 2))
+                            if (x, y) != (r, c) and x < len(board.grid) and y < len(board.grid[x])
+                        ]
