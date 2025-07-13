@@ -2,7 +2,6 @@ import pytest
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.cell import State
-from ai_minesweeper.config import DEBUG
 import logging
 import types
 
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 CSV_PATH = "examples/periodic_table/elements.csv"
 
 # Debugging check for config import
-logger.info(f"[TEST CHECK] DEBUG variable in test_quick.py: {DEBUG}")
+# logger.info(f"[TEST CHECK] DEBUG variable in test_quick.py: {DEBUG}")
 
 # Mock Streamlit
 st = types.SimpleNamespace(
