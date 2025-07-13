@@ -39,7 +39,7 @@ class ConfidencePolicy:
 
         print(f"Using Λ-ladder threshold: {tau}")
 
-        safe_cells = [cell for cell, prob in prob_map.items() if prob <= tau]
+        # safe_cells = [cell for cell, prob in prob_map.items() if prob <= tau]
         confidence = self.confidence.mean()
         if confidence > 0.8:
             # High confidence: exploit
