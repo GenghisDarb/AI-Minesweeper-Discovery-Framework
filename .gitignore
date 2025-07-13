@@ -29,3 +29,4 @@ ai_minesweeper/__init__.py
 dist/
 coverage/
 archive/
+.venv/
