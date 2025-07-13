@@ -24,6 +24,7 @@ jobs:
       - name: Install deps
         run: |
           pip install -e .[dev]
+          pip install streamlit
 
       - name: Export Streamlit app
         run: streamlit run streamlit_app.py
