@@ -393,3 +393,24 @@ def consolidate_functionality():
     Consolidate functionality from meta_cell_confidence/ui_widgets.py into this file.
     """
     pass  # Placeholder for consolidated functionality
+
+
+class BarMeter:
+    """
+    Displays a confidence bar in the CLI or GUI.
+
+    Attributes:
+        confidence (float): Confidence value between 0 and 1.
+    """
+
+    def __init__(self, confidence: float):
+        self.confidence = confidence
+
+    def render_cli(self):
+        """
+        Renders the confidence bar in the CLI.
+        """
+        bar_length = 20
+        filled_length = int(self.confidence * bar_length)
+        bar = "■" * filled_length + "□" * (bar_length - filled_length)
+        print(f"CONFIDENCE {bar} {self.confidence * 100:.0f} %")

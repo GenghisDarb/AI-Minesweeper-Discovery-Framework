@@ -3,6 +3,7 @@ from src.ai_minesweeper.ui_widgets import display_confidence, color_coded_cell_r
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
 import json
+import tempfile
 
 def main():
     st.title("AI Minesweeper Discovery Framework")
@@ -28,6 +29,13 @@ def main():
         # Initialize session state for solver pause
         if "solver_paused" not in st.session_state:
             st.session_state.solver_paused = True
+
+        # Initialize session state for solver and revealed_hypotheses
+        if "solver" not in st.session_state:
+            st.session_state["solver"] = None
+
+        if "revealed_hypotheses" not in st.session_state:
+            st.session_state["revealed_hypotheses"] = []
 
         if st.button("Start Discovery"):
             solver = RiskAssessor()
@@ -83,12 +91,13 @@ def main():
             st.session_state.confidence_history.append(current_confidence)
             st.line_chart(st.session_state.confidence_history)
 
-        # Export Board Functionality
+        # Update Export Board Functionality
         if st.button("Export Board State"):
             board_state = board.export_state()
-            with open("exported_board_state.json", "w") as f:
-                json.dump(board_state, f)
-            st.success("Board state exported successfully!")
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w", encoding="utf-8") as tmp_file:
+                json.dump(board_state, tmp_file, indent=2)
+                tmp_path = tmp_file.name
+            st.download_button("Download JSON", tmp_path, file_name="board_state.json")
 
     # Placeholder for confidence level
     confidence = 0.75  # Example confidence value
