@@ -8,12 +8,14 @@ class State(Enum):
     MINE = "mine"
     REVEALED = "revealed"
     FLAGGED = "flagged"
+    FALSE = FLAGGED  # Alias for legacy support
 
     def __str__(self):
         return self.value
 
 
 print(f"[DEBUG] State.HIDDEN id during import: {id(State.HIDDEN)}")
+print(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module cell")
 
 
 @dataclass
@@ -59,7 +61,7 @@ class Cell:
         if isinstance(token, Cell):
             return token
         token = str(token).strip().upper()
-        if token in ["HIDDEN", "."]:
+        if token in ["HIDDEN", ".", "1"]:
             return Cell(state=State.HIDDEN)
         elif token in ["MINE", "*"]:
             return Cell(is_mine=True)
@@ -86,8 +88,8 @@ class Cell:
         )
 
     def is_hidden(self) -> bool:
-        print(f"[DEBUG] is_hidden called on Cell: {self}, State: {self.state}, Match with HIDDEN: {self.state == State.HIDDEN}")
-        return self.state == State.HIDDEN
+        """Check if the cell is in the hidden state."""
+        return self.state and getattr(self.state, "value", None) == State.HIDDEN.value
 
     def is_flagged(self) -> bool:
         return self.state == State.FLAGGED

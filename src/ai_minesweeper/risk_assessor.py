@@ -15,16 +15,31 @@ class RiskAssessor:
         3. add a distance term     (Manhattan distance from last safe reveal)
         Produces a spectrum ≈ [0.05 … 0.30] early-game.
         """
-        print("[DEBUG] Board state in RiskAssessor.estimate:")
-        for row in board.grid:
-            print(" ".join(cell.state.name for cell in row))
+        if DEBUG:
+            print("[DEBUG] Board state in RiskAssessor.estimate:")
+            for row in board.grid:
+                print(" ".join(cell.state.name for cell in row))
+
+        print(f"[RISK] Board rows: {len(board.grid)}")
+        for i, row in enumerate(board.grid):
+            print(f"[RISK] Row {i} length: {len(row)} | Sample: {repr(row[0]) if row else 'EMPTY'}")
+
+        print(f"[RISK] Board class: {board.__class__} from module: {board.__class__.__module__}")
+
+        print(f"[RISK] Calling board.hidden_cells()...")
+        result = board.hidden_cells()
+        print(f"[RISK] hidden_cells returned {len(result)} cells")
 
         hidden = board.hidden_cells()
-        print(f"[RiskAssessor] Hidden cells found: {len(hidden)}")
-        for cell in hidden:
-            print(f"Hidden cell: {cell}")
+        if DEBUG:
+            print(f"[RiskAssessor] Hidden cells found: {len(hidden)}")
+            for cell in hidden:
+                print(f"Hidden cell: {cell}")
         if not hidden:
             return {}
+
+        if DEBUG:
+            print(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module risk_assessor")
 
         base_p = board.false_hypotheses_remaining / len(hidden)
         last_safe = board.last_safe_reveal or (board.n_rows // 2, board.n_cols // 2)
@@ -97,6 +112,8 @@ class RiskAssessor:
         # Debugging output for risk map
         print(f"Risk map: {probs}")
 
+        print(f"[RISK] Received board id={id(board)}, class={board.__class__}, grid id={id(board.grid)}")
+
         return probs
 
     @staticmethod
@@ -111,19 +128,34 @@ class RiskAssessor:
                     return r, c
         return None, None
 
+    def handle_contradiction(self, board, cell):
+        """
+        Handle a contradiction (mine) without ending the session.
+
+        Args:
+            board (Board): The current game board.
+            cell (Cell): The cell that caused the contradiction.
+        """
+        cell.state = State.FLAGGED
+        board.update_confidence()  # Update confidence after marking the contradiction
+        print(f"[INFO] Contradiction at {cell.row}, {cell.col} flagged. Confidence updated.")
+
     @staticmethod
     def choose_move(board: Board):
         """
         Return the Cell with the **lowest** mine‐probability.
         If multiple cells tie, choose the one with minimal (row,col).
         """
-        pm = RiskAssessor.estimate(board)
-        safe = [c for c in pm if c.state == State.HIDDEN]
-        move = min(safe, key=lambda c: (pm[c], c.row, c.col)) if safe else None
+        prob_map = RiskAssessor.estimate(board)
 
-        # Debugging output for the chosen move
-        print(f"Chosen move: {move}, Probability: {pm[move] if move else 'N/A'}")
-        print(f"Probability map: {pm}")
-        print(f"Safe cells: {safe}")
+        if not prob_map:
+            return None
 
-        return move
+        # Extract safest cell (lowest probability)
+        best_coord = min(prob_map, key=prob_map.get)
+        row, col = best_coord
+        cell = board.grid[row][col]
+
+        if cell.state.value == State.HIDDEN.value:
+            return best_coord
+        return None

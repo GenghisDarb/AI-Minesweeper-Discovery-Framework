@@ -7,26 +7,27 @@ __all__ = ["Board", "State"]  # optional but nice
 
 class Board:
     def __init__(self, n_rows=None, n_cols=None, grid=None):
-        if isinstance(grid, list):
-            self.grid = [[Cell.from_token(token) for token in row] for row in grid]
-            for i, row in enumerate(self.grid):
-                for j, cell in enumerate(row):
-                    cell.row = i
-                    cell.col = j
-            self.n_rows = len(grid)
-            self.n_cols = len(grid[0]) if self.n_rows > 0 else 0
-        elif n_rows is not None and n_cols is not None:
-            self.n_rows = n_rows
-            self.n_cols = n_cols
-            self.grid = [
-                [Cell(row=i, col=j) for j in range(n_cols)] for i in range(n_rows)
-            ]
-        elif grid is None:
-            self.n_rows = 0
-            self.n_cols = 0
-            self.grid = []
-        else:
-            raise ValueError("Either grid or n_rows and n_cols must be provided.")
+        if DEBUG:
+            print(f"[DEBUG] Board.__init__ received grid: type={type(grid)}")
+            if isinstance(grid, list):
+                print(f"[DEBUG] grid has {len(grid)} rows")
+                if len(grid) > 0:
+                    print(f"[DEBUG] first row type: {type(grid[0])}, length: {len(grid[0])}")
+                    print(f"[DEBUG] first cell sample: {repr(grid[0][0])}")
+                else:
+                    print("[DEBUG] grid is an empty list")
+            else:
+                print("[DEBUG] grid is NOT a list")
+
+        self.grid = grid if grid else []
+        self.n_rows = len(self.grid)
+        self.n_cols = len(self.grid[0]) if self.grid else 0
+
+        for i, row in enumerate(self.grid):
+            for j, cell in enumerate(row):
+                cell.row = i
+                cell.col = j
+
         if self.n_rows < 0 or self.n_cols < 0:
             raise ValueError("Board dimensions must be non-negative integers.")
 
@@ -54,9 +55,12 @@ class Board:
         )
 
         # Debugging: Print the initialized grid state
-        print("[DEBUG] Board initialized with grid:")
-        for row in self.grid:
-            print(" ".join(cell.state.name for cell in row))
+        if DEBUG:
+            print("[DEBUG] Board initialized with grid:")
+            for row in self.grid:
+                print(" ".join(cell.state.name for cell in row))
+            print(f"[BOARD INIT] Created Board with {self.n_rows} rows and {self.n_cols} cols")
+            print(f"[BOARD INIT] Board id={id(self)}, grid id={id(self.grid)}")
 
     @staticmethod
     def from_grid(grid):
@@ -139,16 +143,13 @@ class Board:
 
     def hidden_cells(self) -> list[Cell]:
         """Return a list of all hidden Cell objects."""
-        print("[DEBUG] Checking hidden cells...")
-        print(f"[DEBUG] State.HIDDEN id: {id(State.HIDDEN)}")
-        hidden = []
-        for row in self.grid:
-            for cell in row:
-                print(f"[DEBUG] Cell at ({cell.row}, {cell.col}): State={cell.state}, State id={id(cell.state)}, Match with HIDDEN={cell.state == State.HIDDEN}")
-                if cell.state == State.HIDDEN:
-                    hidden.append(cell)
-        print(f"[DEBUG] Total hidden cells found: {len(hidden)}")
-        return hidden
+        for r, row in enumerate(self.grid):
+            for c, cell in enumerate(row):
+                print(f"[CHECK] ({r},{c}) state: {cell.state} (value: {getattr(cell.state, 'value', None)})")
+                assert cell.state.value == State.HIDDEN.value, f"State mismatch: {cell.state.value} != {State.HIDDEN.value}"
+                if cell.state and cell.state.value == State.HIDDEN.value:
+                    print(f"[APPEND] ({r},{c}) added to hidden_cells")
+        return [cell for row in self.grid for cell in row if cell.state and cell.state.value == State.HIDDEN.value]
 
     @property
     def mines_remaining(self) -> int:
@@ -250,3 +251,6 @@ class Board:
         """
         r, c = pos
         return self.grid[r][c]
+
+    def __repr__(self):
+        return f"Board(rows={self.n_rows}, cols={self.n_cols})"

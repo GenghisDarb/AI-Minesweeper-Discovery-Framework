@@ -1,21 +1,52 @@
+import logging
 import typer
+from ai_minesweeper.board_builder import BoardBuilder
+from ai_minesweeper.risk_assessor import RiskAssessor
+from ai_minesweeper.constraint_solver import ConstraintSolver
 
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = typer.Typer()
+
+
+@app.command()
+def validate(csv_path: str):
+    """Validate the integrity of a CSV board."""
+    try:
+        board = BoardBuilder.from_csv(csv_path)
+        if board.is_valid():
+            logger.info("The board is valid.")
+        else:
+            logger.warning("The board has inconsistencies.")
+    except FileNotFoundError:
+        logger.error(f"Error: File '{csv_path}' not found.")
+    except Exception as e:
+        logger.exception(f"An error occurred during validation: {e}")
 
 
 @app.command()
 def play(csv_path: str):
     """Play Minesweeper using a CSV board."""
     try:
-        with open(csv_path, "r") as file:
-            board = [line.strip().split(",") for line in file]
-        print("Loaded board:")
-        for row in board:
-            print(" ".join(row))
-        print("Game logic not yet implemented.")
+        board = BoardBuilder.from_csv(csv_path)
+        logger.info("Loaded board:")
+        logger.info(board)
+
+        solver = ConstraintSolver()
+        while not board.is_solved():
+            move = solver.choose_move(board)
+            logger.info(f"Revealing cell at {move}...")
+            board.reveal(move)
+            logger.info(board)
+
+        logger.info("Game completed! All hypotheses resolved.")
     except FileNotFoundError:
-        print(f"Error: File '{csv_path}' not found.")
+        logger.error(f"Error: File '{csv_path}' not found.")
+    except Exception as e:
+        logger.exception(f"An error occurred: {e}")
 
 
 @app.command()

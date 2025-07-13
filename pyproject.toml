@@ -9,9 +9,9 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [project]
-name = "ai-hypothesis-discovery"
-version = "1.0.0"
-description = "AI Hypothesis Discovery Framework"
+name = "ai-minesweeper"
+version = "0.1.0"
+description = "AI Minesweeper Game"
 authors = [
     { name = "Your Name", email = "your@email.com" }
 ]
@@ -19,7 +19,8 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 dependencies = [
-    "typer>=0.12"          # for CLI
+    "pandas",
+    "pytest"
 ]
 
 [project.optional-dependencies]
@@ -31,7 +32,7 @@ dev = [
 ]
 
 [project.scripts]
-hypothesis_discovery = "ai_hypothesis_discovery.cli:app"
+minesweeper = "ai_minesweeper.cli:app"
 
 [tool.ruff]
 exclude = ["notebooks"]

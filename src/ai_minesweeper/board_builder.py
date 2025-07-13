@@ -1,5 +1,5 @@
 from pathlib import Path
-from .board import Board, Cell, State
+from ai_minesweeper.board import Board, Cell, State
 import pandas as pd
 
 
@@ -9,7 +9,7 @@ class BoardBuilder:
     @staticmethod
     def from_csv(path: str | Path) -> Board:
         df = pd.read_csv(path, header=0)  # Assume the first row is a header
-        print(f"CSV DataFrame: {df}")  # Debugging output
+
         grid = []
 
         for _, row in df.iterrows():
@@ -24,7 +24,9 @@ class BoardBuilder:
         for row in grid:
             print(" ".join(cell.state.name for cell in row))
 
-        return Board(grid)
+        board = Board(grid=grid)
+
+        return board
 
     @staticmethod
     def from_relations(
