@@ -1,4 +1,6 @@
 # constants.py
+DEBUG = False
+
 try:
     with open("chi_50digits.txt") as f:
         chi = float(f.read().strip().split()[0])
