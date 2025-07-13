@@ -54,8 +54,14 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           publish_dir: site
 
       - name: Echo site URL
         run: echo "🟢 Docs available at https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/"
+
+      - name: Verify Streamlit installed
+        run: python -c "import streamlit; print('✅ Streamlit is installed')"
+
+      - name: Clear pip cache (optional)
+        run: pip cache purge
