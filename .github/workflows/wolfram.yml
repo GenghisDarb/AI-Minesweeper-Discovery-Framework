@@ -16,7 +16,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Wolfram batch
         run: |
-          sudo apt-get update && sudo apt-get install -y wolframscript
+          wget https://wolframcdn.azureedge.net/public-assets/wolframscript/wolframscript_1.9.3+2024030901_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./wolframscript_1.9.3+2024030901_amd64.deb
           wolframscript -file wolfram/run_all.wls
       - name: Commit artefacts
         run: |
