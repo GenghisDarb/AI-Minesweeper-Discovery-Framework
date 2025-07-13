@@ -2,9 +2,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent / "src" / "ai_minesweeper"))
-from constants import chi
 
-import os
 import json
 
 from ai_minesweeper.ui_widgets import display_confidence

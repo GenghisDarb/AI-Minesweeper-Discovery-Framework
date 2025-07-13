@@ -122,11 +122,3 @@ class SolverLogic:
                         n for n in cell.neighbors() if n.state.is_hidden()
                     )  # Ensure only hidden neighbors are appended
         return changed
-
-    def cascade_reveal(self, r: int, c: int):
-        cell = self.board[r, c]
-        if cell.clue == 0:
-            for n in self.board.get_neighbors(r, c):
-                if n.is_hidden():
-                    self.board.reveal(n.r, n.c)
-                    self.cascade_reveal(n.r, n.c)

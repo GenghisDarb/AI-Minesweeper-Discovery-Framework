@@ -15,7 +15,7 @@ def display_confidence(conf: float, mode: str = "gui"):
         bar_length = 20
         green_length = int(conf * bar_length)
         red_length = bar_length - green_length
-        bar = f"\x1b[42m{'\u2588' * green_length}\x1b[41m{'\u2588' * red_length}\x1b[0m"
+        bar = "\x1b[42m" + ("\u2588" * green_length) + "\x1b[41m" + ("\u2588" * red_length) + "\x1b[0m"
         print(f"Confidence: {conf * 100:.1f}% [{bar}]")
 
 

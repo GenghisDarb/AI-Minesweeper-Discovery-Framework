@@ -36,31 +36,36 @@ class BetaConfidence:
         """
         self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
 
-    def update(self, prob_pred: float, revealed_is_false_hypothesis: bool) -> None:
+    def update(self, success: bool) -> None:
         """
-        Bayesian calibration:
-        • actual = 1 if false hypothesis, 0 otherwise
-        • Brier error = (pred-actual)^2
-        • α accumulates correct predictions, β accumulates errors
-        τ (risk threshold) tracks empirical failure rate.
+        Update the Beta distribution based on prediction success or failure.
+
+        Args:
+            success (bool): True if the prediction was correct, False otherwise.
         """
-        actual = 1.0 if revealed_is_false_hypothesis else 0.0
-        if revealed_is_false_hypothesis:
-            self.alpha += 0.5
+        if success:
+            self.alpha += 1
         else:
-            self.beta += 0.5
-        self.alpha, self.beta = max(self.alpha, 1e-3), max(self.beta, 1e-3)
-        total = self.alpha + self.beta
-        self._tau = self.beta / total
+            self.beta += 1
 
     def mean(self) -> float:
         """
-        Returns the mean of the Beta distribution.
+        Calculate the mean of the Beta distribution.
 
         Returns:
-            float: The mean confidence value, representing the probability of a false hypothesis.
+            float: The mean value of the Beta distribution.
         """
         return self.alpha / (self.alpha + self.beta)
+
+    def variance(self) -> float:
+        """
+        Calculate the variance of the Beta distribution.
+
+        Returns:
+            float: The variance of the Beta distribution.
+        """
+        total = self.alpha + self.beta
+        return (self.alpha * self.beta) / (total**2 * (total + 1))
 
     def choose_move(self, board) -> tuple[int, int] | None:
         """
@@ -80,17 +85,3 @@ class BetaConfidence:
                     if board[r, c].is_hidden() and not board[r, c].is_flagged():
                         return (r, c)
         return pick
-
-    def choose_move(self, board) -> tuple[int, int] | None:
-        prob_map = self.estimate(board)
-
-        legal_moves = [
-            (r, c) for (r, c), prob in prob_map.items()
-            if board[r, c].is_hidden() and not board[r, c].is_flagged()
-        ]
-        if not legal_moves:
-            return None
-
-        # Pick the move with lowest risk
-        best = min(legal_moves, key=lambda pos: prob_map[pos])
-        return best

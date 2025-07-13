@@ -1,6 +1,7 @@
 from .cell import Cell, State  # re-export so tests can import State here
 import json
 from datetime import datetime
+from ai_minesweeper.constants import DEBUG
 
 __all__ = ["Board", "State"]  # optional but nice
 

@@ -1,4 +1,3 @@
-import pytest
 from typer.testing import CliRunner
 from src.ai_minesweeper.cli import app
 

@@ -40,8 +40,13 @@ class ConfidencePolicy:
         print(f"Using Λ-ladder threshold: {tau}")
 
         safe_cells = [cell for cell, prob in prob_map.items() if prob <= tau]
-        return (
-            min(safe_cells, key=lambda cell: (prob_map[cell], cell.row, cell.col))
-            if safe_cells
-            else None
-        )
+        confidence = self.confidence.mean()
+        if confidence > 0.8:
+            # High confidence: exploit
+            return self.base_solver.choose_safest_move(board_state)
+        elif confidence < 0.5:
+            # Low confidence: explore
+            return self.base_solver.choose_information_rich_move(board_state)
+        else:
+            # Moderate confidence: default behavior
+            return self.base_solver.choose_move(board_state)

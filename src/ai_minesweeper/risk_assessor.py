@@ -1,4 +1,5 @@
 from .board import Board, State
+from ai_minesweeper.constants import DEBUG
 
 
 class RiskAssessor:
@@ -26,7 +27,7 @@ class RiskAssessor:
 
         print(f"[RISK] Board class: {board.__class__} from module: {board.__class__.__module__}")
 
-        print(f"[RISK] Calling board.hidden_cells()...")
+        print("[RISK] Calling board.hidden_cells()...")
         result = board.hidden_cells()
         print(f"[RISK] hidden_cells returned {len(result)} cells")
 

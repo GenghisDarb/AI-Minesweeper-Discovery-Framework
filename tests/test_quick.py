@@ -4,6 +4,7 @@ from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.cell import State
 from ai_minesweeper.config import DEBUG
 import logging
+import types
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +15,14 @@ CSV_PATH = "examples/periodic_table/elements.csv"
 
 # Debugging check for config import
 logger.info(f"[TEST CHECK] DEBUG variable in test_quick.py: {DEBUG}")
+
+# Mock Streamlit
+st = types.SimpleNamespace(
+    markdown=lambda *a, **k: None,
+    write=lambda *a, **k: None,
+    button=lambda *a, **k: None,
+    progress=lambda *a, **k: None
+)
 
 def test_risk_assessor_estimate_structure():
     board = BoardBuilder.from_csv(CSV_PATH)
