@@ -51,6 +51,8 @@ jobs:
           files: coverage.xml
           flags: unittests
           name: minesweeper-ci
+      - name: Test CLI Invocation
+        run: python -m ai_minesweeper.cli play examples/boards/sample.csv --dry-run
 
   docs:
     runs-on: ubuntu-latest

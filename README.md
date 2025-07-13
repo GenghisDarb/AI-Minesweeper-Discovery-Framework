@@ -140,6 +140,15 @@ pytest
 
 Contribute by adding new domains or improving the solver logic.
 
+## Developer Shortcuts
+
+Here are some common commands for quick verification:
+
+- `streamlit run streamlit_app.py`
+- `python -m ai_minesweeper.cli play examples/boards/sample.csv`
+- `pytest -q`
+- `ruff check .`
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

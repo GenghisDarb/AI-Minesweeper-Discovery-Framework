@@ -10,7 +10,7 @@ where = ["src"]
 
 [project]
 name = "ai-minesweeper"
-version = "0.1.0"
+version = "1.0.0"
 description = "AI Minesweeper Game"
 authors = [
     { name = "Your Name", email = "your@email.com" }
