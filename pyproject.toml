@@ -29,6 +29,7 @@ dev = [
     "black>=23.0",
     "ruff>=0.0.285",
     "mypy>=1.0",
+    "coverage>=7.0"
 ]
 
 [project.scripts]
