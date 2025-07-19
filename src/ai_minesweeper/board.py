@@ -30,7 +30,23 @@ class Board:
                 for i in range(n_rows)
             ]
         else:
-            self.grid = grid
+            # Convert string grid to Cell objects if needed
+            self.grid = []
+            for i, row in enumerate(grid):
+                cell_row = []
+                for j, cell_data in enumerate(row):
+                    if isinstance(cell_data, str):
+                        # Convert string to Cell
+                        if cell_data == "mine":
+                            cell = Cell(row=i, col=j, state=State.MINE, is_mine=True)
+                        else:
+                            state = State(cell_data) if cell_data in [s.value for s in State] else State.HIDDEN
+                            cell = Cell(row=i, col=j, state=state)
+                    else:
+                        # Assume it's already a Cell object
+                        cell = cell_data
+                    cell_row.append(cell)
+                self.grid.append(cell_row)
 
         self.n_rows = len(self.grid)
         self.n_cols = len(self.grid[0]) if self.grid else 0

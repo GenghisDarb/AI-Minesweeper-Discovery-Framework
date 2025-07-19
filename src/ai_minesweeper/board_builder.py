@@ -24,7 +24,7 @@ class BoardBuilder:
             cells: list[Cell] = []
             for token in row:
                 token_str = "" if pd.isna(token) else str(token).strip()
-                if token_str.upper() in {"", "X"}:  # Blank or 'X' → mine
+                if token_str.upper() in {"", "X", "*"}:  # Blank, 'X', or '*' → mine
                     cell = Cell(is_mine=True, state=State.HIDDEN)
                     cell.symbol = token_str  # Assign symbol for mines
                     cells.append(cell)
@@ -83,6 +83,9 @@ class BoardBuilder:
     def from_text(text: str) -> Board:
         """Parse raw text into a Board object."""
         rows = [line.split() for line in text.strip().splitlines()]
+        if not rows or not rows[0]:
+            # Handle empty text by creating a minimal 1x1 board
+            return BoardBuilder._empty_board(1, 1)
         board = BoardBuilder._empty_board(len(rows), len(rows[0]))
         BoardBuilder._populate_board(board, rows)
         return board
