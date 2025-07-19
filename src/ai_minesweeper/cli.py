@@ -31,11 +31,14 @@ def play(csv_path: str = typer.Argument(..., help="Path to the board CSV file"),
          dry_run: bool = typer.Option(False, "--dry-run", help="Validate the board without playing through the moves.")):
     """Play Minesweeper using a CSV board."""
     try:
-        board = BoardBuilder.from_csv(csv_path)
+        # Pass header=0 to skip the header row in CSV files
+        board = BoardBuilder.from_csv(csv_path, header=0)
         if dry_run:
             if board.is_valid():
+                print("The board is valid.")  # Use print for test compatibility
                 logger.info("The board is valid.")
             else:
+                print("The board has inconsistencies.")  # Use print for test compatibility
                 logger.warning("The board has inconsistencies.")
             return
 

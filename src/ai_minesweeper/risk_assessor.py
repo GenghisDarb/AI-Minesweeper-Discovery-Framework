@@ -158,5 +158,10 @@ class RiskAssessor:
         cell = board.grid[row][col]
 
         if cell.state.value == State.HIDDEN.value:
-            return best_coord
+            # Set row/col attributes for the cell if not already set
+            if cell.row == -1:
+                cell.row = row
+            if cell.col == -1:
+                cell.col = col
+            return cell  # Return Cell object instead of coordinates
         return None
