@@ -43,12 +43,16 @@ class ConfidencePolicy:
         print(f"Using Λ-ladder threshold: {tau}")
 
         # Select the move with the lowest probability below the threshold
-        for cell, prob in prob_map.items():
+        # prob_map keys are coordinates (r, c), convert to Cell objects
+        for coords, prob in prob_map.items():
             if prob < tau:
-                return cell
+                r, c = coords
+                return board_state.grid[r][c]
 
         # Fallback: If no probabilities are below the threshold, pick the lowest
-        return min(prob_map, key=prob_map.get)
+        best_coords = min(prob_map, key=prob_map.get)
+        r, c = best_coords
+        return board_state.grid[r][c]
 
         # ── guaranteed-safe fallback ──
         for r in range(board_state.n_rows):

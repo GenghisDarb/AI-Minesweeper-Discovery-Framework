@@ -73,9 +73,9 @@ class RiskAssessor:
                     )  # Increase perimeter exploration weight
 
                     # Debug: Log intermediate values for risk calculation
-                    print(
-                        f"Cell: {cell}, Local Risk: {local_risk}, Distance Risk: {dist_risk}, Probability: {prob}"
-                    )
+                    # print(
+                    #     f"Cell: {cell}, Local Risk: {local_risk}, Distance Risk: {dist_risk}, Probability: {prob}"
+                    # )
 
                     # Combine randomness with heuristic weights to amplify impact
                     weighted_random_factor = (
@@ -84,9 +84,9 @@ class RiskAssessor:
                     prob += weighted_random_factor
 
                     # Debug: Log weighted randomness contribution
-                    print(
-                        f"Cell: {cell}, Weighted Random Factor: {weighted_random_factor}, Probability: {prob}"
-                    )
+                    # print(
+                    #     f"Cell: {cell}, Weighted Random Factor: {weighted_random_factor}, Probability: {prob}"
+                    # )
 
                     # Significantly amplify randomness weight
                     amplified_random_factor = (
@@ -95,9 +95,9 @@ class RiskAssessor:
                     prob += amplified_random_factor
 
                     # Debug: Log amplified randomness contribution
-                    print(
-                        f"Cell: {cell}, Amplified Random Factor: {amplified_random_factor}, Probability: {prob}"
-                    )
+                    # print(
+                    #     f"Cell: {cell}, Amplified Random Factor: {amplified_random_factor}, Probability: {prob}"
+                    # )
 
                     probs[(r, c)] = prob
 

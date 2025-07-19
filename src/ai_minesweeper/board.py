@@ -195,21 +195,11 @@ class Board:
 
     def hidden_cells(self) -> list[Cell]:
         """Return a list of all hidden Cell objects."""
-        for r, row in enumerate(self.grid):
-            for c, cell in enumerate(row):
-                print(
-                    f"[CHECK] ({r},{c}) state: {cell.state} (value: {getattr(cell.state, 'value', None)})"
-                )
-                assert cell.state.value == State.HIDDEN.value, (
-                    f"State mismatch: {cell.state.value} != {State.HIDDEN.value}"
-                )
-                if cell.state and cell.state.value == State.HIDDEN.value:
-                    print(f"[APPEND] ({r},{c}) added to hidden_cells")
         return [
             cell
             for row in self.grid
             for cell in row
-            if cell.state and cell.state.value == State.HIDDEN.value
+            if cell.state == State.HIDDEN
         ]
 
     @property
