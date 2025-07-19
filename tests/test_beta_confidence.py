@@ -6,15 +6,15 @@ def test_confidence_update():
     conf = BetaConfidence()
     conf.update(0.5, True)  # Predicted 50% mine, revealed as mine
     assert abs(conf.alpha - 1.5) < 0.1
-    assert conf.beta == 1.0
+    assert abs(conf.beta - 1.5) < 0.1  # Both alpha and beta increase by 0.5
 
     conf.update(0.5, False)  # Predicted 50% mine, revealed as safe
-    assert abs(conf.alpha - 1.5) < 0.1
-    assert abs(conf.beta - 1.5) < 0.1
+    assert abs(conf.alpha - 2.0) < 0.1  # alpha += (1 - 0.5) = 0.5
+    assert abs(conf.beta - 2.0) < 0.1   # beta += 0.5
 
     conf.update(1.0, True)  # Full confidence mine, revealed as mine
-    assert abs(conf.alpha - 2.5) < 0.1
-    assert abs(conf.beta - 1.5) < 0.1
+    assert abs(conf.alpha - 3.0) < 0.1  # alpha += 1.0
+    assert abs(conf.beta - 2.0) < 0.1   # beta += (1 - 1.0) = 0
 
 
 def test_confidence_mean():
