@@ -48,8 +48,16 @@ def play(csv_path: str = typer.Argument(..., help="Path to the board CSV file"),
         solver = ConstraintSolver()
         while not board.is_solved():
             move = solver.choose_move(board)
-            logger.info(f"Revealing cell at {move}...")
-            board.reveal(move)
+            if move is None:
+                logger.info("No more moves available")
+                break
+            # Handle both Cell objects and tuples for backwards compatibility
+            if hasattr(move, 'row') and hasattr(move, 'col'):
+                row, col = move.row, move.col
+            else:
+                row, col = move
+            logger.info(f"Revealing cell at ({row}, {col})...")
+            board.reveal(row, col)
             logger.info(board)
 
         logger.info("Game completed! All hypotheses resolved.")
