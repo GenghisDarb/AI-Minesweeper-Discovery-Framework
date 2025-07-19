@@ -9,17 +9,97 @@ class BoardBuilder:
     @staticmethod
     def from_csv(path: str | Path, header: int | None = None) -> Board:
         """Parse a CSV file into a Board object."""
-        df = pd.read_csv(path, header=None)
+        # Respect the header parameter - if header=0, skip the first row
+        df = pd.read_csv(path, header=header)
         print(f"[DEBUG] CSV content:\n{df}")  # Log the CSV content
-        grid = [
-            [Cell.from_token(str(token).strip()) for token in row]
-            for _, row in df.iterrows()
-        ]
+        
+        # Handle empty CSV files
+        if df.empty:
+            raise ValueError(f"CSV file {path} is empty")
+        
+        # Detect CSV format based on column names
+        if header is not None and hasattr(df, 'columns'):
+            columns = [str(col).lower() for col in df.columns]
+            if 'cell' in columns and 'row' in columns and 'column' in columns:
+                # Relational format: each row represents one cell
+                return BoardBuilder._from_relational_csv(df)
+        
+        # Traditional grid format: each row represents a board row
+        # Check for consistent row lengths
+        row_lengths = [len(row) for _, row in df.iterrows()]
+        if len(set(row_lengths)) > 1:
+            raise ValueError(f"Inconsistent row lengths in CSV: {row_lengths}")
+        
+        try:
+            grid = [
+                [Cell.from_token(str(token).strip()) for token in row]
+                for _, row in df.iterrows()
+            ]
+        except Exception as e:
+            raise ValueError(f"Error parsing CSV file {path}: {e}")
+            
+        if not grid or not grid[0]:
+            raise ValueError(f"No valid data found in CSV file {path}")
+            
         for row in grid:
             for cell in row:
                 print(f"[DEBUG] Created cell: {cell}")  # Log each created cell
+                
         board = BoardBuilder._empty_board(len(grid), len(grid[0]))
         BoardBuilder._populate_board(board, grid)
+        return board
+    
+    @staticmethod
+    def _from_relational_csv(df: pd.DataFrame) -> Board:
+        """Parse a relational CSV format where each row represents one cell."""
+        # Find the required columns (case-insensitive)
+        columns = {col.lower(): col for col in df.columns}
+        
+        if 'cell' not in columns or 'row' not in columns or 'column' not in columns:
+            raise ValueError("Relational CSV must have 'cell', 'row', and 'column' columns")
+        
+        cell_col = columns['cell']
+        row_col = columns['row']
+        col_col = columns['column']
+        
+        # Find board dimensions
+        max_row = int(df[row_col].max())
+        max_col = int(df[col_col].max())
+        n_rows = max_row + 1
+        n_cols = max_col + 1
+        
+        # Create empty board
+        board = BoardBuilder._empty_board(n_rows, n_cols)
+        
+        # Populate board from relational data
+        for _, row_data in df.iterrows():
+            r = int(row_data[row_col])
+            c = int(row_data[col_col])
+            cell_value = row_data[cell_col]
+            
+            # Bounds checking
+            if r < 0 or r >= n_rows or c < 0 or c >= n_cols:
+                raise ValueError(f"Cell coordinates ({r}, {c}) out of bounds for board size {n_rows}x{n_cols}")
+            
+            cell = board.grid[r][c]
+            if pd.isna(cell_value) or str(cell_value).strip() in ['', '0']:
+                cell.state = State.HIDDEN
+                cell.is_mine = False
+            elif str(cell_value).strip() in ['1', 'M', 'X', '*']:
+                cell.state = State.HIDDEN  # Start hidden, can be revealed later
+                cell.is_mine = True
+            else:
+                # Try to parse as integer clue
+                try:
+                    clue_value = int(cell_value)
+                    cell.state = State.REVEALED
+                    cell.adjacent_mines = clue_value
+                    cell.is_mine = False
+                except ValueError:
+                    # Default to hidden empty cell
+                    cell.state = State.HIDDEN
+                    cell.is_mine = False
+        
         return board
 
     @staticmethod
@@ -174,10 +254,10 @@ class BoardBuilder:
 
         All cells are initialized as hidden and empty.
         """
-        board = Board(n_rows=rows, n_cols=cols)
-        board.grid = [
+        grid = [
             [Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)
         ]
+        board = Board(grid=grid)
         return board
 
     @staticmethod

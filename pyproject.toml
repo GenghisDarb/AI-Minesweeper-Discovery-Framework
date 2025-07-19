@@ -30,6 +30,7 @@ dev = [
     "black>=23.0",
     "ruff>=0.0.285",
     "mypy>=1.0",
+    "pylint>=2.15",
     "coverage>=7.0"
 ]
 

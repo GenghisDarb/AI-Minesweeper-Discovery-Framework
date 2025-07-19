@@ -46,8 +46,10 @@ class DPP14RecursionEngine:
         final_chi14 = sum(chi_values) / len(chi_values) if chi_values else None
 
         return {
+            "chi_values": chi_values,
             "final_chi14": final_chi14,
-            "lane_results": [lane.resonance_zones for lane in self.lanes],
+            "resonance_zones": [getattr(lane, 'resonance_zones', []) for lane in self.lanes],
+            "collapsed_lanes": [lane.lane_id for lane in self.lanes if getattr(lane, 'collapsed', False)],
         }
 
     def _run_lane(self, lane: RecursionLane) -> None:
@@ -81,7 +83,7 @@ class DPP14RecursionEngine:
             print(
                 f"[DPP14] Step {steps} – Chose cell ({move.row},{move.col}), result={result}"
             )
-            print(lane.board.visualize())
+            # Skip visualization since the method doesn't exist
 
             if result == "contradiction":
                 print(
@@ -94,8 +96,9 @@ class DPP14RecursionEngine:
 
     def _test_hypothesis(self, board: Any, move: Any) -> str:
         """Simulates testing a hypothesis."""
-        cell = board[move.row][move.col]
-        if cell.state == "mine":  # adjust for actual cell structure
+        # Use board.grid for direct access or board[(row, col)] for __getitem__
+        cell = board.grid[move.row][move.col]
+        if cell.is_mine:  # Check if it's a mine using proper attribute
             return "contradiction"
         else:
             board.reveal(move.row, move.col)

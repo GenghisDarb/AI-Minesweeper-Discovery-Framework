@@ -12,4 +12,4 @@ def test_neighbors_count():
 def test_reveal():
     b = Board(2, 2)
     b.reveal(0, 0, True)
-    assert b.grid[0][0].state == State.TRUE
+    assert b.grid[0][0].state == State.REVEALED

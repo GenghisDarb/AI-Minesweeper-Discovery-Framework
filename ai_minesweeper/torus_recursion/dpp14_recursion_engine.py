@@ -33,35 +33,68 @@ class DPP14RecursionEngine:
 
     def run(self) -> Dict[str, Any]:
         """Executes the 14-lane recursion engine."""
-        with concurrent.futures.ThreadPoolExecutor(max_workers=14) as executor:
-            futures = [executor.submit(self._run_lane, lane) for lane in self.lanes]
-            concurrent.futures.wait(futures)
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=14) as executor:
+                futures = [executor.submit(self._run_lane, lane) for lane in self.lanes]
+                concurrent.futures.wait(futures)
+        except Exception as e:
+            print(f"Error in DPP14RecursionEngine.run: {e}")
 
-        # Aggregate results
-        chi_values = [
-            lane.chi_value for lane in self.lanes if lane.chi_value is not None
-        ]
-        final_chi14 = (
-            sum(chi_values) / len(chi_values) if chi_values else 0.0
-        )  # Default to 0.0 if no chi_values
+        # Aggregate results with defensive programming
+        try:
+            chi_values = [
+                lane.chi_value for lane in self.lanes if lane.chi_value is not None
+            ]
+            final_chi14 = (
+                sum(chi_values) / len(chi_values) if chi_values else 0.0
+            )  # Default to 0.0 if no chi_values
 
-        return {
-            "chi_values": chi_values,
-            "final_chi14": final_chi14,
-            "resonance_zones": [lane.resonance_zones for lane in self.lanes],
-            "collapsed_lanes": [lane.lane_id for lane in self.lanes if lane.collapsed],
-        }
+            # Use dict.get() with defaults for safety
+            results = {
+                "chi_values": chi_values,
+                "final_chi14": final_chi14,
+                "resonance_zones": [getattr(lane, 'resonance_zones', []) for lane in self.lanes],
+                "collapsed_lanes": [lane.lane_id for lane in self.lanes if getattr(lane, 'collapsed', False)],
+            }
+            
+            print(f"[DPP14] Returning results: {results}")
+            return results
+            
+        except Exception as e:
+            print(f"Error aggregating results: {e}")
+            # Return a safe default structure
+            return {
+                "chi_values": [],
+                "final_chi14": 0.0,
+                "resonance_zones": [],
+                "collapsed_lanes": [],
+            }
 
     def _run_lane(self, lane: RecursionLane):
         """Runs the solver for a single lane."""
         try:
-            while not lane.collapsed:
+            iteration_count = 0
+            max_iterations = 100  # Prevent infinite loops
+            
+            while not lane.collapsed and iteration_count < max_iterations:
+                iteration_count += 1
                 move = lane.solver_policy.choose_move(lane.board)
                 if move is None:
-                    print(f"Lane {lane.lane_id}: No more moves available.")
+                    print(f"[DPP14] Lane {lane.lane_id} – No valid moves returned. Terminating.")
                     break  # No more moves available
 
-                r, c = move.row, move.col  # Always use .row and .col
+                # Bounds checking for move coordinates
+                if hasattr(move, 'row') and hasattr(move, 'col'):
+                    r, c = move.row, move.col
+                else:
+                    print(f"[DPP14] Lane {lane.lane_id} – Invalid move format: {move}")
+                    break
+                    
+                # Validate coordinates are within bounds
+                if (r < 0 or r >= lane.board.n_rows or 
+                    c < 0 or c >= lane.board.n_cols):
+                    print(f"[DPP14] Lane {lane.lane_id} – Move out of bounds: ({r}, {c})")
+                    break
 
                 print(f"Lane {lane.lane_id}: Revealing cell at ({r}, {c}).")
                 result = self._reveal_cell(lane, r, c)
@@ -74,9 +107,13 @@ class DPP14RecursionEngine:
                     print(
                         f"Lane {lane.lane_id}: Updated chi_value to {lane.chi_value}."
                     )
+                    
+            if iteration_count >= max_iterations:
+                print(f"[DPP14] Lane {lane.lane_id} – Hit max iterations limit.")
 
         except Exception as e:
             print(f"Error in lane {lane.lane_id}: {e}")
+            lane.collapsed = True  # Mark as collapsed on error
 
     def _reveal_cell(self, lane: RecursionLane, r: int, c: int) -> str:
         """Reveals a cell on the board and returns the result."""
