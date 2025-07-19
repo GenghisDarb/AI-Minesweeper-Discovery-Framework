@@ -159,9 +159,9 @@ class RiskAssessor:
 
         if cell.state.value == State.HIDDEN.value:
             # Set row/col attributes for the cell if not already set
-            if cell.row == -1:
+            if cell.row is None:
                 cell.row = row
-            if cell.col == -1:
+            if cell.col is None:
                 cell.col = col
             return cell  # Return Cell object instead of coordinates
         return None
