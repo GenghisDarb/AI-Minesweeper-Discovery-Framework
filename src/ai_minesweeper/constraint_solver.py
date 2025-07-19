@@ -12,7 +12,7 @@ class ConstraintSolver:
         for row in board.grid:
             for cell in row:
                 if cell.state == State.REVEALED and cell.clue is not None:
-                    neighbors = board.adjacent_cells(cell.row, cell.col)
+                    neighbors = board.neighbors(cell.row, cell.col)
                     hidden_neighbors = [n for n in neighbors if n.state == State.HIDDEN]
                     flagged_neighbors = [n for n in neighbors if n.state == State.FLAGGED]
 
