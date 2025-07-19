@@ -54,8 +54,8 @@ print("Initial probabilities:", probs)
 choice = policy.choose_move(board)
 print("Chosen hypothesis to test:", choice)
 
-for (r, c), prob in probs.items():
-    cell = board[r, c]
+for cell, prob in probs.items():
+    r, c = cell.row, cell.col
     if cell.is_hidden():
         # ...existing logic...
         pass

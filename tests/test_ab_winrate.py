@@ -1,4 +1,4 @@
-from src.ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
+from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 
 def test_ab_winrate():
     """

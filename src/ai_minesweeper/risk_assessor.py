@@ -103,8 +103,8 @@ class RiskAssessor:
             print("⚠ risk map flat", len(probs), "cells")
 
         # Temporarily adjust heuristic weights
-        local_risk *= 2.0  # Moderate clue info weight
-        dist_risk *= 1.5  # Moderate perimeter exploration weight
+        local_risk = 0  # Initialize local_risk to avoid UnboundLocalError
+        dist_risk = 0  # Initialize dist_risk to avoid UnboundLocalError
 
         # Ensure probability spectrum is not flat
         if len(set(probs.values())) < len(probs) * 0.5:

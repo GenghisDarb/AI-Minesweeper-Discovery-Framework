@@ -4,6 +4,18 @@ from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.cell import State
 import logging
 import types
+from ai_minesweeper.ui_widgets import render_cell_with_tooltip
+from ai_minesweeper.ui_widgets import add_accessibility_labels_to_cells
+from ai_minesweeper.ui_widgets import update_hypotheses_panel
+from ai_minesweeper.ui_widgets import ensure_grid_styling_consistency
+from ai_minesweeper.ui_widgets import align_chat_input_with_ui
+from ai_minesweeper.ui_widgets import render_hypotheses_with_tooltips
+from ai_minesweeper.ui_widgets import highlight_zero_value_reveals
+from ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
+from ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
+from ai_minesweeper.ui_widgets import apply_grid_styling
+from ai_minesweeper.ui_widgets import add_high_contrast_mode
+from ai_minesweeper.ui_widgets import add_colorblind_friendly_palette
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -35,6 +47,12 @@ def test_risk_assessor_estimate_structure():
 def test_risk_assessor_estimate_behavior():
     board = BoardBuilder.from_csv(CSV_PATH)
     assessor = RiskAssessor()
+
+    print("Board state:\n", board)
+    hidden = board.hidden_cells()
+    print("Hidden cells:", hidden)
+    assert len(hidden) > 0, "Test board must contain hidden cells"
+
     prob_map = assessor.estimate(board)
 
     logger.info(f"[TEST SETUP] Passing board object: {board} class={board.__class__}")
@@ -47,6 +65,12 @@ def test_risk_assessor_estimate_behavior():
 def test_risk_assessor_choose_move_returns_hidden():
     board = BoardBuilder.from_csv(CSV_PATH)
     assessor = RiskAssessor()
+
+    print("Board state:\n", board)
+    hidden = board.hidden_cells()
+    print("Hidden cells:", hidden)
+    assert len(hidden) > 0, "Test board must contain hidden cells"
+
     move = assessor.choose_move(board)
 
     assert move is not None, "Expected a move to be returned"
@@ -54,13 +78,11 @@ def test_risk_assessor_choose_move_returns_hidden():
     assert board.grid[r][c].is_hidden(), f"Cell {r,c} was not hidden when selected"
 
 def test_render_cell_with_tooltip():
-    from src.ai_minesweeper.ui_widgets import render_cell_with_tooltip
     html = render_cell_with_tooltip("safe", "This cell is safe.")
     assert "background-color: green" in html
     assert "This cell is safe." in html
 
 def test_add_accessibility_labels_to_cells():
-    from src.ai_minesweeper.ui_widgets import add_accessibility_labels_to_cells
     from ai_minesweeper.board_builder import BoardBuilder
 
     board = BoardBuilder.from_csv(CSV_PATH)
@@ -73,7 +95,6 @@ def test_add_accessibility_labels_to_cells():
         pytest.fail(f"add_accessibility_labels_to_cells raised an exception: {e}")
 
 def test_update_hypotheses_panel():
-    from src.ai_minesweeper.ui_widgets import update_hypotheses_panel
     from ai_minesweeper.board_builder import BoardBuilder
 
     board = BoardBuilder.from_csv(CSV_PATH)
@@ -87,7 +108,7 @@ def test_update_hypotheses_panel():
         pytest.fail(f"update_hypotheses_panel raised an exception: {e}")
 
 def test_ensure_grid_styling_consistency():
-    from src.ai_minesweeper.ui_widgets import ensure_grid_styling_consistency
+    from ai_minesweeper.ui_widgets import ensure_grid_styling_consistency
 
     # Mock Streamlit's markdown function
     st.markdown = lambda x, unsafe_allow_html: None
@@ -98,7 +119,7 @@ def test_ensure_grid_styling_consistency():
         pytest.fail(f"ensure_grid_styling_consistency raised an exception: {e}")
 
 def test_align_chat_input_with_ui():
-    from src.ai_minesweeper.ui_widgets import align_chat_input_with_ui
+    from ai_minesweeper.ui_widgets import align_chat_input_with_ui
 
     # Mock Streamlit's markdown function
     st.markdown = lambda x, unsafe_allow_html: None
@@ -109,7 +130,7 @@ def test_align_chat_input_with_ui():
         pytest.fail(f"align_chat_input_with_ui raised an exception: {e}")
 
 def test_render_hypotheses_with_tooltips():
-    from src.ai_minesweeper.ui_widgets import render_hypotheses_with_tooltips
+    from ai_minesweeper.ui_widgets import render_hypotheses_with_tooltips
     from ai_minesweeper.board_builder import BoardBuilder
 
     board = BoardBuilder.from_csv(CSV_PATH)
@@ -122,7 +143,7 @@ def test_render_hypotheses_with_tooltips():
         pytest.fail(f"render_hypotheses_with_tooltips raised an exception: {e}")
 
 def test_highlight_zero_value_reveals():
-    from src.ai_minesweeper.ui_widgets import highlight_zero_value_reveals
+    from ai_minesweeper.ui_widgets import highlight_zero_value_reveals
     from ai_minesweeper.board_builder import BoardBuilder
     from ai_minesweeper.cell import Cell
 
@@ -138,7 +159,7 @@ def test_highlight_zero_value_reveals():
         pytest.fail(f"highlight_zero_value_reveals raised an exception: {e}")
 
 def test_ensure_persistent_unexplored_cells():
-    from src.ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
+    from ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
     from ai_minesweeper.board_builder import BoardBuilder
 
     board = BoardBuilder.from_csv(CSV_PATH)
@@ -152,7 +173,7 @@ def test_ensure_persistent_unexplored_cells():
         pytest.fail(f"ensure_persistent_unexplored_cells raised an exception: {e}")
 
 def test_highlight_newly_revealed_cells():
-    from src.ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
+    from ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
     from ai_minesweeper.cell import Cell
 
     revealed_cells = [Cell(row=0, col=0), Cell(row=1, col=1)]
@@ -166,7 +187,7 @@ def test_highlight_newly_revealed_cells():
         pytest.fail(f"highlight_newly_revealed_cells raised an exception: {e}")
 
 def test_apply_grid_styling():
-    from src.ai_minesweeper.ui_widgets import apply_grid_styling
+    from ai_minesweeper.ui_widgets import apply_grid_styling
 
     # Mock Streamlit's markdown function
     st.markdown = lambda x, unsafe_allow_html: None
@@ -177,7 +198,7 @@ def test_apply_grid_styling():
         pytest.fail(f"apply_grid_styling raised an exception: {e}")
 
 def test_add_high_contrast_mode():
-    from src.ai_minesweeper.ui_widgets import add_high_contrast_mode
+    from ai_minesweeper.ui_widgets import add_high_contrast_mode
 
     # Mock Streamlit's markdown function
     st.markdown = lambda x, unsafe_allow_html: None
@@ -188,7 +209,7 @@ def test_add_high_contrast_mode():
         pytest.fail(f"add_high_contrast_mode raised an exception: {e}")
 
 def test_add_colorblind_friendly_palette():
-    from src.ai_minesweeper.ui_widgets import add_colorblind_friendly_palette
+    from ai_minesweeper.ui_widgets import add_colorblind_friendly_palette
 
     # Mock Streamlit's markdown function
     st.markdown = lambda x, unsafe_allow_html: None

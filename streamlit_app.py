@@ -42,7 +42,7 @@ def main():
 
             # Main loop logic for step-by-step mode
             if not st.session_state.solver_paused or auto_discover:
-                result = solver.step(board)
+                solver.step(board)  # Removed unused variable 'result'
                 if not auto_discover:
                     st.session_state.solver_paused = True
 
@@ -63,7 +63,7 @@ def main():
                 st.session_state.solver_paused = False
 
             if not st.session_state.solver_paused:
-                result = solver.step(board)
+                solver.step(board)  # Removed unused variable 'result'
                 st.session_state.solver_paused = True
 
         # Display the summary panel
