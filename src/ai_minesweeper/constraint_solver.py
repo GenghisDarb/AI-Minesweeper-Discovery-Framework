@@ -1,4 +1,5 @@
 # src/ai_minesweeper/constraint_solver.py
+from ai_minesweeper.cell import State
 
 
 class ConstraintSolver:
