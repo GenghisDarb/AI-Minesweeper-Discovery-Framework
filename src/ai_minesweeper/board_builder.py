@@ -1,5 +1,5 @@
 from pathlib import Path
-from ai_minesweeper.board import Board, Cell
+from ai_minesweeper.board import Board, Cell, State
 import pandas as pd
 
 
