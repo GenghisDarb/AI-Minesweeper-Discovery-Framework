@@ -222,7 +222,7 @@ class BoardBuilder:
                 cell = board.grid[r][c]
                 if isinstance(value, Cell):
                     cell.symbol = value.symbol  # Preserve the symbol attribute
-                elif value in {"M", "X"}:
+                elif value.upper() in {"MINE", "M", "X"}:
                     cell.is_mine = True
                 elif isinstance(value, int):
                     cell.state = State.REVEALED

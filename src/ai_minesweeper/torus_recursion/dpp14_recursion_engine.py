@@ -96,9 +96,17 @@ class DPP14RecursionEngine:
 
     def _test_hypothesis(self, board: Any, move: Any) -> str:
         """Simulates testing a hypothesis."""
-        cell = board[move.row][move.col]
+        if isinstance(move, tuple):
+            row, col = move
+        else:
+            row, col = move.row, move.col
+
+        cell = board[row][col]
         if cell.state == "mine":  # adjust for actual cell structure
             return "contradiction"
         else:
-            board.reveal(move.row, move.col)
+            if isinstance(move, tuple):
+                board.reveal(row, col)
+            else:
+                board.reveal(move.row, move.col)
             return "valid"
