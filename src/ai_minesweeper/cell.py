@@ -61,16 +61,18 @@ class Cell:
         if isinstance(token, Cell):
             return token
         token = str(token).strip().upper()
-        if token in ["HIDDEN", ".", "1"]:
-            return Cell(state=State.HIDDEN)
-        elif token in ["MINE", "*"]:
-            return Cell(is_mine=True)
-        elif token in ["FALSE"] or token.startswith("EKA"):
-            return Cell(is_false_hypothesis=True)
-        elif token.isdigit() and int(token) > 100:
-            return Cell(is_false_hypothesis=True)
         cell = Cell()
-        cell.confidence = 0.0  # Default confidence level
+        cell.symbol = token  # Set the symbol attribute for all tokens
+        if token in ["HIDDEN", ".", "1"]:
+            cell.state = State.HIDDEN
+        elif token in ["MINE", "*", "X"]:
+            cell.state = State.MINE
+        elif token in ["FALSE"] or token.startswith("EKA"):
+            cell.is_false_hypothesis = True
+        elif token.isdigit() and int(token) > 100:
+            cell.is_false_hypothesis = True
+        else:
+            cell.confidence = 0.0  # Default confidence level
         return cell
 
     def __hash__(self):

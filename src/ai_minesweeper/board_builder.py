@@ -10,10 +10,14 @@ class BoardBuilder:
     def from_csv(path: str | Path, header: int | None = None) -> Board:
         """Parse a CSV file into a Board object."""
         df = pd.read_csv(path, header=None)
+        print(f"[DEBUG] CSV content:\n{df}")  # Log the CSV content
         grid = [
             [Cell.from_token(str(token).strip()) for token in row]
             for _, row in df.iterrows()
         ]
+        for row in grid:
+            for cell in row:
+                print(f"[DEBUG] Created cell: {cell}")  # Log each created cell
         board = BoardBuilder._empty_board(len(grid), len(grid[0]))
         BoardBuilder._populate_board(board, grid)
         return board
@@ -189,6 +193,8 @@ class BoardBuilder:
         for r, row in enumerate(grid):
             for c, value in enumerate(row):
                 cell = board.grid[r][c]
+                if isinstance(value, Cell):
+                    cell.symbol = value.symbol  # Preserve the symbol attribute
                 if value in {"M", "X"}:
                     cell.is_mine = True
                 elif isinstance(value, int):
