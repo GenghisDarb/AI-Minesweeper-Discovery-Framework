@@ -83,7 +83,7 @@ class DPP14RecursionEngine:
             print(
                 f"[DPP14] Step {steps} – Chose cell ({move.row},{move.col}), result={result}"
             )
-            # Skip visualization since the method doesn't exist
+            self._visualize_board(lane.board)
 
             if result == "contradiction":
                 print(
