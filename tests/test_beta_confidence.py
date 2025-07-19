@@ -12,6 +12,10 @@ def test_confidence_update():
     assert abs(conf.alpha - 1.5) < 0.1
     assert abs(conf.beta - 1.5) < 0.1
 
+    conf.update(1.0, True)  # Full confidence mine, revealed as mine
+    assert abs(conf.alpha - 2.5) < 0.1
+    assert abs(conf.beta - 1.5) < 0.1
+
 
 def test_confidence_mean():
     conf = BetaConfidence(alpha=3.0, beta=1.0)

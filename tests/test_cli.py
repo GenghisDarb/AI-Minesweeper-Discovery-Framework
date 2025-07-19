@@ -14,3 +14,4 @@ def test_play_command():
     result = runner.invoke(app, ["play", "examples/boards/sample.csv"])
     assert result.exit_code == 0
     assert "Game completed!" in result.output
+    assert "The board is valid." not in result.output  # Ensure no dry-run message appears

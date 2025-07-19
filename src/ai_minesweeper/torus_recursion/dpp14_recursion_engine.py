@@ -38,14 +38,13 @@ class DPP14RecursionEngine:
         """
         print("[DPP14] Starting engine...")
         if self.debug_mode:
-            print("[DPP14] Debug mode ON – limiting recursion depth.")
+            print("[DPP14] Debug mode ON ")
 
         for lane in self.lanes[: 2 if self.debug_mode else len(self.lanes)]:
             self._run_lane(lane)
 
-        # Aggregate results
         final_chi14 = sum(lane.chi_value or 0 for lane in self.lanes) / len(self.lanes)
-        collapsed_lanes = sum(1 for lane in self.lanes if lane.collapsed)
+        collapsed_lanes = [lane.lane_id for lane in self.lanes if lane.collapsed]
 
         return {
             "final_chi14": final_chi14,

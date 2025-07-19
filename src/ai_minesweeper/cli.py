@@ -47,7 +47,10 @@ def play(
     try:
         board = BoardBuilder.from_csv(csv_path)
         if dry_run:
-            message = "Dry run: Board loaded successfully."
+            if board.is_valid():
+                message = "The board is valid."
+            else:
+                message = "The board has inconsistencies."
             logger.info(message)
             print(message)
             return
@@ -57,8 +60,7 @@ def play(
             move = solver.choose_move(board)
             if move is None:
                 break
-            row, col = move
-            board.grid[row][col].state = State.REVEALED
+            board.reveal(move.row, move.col)
 
         message = "Game completed! All hypotheses resolved."
         logger.info(message)

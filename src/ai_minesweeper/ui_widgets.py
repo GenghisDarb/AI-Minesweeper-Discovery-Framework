@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def display_confidence(conf: float, mode="cli") -> str:
     if mode == "cli":
-        result = f"Confidence: {conf * 100:.1f}% [{'█' * int(conf * 20)}{' ' * (20 - int(conf * 20))}]"
+        result = f"Confidence: {conf * 100:.1f}% [{'=' * int(conf * 20)}{' ' * (20 - int(conf * 20))}]"
         logger.info(result)
         return result
     elif mode == "streamlit":
@@ -420,3 +420,18 @@ class BarMeter:
         filled_length = int(self.confidence * bar_length)
         bar = "■" * filled_length + "□" * (bar_length - filled_length)
         print(f"CONFIDENCE {bar} {self.confidence * 100:.0f} %")
+
+def render_chi_brot_visualizer():
+    """Render a placeholder χ-brot fractal visualizer."""
+    st.markdown("### χ-brot Fractal Visualizer")
+    st.write("This feature is under development. Placeholder visualization below:")
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    x = np.linspace(-2, 2, 400)
+    y = np.linspace(-2, 2, 400)
+    X, Y = np.meshgrid(x, y)
+    Z = X**2 - Y**2 + 0.785398
+
+    plt.contourf(X, Y, Z, levels=50, cmap="viridis")
+    st.pyplot(plt)

@@ -14,6 +14,7 @@ def test_dpp14_engine_phase_locked():
 
     assert results["final_chi14"] is not None
     assert len(results["collapsed_lanes"]) == 0  # No lanes should collapse
+    assert all(isinstance(lane, int) for lane in results["collapsed_lanes"])
 
 
 def test_dpp14_engine_divergence():

@@ -25,11 +25,15 @@ class BoardBuilder:
             for token in row:
                 token_str = "" if pd.isna(token) else str(token).strip()
                 if token_str.upper() in {"", "X"}:  # Blank or 'X' → mine
-                    cells.append(Cell(is_mine=True, state=State.HIDDEN))
+                    cell = Cell(is_mine=True, state=State.HIDDEN)
+                    cell.symbol = token_str  # Assign symbol for mines
+                    cells.append(cell)
                 elif token_str.isdigit() and 0 <= int(token_str) <= 8:  # Clue
                     cells.append(Cell(state=State.REVEALED, clue=int(token_str)))
                 else:  # Safe hidden cell
-                    cells.append(Cell(state=State.HIDDEN))
+                    cell = Cell(state=State.HIDDEN)
+                    cell.symbol = token_str
+                    cells.append(cell)
             grid.append(cells)
 
         # Defensive checks

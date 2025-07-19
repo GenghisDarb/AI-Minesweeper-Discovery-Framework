@@ -7,12 +7,12 @@ class ConstraintSolver:
         Choose the next move based on deterministic Minesweeper rules.
 
         :param board: The current board state.
-        :return: A tuple (row, col) for the next move, or None if no move is possible.
+        :return: A Cell object for the next move, or None if no move is possible.
         """
         for row in board.grid:
             for cell in row:
                 if cell.state == State.REVEALED and cell.clue is not None:
-                    neighbors = board.get_neighbors(cell)
+                    neighbors = board.adjacent_cells(cell.row, cell.col)
                     hidden_neighbors = [n for n in neighbors if n.state == State.HIDDEN]
                     flagged_neighbors = [n for n in neighbors if n.state == State.FLAGGED]
 
@@ -28,9 +28,23 @@ class ConstraintSolver:
                             neighbor.state = State.REVEALED
                         return None  # Continue solving
 
+        for row in board.grid:
+            for cell in row:
+                if cell.state == State.HIDDEN:
+                    return cell
+
         # Fallback: No deterministic move found
         return None
 
     def solve(self, board):
-        # Delegate to core logic
-        return self.choose_move(board)
+        """
+        Solve the board by applying moves until no more moves are possible.
+        """
+        moves = 0
+        max_moves = 100
+        while moves < max_moves:
+            move = self.choose_move(board)
+            if move is None:
+                break
+            board.reveal(move.row, move.col)
+            moves += 1

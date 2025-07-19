@@ -1,7 +1,7 @@
 class BetaConfidence:
     def __init__(self):
-        self.alpha = 0.0
-        self.beta = 0.0
+        self.alpha = 1.0
+        self.beta = 1.0
 
     def update(self, predicted_probability: float, revealed_is_mine: bool):
         """
@@ -12,5 +12,19 @@ class BetaConfidence:
         """
         if revealed_is_mine:
             self.alpha += predicted_probability
+            self.beta += (1 - predicted_probability)
         else:
+            self.alpha += (1 - predicted_probability)
             self.beta += predicted_probability
+
+    def mean(self):
+        """Calculate the mean of the Beta distribution."""
+        return self.alpha / (self.alpha + self.beta)
+
+    def set_threshold(self, threshold: float):
+        """Set a confidence threshold."""
+        self.threshold = threshold
+
+    def get_threshold(self):
+        """Get the current confidence threshold."""
+        return self.threshold

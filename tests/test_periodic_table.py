@@ -1,4 +1,4 @@
-from ai_minesweeper.board import Board, Cell
+from ai_minesweeper.board import Board, Cell, State
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.periodic_table import PeriodicTableDomain
 
@@ -9,6 +9,12 @@ def test_periodic_table_demo():
     assert any(
         PeriodicTableDomain.is_mine(cell) for row in board.grid for cell in row
     ), "No mines detected in periodic table board"
+    assert all(
+        cell.symbol is not None
+        for row in board.grid
+        for cell in row
+        if cell.state == State.HIDDEN
+    ), "Some hidden cells have None as symbol"
 
 
 def test_get_neighbors():

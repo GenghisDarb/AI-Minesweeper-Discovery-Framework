@@ -22,13 +22,15 @@ class Board:
             else:
                 print("[DEBUG] grid is NOT a list")
 
-        if grid:
-            self.grid = grid
-        else:
+        if grid is None:
+            if n_rows is None or n_cols is None:
+                raise ValueError("n_rows and n_cols must be provided if grid is None")
             self.grid = [
                 [Cell(row=i, col=j, state=State.HIDDEN) for j in range(n_cols)]
                 for i in range(n_rows)
             ]
+        else:
+            self.grid = grid
 
         self.n_rows = len(self.grid)
         self.n_cols = len(self.grid[0]) if self.grid else 0
@@ -37,6 +39,7 @@ class Board:
             for j, cell in enumerate(row):
                 cell.row = i
                 cell.col = j
+                cell.neighbors = self.adjacent_cells(i, j)
 
         if self.n_rows < 0 or self.n_cols < 0:
             raise ValueError("Board dimensions must be non-negative integers.")

@@ -36,18 +36,19 @@ class BetaConfidence:
         """
         self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
 
-    def update(self, success: bool, count: int = 1) -> None:
+    def update(self, predicted_probability: float, revealed_is_mine: bool):
         """
-        Update the Beta distribution based on prediction success or failure.
+        Update confidence values based on prediction accuracy.
 
-        Args:
-            success (bool): True if the prediction was correct, False otherwise.
-            count (int): The number of successes or failures to update the distribution by.
+        :param predicted_probability: The predicted probability of the cell being a mine.
+        :param revealed_is_mine: Whether the revealed cell is actually a mine.
         """
-        if success:
-            self.alpha += count
+        if revealed_is_mine:
+            self.alpha += predicted_probability
+            self.beta += (1 - predicted_probability)
         else:
-            self.beta += count
+            self.alpha += (1 - predicted_probability)
+            self.beta += predicted_probability
 
     def mean(self) -> float:
         """

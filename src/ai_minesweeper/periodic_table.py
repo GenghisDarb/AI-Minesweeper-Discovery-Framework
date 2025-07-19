@@ -1,9 +1,12 @@
+from ai_minesweeper.board import State
+
+
 class PeriodicTableDomain:
     @staticmethod
     def is_mine(cell):
         print(
             f"[DEBUG] Checking if cell is mine: state={cell.state}, symbol={cell.symbol}"
-        )  # Debugging output
+        )
         mine_symbols = {
             "li",
             "be",
@@ -13,26 +16,25 @@ class PeriodicTableDomain:
             "br",
             "i",
             "eka",
-            "x",  # Added X to mine symbols
+            "x",
         }
-        return cell.symbol.lower() in mine_symbols
+        return cell.symbol and cell.symbol.lower() in mine_symbols and cell.state == State.HIDDEN
 
     @staticmethod
     def get_neighbors(cell, board):
+        if not board.grid:
+            return []
         neighbors = []
-        for other in board.cells:
-            if (
-                other.group == cell.group or other.period == cell.period
-            ) and other != cell:
-                neighbors.append(other)
-        # Ensure unique neighbors and correct count
-        unique_neighbors = []
-        for neighbor in neighbors:
-            if neighbor not in unique_neighbors:
-                unique_neighbors.append(neighbor)
+        for row in board.grid:
+            for other in row:
+                if (
+                    other.group == cell.group or other.period == cell.period
+                ) and other != cell:
+                    neighbors.append(other)
+        unique_neighbors = list({neighbor: None for neighbor in neighbors})
         return unique_neighbors
 
     @staticmethod
     def generate_clue(cell, neighbors):
-        print(f"Generating clue for cell: symbol={cell.symbol}")  # Debugging output
+        print(f"Generating clue for cell: symbol={cell.symbol}")
         return sum(1 for neighbor in neighbors if PeriodicTableDomain.is_mine(neighbor))
