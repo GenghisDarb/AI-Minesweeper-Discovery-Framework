@@ -15,7 +15,6 @@ from ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
 from ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
 from ai_minesweeper.ui_widgets import apply_grid_styling
 from ai_minesweeper.ui_widgets import add_high_contrast_mode
-from ai_minesweeper.ui_widgets import add_colorblind_friendly_palette
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -199,9 +198,5 @@ def test_add_high_contrast_mode():
         add_high_contrast_mode()
     except Exception as e:
         pytest.fail(f"add_high_contrast_mode raised an exception: {e}")
-
-def test_add_colorblind_friendly_palette():
-    # Test implementation
-    pass
 
 logger.debug(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in test_quick")
