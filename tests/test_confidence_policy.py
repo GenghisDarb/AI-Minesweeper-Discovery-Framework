@@ -37,10 +37,11 @@ def test_confidence_threshold_mapping():
         prob = SpreadRiskAssessor().estimate(board)
         # candidate set = cells with adjusted p ≤ τ (fallback to all)
         # Prioritize cells with probabilities closest to the threshold
-        safe = [c for c, p in prob.items() if abs(p - tau) <= tau] or list(prob)
-        result = min(safe, key=lambda c: (abs(prob[c] - tau), c.row, c.col))
-
-        return result
+        safe = [coords for coords, p in prob.items() if abs(p - tau) <= tau] or list(prob.keys())
+        result_coords = min(safe, key=lambda coords: (abs(prob[coords] - tau), coords[0], coords[1]))
+        # Convert coordinates back to Cell object
+        r, c = result_coords
+        return board.grid[r][c]
 
     confidence.set_threshold(0.1)
     tau_low = 0.1
