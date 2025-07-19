@@ -71,9 +71,9 @@ class ConfidencePolicy:
             if (0 <= row < board_state.n_rows and 
                 0 <= col < board_state.n_cols):
                 cell = board_state.grid[row][col]
-                if cell.row == -1:
+                if cell.row is None:
                     cell.row = row
-                if cell.col == -1:
+                if cell.col is None:
                     cell.col = col
                 return cell
             return None
