@@ -36,19 +36,33 @@ class BetaConfidence:
         """
         self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
 
-    def update(self, predicted_probability: float, revealed_is_mine: bool):
+    def update(
+        self,
+        predicted_probability: float = None,
+        revealed_is_mine: bool = None,
+        success: bool = None,
+    ):
         """
         Update confidence values based on prediction accuracy.
 
         :param predicted_probability: The predicted probability of the cell being a mine.
         :param revealed_is_mine: Whether the revealed cell is actually a mine.
+        :param success: Whether the prediction was successful (True for success, False for failure).
         """
-        if revealed_is_mine:
-            self.alpha += predicted_probability
-            self.beta += (1 - predicted_probability)
+        if success is not None:
+            if success:
+                self.alpha += 1
+            else:
+                self.beta += 1
+        elif predicted_probability is not None and revealed_is_mine is not None:
+            if revealed_is_mine:
+                self.alpha += predicted_probability
+            else:
+                self.beta += (1 - predicted_probability)
         else:
-            self.alpha += (1 - predicted_probability)
-            self.beta += predicted_probability
+            raise ValueError(
+                "Either `success` or both `predicted_probability` and `revealed_is_mine` must be provided."
+            )
 
     def mean(self) -> float:
         """

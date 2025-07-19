@@ -222,16 +222,17 @@ class BoardBuilder:
                 cell = board.grid[r][c]
                 if isinstance(value, Cell):
                     cell.symbol = value.symbol  # Preserve the symbol attribute
-                if value in {"M", "X"}:
+                elif value in {"M", "X"}:
                     cell.is_mine = True
                 elif isinstance(value, int):
                     cell.state = State.REVEALED
                     cell.adjacent_mines = value
-                # Hidden empty cells are already initialized by default
-                if pd.isna(value) or str(value).strip().upper() in {"", "X"}:
-                    cell.is_mine = True
-                else:
+                elif str(value).strip().upper() in {"", "."}:
                     cell.state = State.HIDDEN
+                elif value.upper() == "HIDDEN":
+                    cell.state = State.HIDDEN
+                else:
+                    raise ValueError(f"Invalid cell value: {value}")
 
         # Safety checks for list accesses
         for r in range(board.n_rows):
@@ -247,3 +248,7 @@ class BoardBuilder:
                             and x < len(board.grid)
                             and y < len(board.grid[x])
                         ]
+
+        # Check if rows is empty before accessing len(rows[0])
+        if not grid or not grid[0]:
+            raise ValueError("The provided text does not contain a valid board layout.")

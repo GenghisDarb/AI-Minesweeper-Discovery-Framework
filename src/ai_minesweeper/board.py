@@ -30,21 +30,21 @@ class Board:
                 for i in range(n_rows)
             ]
         else:
-            # Convert string grid to Cell objects if needed
             self.grid = []
             for i, row in enumerate(grid):
                 cell_row = []
                 for j, cell_data in enumerate(row):
                     if isinstance(cell_data, str):
-                        # Convert string to Cell
-                        if cell_data == "mine":
+                        if cell_data.lower() == "mine":
                             cell = Cell(row=i, col=j, state=State.MINE, is_mine=True)
+                        elif cell_data in [s.value for s in State]:
+                            cell = Cell(row=i, col=j, state=State(cell_data))
                         else:
-                            state = State(cell_data) if cell_data in [s.value for s in State] else State.HIDDEN
-                            cell = Cell(row=i, col=j, state=state)
-                    else:
-                        # Assume it's already a Cell object
+                            cell = Cell(row=i, col=j, state=State.HIDDEN)
+                    elif isinstance(cell_data, Cell):
                         cell = cell_data
+                    else:
+                        raise ValueError(f"Invalid cell data: {cell_data}")
                     cell_row.append(cell)
                 self.grid.append(cell_row)
 
@@ -195,22 +195,12 @@ class Board:
 
     def hidden_cells(self) -> list[Cell]:
         """Return a list of all hidden Cell objects."""
+        hidden_cells = []
         for r, row in enumerate(self.grid):
             for c, cell in enumerate(row):
-                print(
-                    f"[CHECK] ({r},{c}) state: {cell.state} (value: {getattr(cell.state, 'value', None)})"
-                )
-                assert cell.state.value == State.HIDDEN.value, (
-                    f"State mismatch: {cell.state.value} != {State.HIDDEN.value}"
-                )
                 if cell.state and cell.state.value == State.HIDDEN.value:
-                    print(f"[APPEND] ({r},{c}) added to hidden_cells")
-        return [
-            cell
-            for row in self.grid
-            for cell in row
-            if cell.state and cell.state.value == State.HIDDEN.value
-        ]
+                    hidden_cells.append(cell)
+        return hidden_cells
 
     @property
     def mines_remaining(self) -> int:
