@@ -27,9 +27,15 @@ class PeriodicTableDomain:
             "eka",
             "x",  # Added to support test board representation
         }
-        print(f"Checking if cell is mine: symbol={cell.symbol}, mine_symbols={mine_symbols}")  # Debugging output
-        print(f"[DEBUG] Comparing: {cell.symbol.lower()} in {mine_symbols}")  # Log comparison details
-        print(f"[DEBUG] Initial symbol state: {cell.symbol}")  # Log initial symbol state
+        print(
+            f"Checking if cell is mine: symbol={cell.symbol}, mine_symbols={mine_symbols}"
+        )  # Debugging output
+        print(
+            f"[DEBUG] Comparing: {cell.symbol.lower()} in {mine_symbols}"
+        )  # Log comparison details
+        print(
+            f"[DEBUG] Initial symbol state: {cell.symbol}"
+        )  # Log initial symbol state
         result = cell.symbol.lower() in mine_symbols if cell.symbol else False
         print(f"[DEBUG] is_mine result: {result}")  # Log the return value
         return result

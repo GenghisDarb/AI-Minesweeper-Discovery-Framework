@@ -31,7 +31,11 @@ class DPP14RecursionEngine:
         return copy.deepcopy(board)
 
     def run(self) -> Dict[str, Any]:
-        """Executes the 14-lane recursion engine."""
+        """
+        Executes the 14-lane recursion engine and aggregates results.
+
+        :return: A dictionary containing final_chi14, lane_results, and collapsed_lanes.
+        """
         print("[DPP14] Starting engine...")
         if self.debug_mode:
             print("[DPP14] Debug mode ON – limiting recursion depth.")
@@ -40,14 +44,13 @@ class DPP14RecursionEngine:
             self._run_lane(lane)
 
         # Aggregate results
-        chi_values = [
-            lane.chi_value for lane in self.lanes if lane.chi_value is not None
-        ]
-        final_chi14 = sum(chi_values) / len(chi_values) if chi_values else None
+        final_chi14 = sum(lane.chi_value or 0 for lane in self.lanes) / len(self.lanes)
+        collapsed_lanes = sum(1 for lane in self.lanes if lane.collapsed)
 
         return {
             "final_chi14": final_chi14,
             "lane_results": [lane.resonance_zones for lane in self.lanes],
+            "collapsed_lanes": collapsed_lanes,
         }
 
     def _run_lane(self, lane: RecursionLane) -> None:

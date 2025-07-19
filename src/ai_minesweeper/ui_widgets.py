@@ -206,7 +206,11 @@ def render_hypotheses_with_tooltips(board):
     """
     st.markdown("### Hypotheses with Tooltips")
     for hypothesis in board.get_revealed_hypotheses():
-        tooltip = f"Details: {hypothesis.details}" if hasattr(hypothesis, 'details') else "No additional details."
+        tooltip = (
+            f"Details: {hypothesis.details}"
+            if hasattr(hypothesis, "details")
+            else "No additional details."
+        )
         st.markdown(
             f'<div style="border: 1px solid black; padding: 5px;" title="{tooltip}">{hypothesis}</div>',
             unsafe_allow_html=True,
@@ -246,7 +250,9 @@ def update_hypotheses_panel(board):
     for hypothesis in board.get_revealed_hypotheses():
         st.write(f"Hypothesis: {hypothesis}")
 
-    unresolved = [cell for row in board.grid for cell in row if cell.state == State.HIDDEN]
+    unresolved = [
+        cell for row in board.grid for cell in row if cell.state == State.HIDDEN
+    ]
     if unresolved:
         st.markdown("#### Unresolved Cells")
         for cell in unresolved:
@@ -310,7 +316,7 @@ def enhance_grid_accessibility():
         unsafe_allow_html=True,
     )
     # ...existing code for rendering grid cells...
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def add_colorblind_friendly_palette():

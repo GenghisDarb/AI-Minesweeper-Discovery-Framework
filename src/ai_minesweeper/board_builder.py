@@ -7,19 +7,39 @@ class BoardBuilder:
     """Factory helpers for Board objects."""
 
     @staticmethod
-    def from_csv(path: str | Path, header: int | None = None) -> Board:
-        """Parse a CSV file into a Board object."""
-        df = pd.read_csv(path, header=None)
-        print(f"[DEBUG] CSV content:\n{df}")  # Log the CSV content
-        grid = [
-            [Cell.from_token(str(token).strip()) for token in row]
-            for _, row in df.iterrows()
-        ]
-        for row in grid:
-            for cell in row:
-                print(f"[DEBUG] Created cell: {cell}")  # Log each created cell
-        board = BoardBuilder._empty_board(len(grid), len(grid[0]))
-        BoardBuilder._populate_board(board, grid)
+    def from_csv(path: str | Path, header: bool | None = None) -> Board:
+        """
+        Parse a CSV file into a Board object.
+
+        :param path: Path to the CSV file.
+        :param header: Whether the CSV file has a header row (True/False/None).
+        """
+        # Interpret header argument
+        header_option = 0 if header else None
+        df = pd.read_csv(path, header=header_option)
+
+        # Convert DataFrame → grid of Cell objects
+        grid: list[list[Cell]] = []
+        for _, row in df.iterrows():
+            cells: list[Cell] = []
+            for token in row:
+                token_str = "" if pd.isna(token) else str(token).strip()
+                if token_str.upper() in {"", "X"}:  # Blank or 'X' → mine
+                    cells.append(Cell(is_mine=True, state=State.HIDDEN))
+                elif token_str.isdigit() and 0 <= int(token_str) <= 8:  # Clue
+                    cells.append(Cell(state=State.REVEALED, clue=int(token_str)))
+                else:  # Safe hidden cell
+                    cells.append(Cell(state=State.HIDDEN))
+            grid.append(cells)
+
+        # Defensive checks
+        if not grid or not grid[0]:
+            raise ValueError("CSV file is empty or malformed (no data rows).")
+        row_len = len(grid[0])
+        if any(len(r) != row_len for r in grid):
+            raise ValueError("CSV rows have inconsistent column counts.")
+
+        board = Board(n_rows=len(grid), n_cols=row_len, grid=grid)
         return board
 
     @staticmethod
@@ -216,5 +236,7 @@ class BoardBuilder:
                             board.grid[x][y]
                             for x in range(max(0, r - 1), min(board.n_rows, r + 2))
                             for y in range(max(0, c - 1), min(board.n_cols, c + 2))
-                            if (x, y) != (r, c) and x < len(board.grid) and y < len(board.grid[x])
+                            if (x, y) != (r, c)
+                            and x < len(board.grid)
+                            and y < len(board.grid[x])
                         ]

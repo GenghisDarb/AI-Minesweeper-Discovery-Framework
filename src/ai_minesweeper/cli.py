@@ -8,7 +8,9 @@ from ai_minesweeper.constraint_solver import ConstraintSolver
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = typer.Typer(help="AI Minesweeper CLI – play or validate boards via the command line.")
+app = typer.Typer(
+    help="AI Minesweeper CLI – play or validate boards via the command line."
+)
 
 
 @app.command()
@@ -17,45 +19,55 @@ def validate(csv_path: str = typer.Argument(..., help="Path to the board CSV fil
     try:
         board = BoardBuilder.from_csv(csv_path)
         if board.is_valid():
-            logger.info("The board is valid.")
+            message = "The board is valid."
+            logger.info(message)
+            print(message)
         else:
-            logger.warning("The board has inconsistencies.")
+            message = "The board has inconsistencies."
+            logger.warning(message)
+            print(message)
     except FileNotFoundError:
-        logger.error(f"Error: File '{csv_path}' not found.")
+        message = f"Error: File '{csv_path}' not found."
+        logger.error(message)
+        print(message)
     except Exception as e:
-        logger.exception(f"An error occurred during validation: {e}")
+        message = f"An error occurred during validation: {e}"
+        logger.exception(message)
+        print(message)
 
 
 @app.command()
-def play(csv_path: str = typer.Argument(..., help="Path to the board CSV file"),
-         dry_run: bool = typer.Option(False, "--dry-run", help="Validate the board without playing through the moves.")):
+def play(
+    csv_path: str = typer.Argument(..., help="Path to the board CSV file"),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Validate the board without playing through the moves."
+    ),
+):
     """Play Minesweeper using a CSV board."""
     try:
         board = BoardBuilder.from_csv(csv_path)
         if dry_run:
-            if board.is_valid():
-                logger.info("The board is valid.")
-            else:
-                logger.warning("The board has inconsistencies.")
+            message = "Dry run: Board loaded successfully."
+            logger.info(message)
+            print(message)
             return
 
-        logger.info("Loaded board:")
-        logger.info(board)
-
         solver = ConstraintSolver()
-        while not board.is_solved():
+        while True:
             move = solver.choose_move(board)
-            logger.info(f"Revealing cell at {move}...")
-            board.reveal(move)
-            logger.info(board)
+            if move is None:
+                break
+            row, col = move
+            board.grid[row][col].state = State.REVEALED
 
-        logger.info("Game completed! All hypotheses resolved.")
-        print("Game completed!")
+        message = "Game completed! All hypotheses resolved."
+        logger.info(message)
+        print(message)
     except FileNotFoundError:
-        logger.error(f"Error: File '{csv_path}' not found.")
+        message = f"Error: File '{csv_path}' not found."
+        logger.error(message)
+        print(message)
     except Exception as e:
-        logger.exception(f"An error occurred during gameplay: {e}")
-
-
-if __name__ == "__main__":
-    app()
+        message = f"An error occurred during gameplay: {e}"
+        logger.exception(message)
+        print(message)

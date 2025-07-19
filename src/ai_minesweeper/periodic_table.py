@@ -1,7 +1,9 @@
 class PeriodicTableDomain:
     @staticmethod
     def is_mine(cell):
-        print(f"[DEBUG] Checking if cell is mine: state={cell.state}, symbol={cell.symbol}")  # Debugging output
+        print(
+            f"[DEBUG] Checking if cell is mine: state={cell.state}, symbol={cell.symbol}"
+        )  # Debugging output
         mine_symbols = {
             "li",
             "be",

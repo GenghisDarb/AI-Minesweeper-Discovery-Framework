@@ -3,8 +3,14 @@ class BetaConfidence:
         self.alpha = 0.0
         self.beta = 0.0
 
-    def update(self, revealed_is_false: bool):
-        if revealed_is_false:
-            self.alpha += 0.5
+    def update(self, predicted_probability: float, revealed_is_mine: bool):
+        """
+        Update confidence values based on prediction accuracy.
+
+        :param predicted_probability: The predicted probability of the cell being a mine.
+        :param revealed_is_mine: Whether the revealed cell is actually a mine.
+        """
+        if revealed_is_mine:
+            self.alpha += predicted_probability
         else:
-            self.beta += 0.5
+            self.beta += predicted_probability

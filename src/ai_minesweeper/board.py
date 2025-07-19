@@ -13,14 +13,23 @@ class Board:
             if isinstance(grid, list):
                 print(f"[DEBUG] grid has {len(grid)} rows")
                 if len(grid) > 0:
-                    print(f"[DEBUG] first row type: {type(grid[0])}, length: {len(grid[0])}")
+                    print(
+                        f"[DEBUG] first row type: {type(grid[0])}, length: {len(grid[0])}"
+                    )
                     print(f"[DEBUG] first cell sample: {repr(grid[0][0])}")
                 else:
                     print("[DEBUG] grid is an empty list")
             else:
                 print("[DEBUG] grid is NOT a list")
 
-        self.grid = grid if grid else []
+        if grid:
+            self.grid = grid
+        else:
+            self.grid = [
+                [Cell(row=i, col=j, state=State.HIDDEN) for j in range(n_cols)]
+                for i in range(n_rows)
+            ]
+
         self.n_rows = len(self.grid)
         self.n_cols = len(self.grid[0]) if self.grid else 0
 
@@ -60,7 +69,9 @@ class Board:
             print("[DEBUG] Board initialized with grid:")
             for row in self.grid:
                 print(" ".join(cell.state.name for cell in row))
-            print(f"[BOARD INIT] Created Board with {self.n_rows} rows and {self.n_cols} cols")
+            print(
+                f"[BOARD INIT] Created Board with {self.n_rows} rows and {self.n_cols} cols"
+            )
             print(f"[BOARD INIT] Board id={id(self)}, grid id={id(self.grid)}")
 
     @staticmethod
@@ -92,7 +103,9 @@ class Board:
                     nbrs.append(self.grid[nr][nc])
         return nbrs
 
-    def reveal(self, row: int | tuple[int, int], col: int = None, flood: bool = False) -> None:
+    def reveal(
+        self, row: int | tuple[int, int], col: int = None, flood: bool = False
+    ) -> None:
         if col is None and isinstance(row, tuple):
             row, col = row
         cell = self.grid[row][col]
@@ -119,9 +132,25 @@ class Board:
         return Cell()
 
     def add_cell(self, row, col, is_mine=False):
-        """Add a cell to the board at the specified position."""
-        if row >= self.n_rows or col >= self.n_cols:
-            raise ValueError("Cell position out of bounds.")
+        """
+        Add a cell to the board at the specified position, dynamically resizing if needed.
+
+        :param row: Row index of the cell.
+        :param col: Column index of the cell.
+        :param is_mine: Whether the cell is a mine.
+        """
+        # Expand rows if necessary
+        while row >= self.n_rows:
+            self.grid.append([Cell(row=len(self.grid), col=c, state=State.HIDDEN) for c in range(self.n_cols)])
+            self.n_rows += 1
+
+        # Expand columns if necessary
+        for r in range(self.n_rows):
+            while col >= self.n_cols:
+                self.grid[r].append(Cell(row=r, col=len(self.grid[r]), state=State.HIDDEN))
+            self.n_cols = max(self.n_cols, col + 1)
+
+        # Add the new cell
         self.grid[row][col] = Cell(row=row, col=col, is_mine=is_mine)
 
     def get_neighbors(self, cell):
@@ -149,11 +178,20 @@ class Board:
         """Return a list of all hidden Cell objects."""
         for r, row in enumerate(self.grid):
             for c, cell in enumerate(row):
-                print(f"[CHECK] ({r},{c}) state: {cell.state} (value: {getattr(cell.state, 'value', None)})")
-                assert cell.state.value == State.HIDDEN.value, f"State mismatch: {cell.state.value} != {State.HIDDEN.value}"
+                print(
+                    f"[CHECK] ({r},{c}) state: {cell.state} (value: {getattr(cell.state, 'value', None)})"
+                )
+                assert cell.state.value == State.HIDDEN.value, (
+                    f"State mismatch: {cell.state.value} != {State.HIDDEN.value}"
+                )
                 if cell.state and cell.state.value == State.HIDDEN.value:
                     print(f"[APPEND] ({r},{c}) added to hidden_cells")
-        return [cell for row in self.grid for cell in row if cell.state and cell.state.value == State.HIDDEN.value]
+        return [
+            cell
+            for row in self.grid
+            for cell in row
+            if cell.state and cell.state.value == State.HIDDEN.value
+        ]
 
     @property
     def mines_remaining(self) -> int:
@@ -277,9 +315,25 @@ class Board:
         return cell.is_mine
 
     def is_valid(self):
-        """Check if the board is in a valid state."""
-        return all(cell.state != State.HIDDEN for row in self.grid for cell in row)
+        """
+        Check if the board is in a valid state by verifying clue consistency.
+
+        :return: True if the board is valid, False otherwise.
+        """
+        for row in self.grid:
+            for cell in row:
+                if cell.state == State.REVEALED and cell.clue is not None:
+                    # Count neighboring mines
+                    neighbors = self.get_neighbors(cell)
+                    mine_count = sum(1 for neighbor in neighbors if neighbor.is_mine)
+                    if mine_count != cell.clue:
+                        return False
+        return True
 
     def is_solved(self):
         """Check if the board is solved."""
-        return all(cell.is_mine or cell.state == State.REVEALED for row in self.grid for cell in row)
+        return all(
+            cell.is_mine or cell.state == State.REVEALED
+            for row in self.grid
+            for cell in row
+        )

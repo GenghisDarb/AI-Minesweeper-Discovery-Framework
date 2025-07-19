@@ -7,10 +7,11 @@ try:
     with open("chi_50digits.txt") as f:
         chi = float(f.read().strip().split()[0])
 except FileNotFoundError:
-    chi = 0.792537  # fallback approximation
+    chi = 1.071428  # Correct fallback approximation (1 + 1/14)
+
 
 class State(Enum):
     HIDDEN = "hidden"
-    SAFE = "safe"
+    SAFE = "safe"  # Alias for revealed safe cells
     MINE = "mine"
     CLUE = "clue"

@@ -9,6 +9,7 @@ class State(Enum):
     REVEALED = "revealed"
     FLAGGED = "flagged"
     FALSE = FLAGGED  # Alias for legacy support
+    TRUE = REVEALED  # Alias for revealed safe cells
 
     def __str__(self):
         return self.value
@@ -40,7 +41,9 @@ class Cell:
     period: int | None = None  # Period number for periodic table cells
 
     def __post_init__(self):
-        print(f"[DEBUG] Cell initialized with state: {self.state}, State id: {id(self.state)}, Expected State.HIDDEN id: {id(State.HIDDEN)}")
+        print(
+            f"[DEBUG] Cell initialized with state: {self.state}, State id: {id(self.state)}, Expected State.HIDDEN id: {id(State.HIDDEN)}"
+        )
 
     def __repr__(self) -> str:
         """

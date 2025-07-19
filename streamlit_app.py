@@ -1,9 +1,14 @@
 import streamlit as st
-from src.ai_minesweeper.ui_widgets import display_confidence, color_coded_cell_rendering, copy_results_button
+from src.ai_minesweeper.ui_widgets import (
+    display_confidence,
+    color_coded_cell_rendering,
+    copy_results_button,
+)
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
 import json
 import tempfile
+
 
 def main():
     st.title("AI Minesweeper Discovery Framework")
@@ -94,7 +99,9 @@ def main():
         # Update Export Board Functionality
         if st.button("Export Board State"):
             board_state = board.export_state()
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w", encoding="utf-8") as tmp_file:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".json", mode="w", encoding="utf-8"
+            ) as tmp_file:
                 json.dump(board_state, tmp_file, indent=2)
                 tmp_path = tmp_file.name
             st.download_button("Download JSON", tmp_path, file_name="board_state.json")
@@ -112,7 +119,10 @@ def main():
     ]
 
     for row in board:
-        st.markdown(" ".join([color_coded_cell_rendering(cell) for cell in row]), unsafe_allow_html=True)
+        st.markdown(
+            " ".join([color_coded_cell_rendering(cell) for cell in row]),
+            unsafe_allow_html=True,
+        )
 
     # Add a button to copy results
     results = {"board_state": board, "confidence": confidence}
@@ -123,6 +133,7 @@ def main():
     if user_feedback:
         st.write(f"You said: {user_feedback}")
         # Placeholder for future AI interaction logic
+
 
 if __name__ == "__main__":
     main()

@@ -6,9 +6,9 @@ from ai_minesweeper.periodic_table import PeriodicTableDomain
 def test_periodic_table_demo():
     board = BoardBuilder.from_csv("examples/periodic_table/elements.csv")
     assert len(board.grid) > 0
-    assert any(PeriodicTableDomain.is_mine(cell) for row in board.grid for cell in row), (
-        "No mines detected in periodic table board"
-    )
+    assert any(
+        PeriodicTableDomain.is_mine(cell) for row in board.grid for cell in row
+    ), "No mines detected in periodic table board"
 
 
 def test_get_neighbors():
@@ -98,10 +98,14 @@ def test_generate_clue_all_mines():
 
 def test_is_mine_with_x():
     cell = Cell(symbol="X")
-    assert PeriodicTableDomain.is_mine(cell) is True, "Symbol 'X' should be detected as a mine"
+    assert PeriodicTableDomain.is_mine(cell) is True, (
+        "Symbol 'X' should be detected as a mine"
+    )
 
 
 def test_is_mine_comparison_logic():
     mine_symbols = {"x", "eka"}
     assert "x" in mine_symbols, "Lowercase 'x' should be in mine_symbols"
-    assert "X".lower() in mine_symbols, "Uppercase 'X' should match lowercase 'x' in mine_symbols"
+    assert "X".lower() in mine_symbols, (
+        "Uppercase 'X' should match lowercase 'x' in mine_symbols"
+    )

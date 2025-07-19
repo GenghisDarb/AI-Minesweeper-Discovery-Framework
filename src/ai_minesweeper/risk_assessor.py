@@ -8,13 +8,10 @@ class RiskAssessor:
     @staticmethod
     def estimate(board: Board) -> dict[tuple[int, int], float]:
         """
-        Return a *rank-ordered* false-hypothesis-probability map.
+        Return a rank-ordered false-hypothesis-probability map.
 
-        Heuristic:
-        1. start with uniform base_p
-        2. add a local-risk term   (adjacent flagged / adj. hidden)
-        3. add a distance term     (Manhattan distance from last safe reveal)
-        Produces a spectrum ≈ [0.05 … 0.30] early-game.
+        :param board: The current board state.
+        :return: A dictionary mapping cell coordinates to probabilities.
         """
         if DEBUG:
             print("[DEBUG] Board state in RiskAssessor.estimate:")
@@ -23,9 +20,13 @@ class RiskAssessor:
 
         print(f"[RISK] Board rows: {len(board.grid)}")
         for i, row in enumerate(board.grid):
-            print(f"[RISK] Row {i} length: {len(row)} | Sample: {repr(row[0]) if row else 'EMPTY'}")
+            print(
+                f"[RISK] Row {i} length: {len(row)} | Sample: {repr(row[0]) if row else 'EMPTY'}"
+            )
 
-        print(f"[RISK] Board class: {board.__class__} from module: {board.__class__.__module__}")
+        print(
+            f"[RISK] Board class: {board.__class__} from module: {board.__class__.__module__}"
+        )
 
         print("[RISK] Calling board.hidden_cells()...")
         result = board.hidden_cells()
@@ -40,7 +41,9 @@ class RiskAssessor:
             return {}
 
         if DEBUG:
-            print(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module risk_assessor")
+            print(
+                f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module risk_assessor"
+            )
 
         base_p = board.false_hypotheses_remaining / len(hidden)
         last_safe = board.last_safe_reveal or (board.n_rows // 2, board.n_cols // 2)
@@ -113,7 +116,9 @@ class RiskAssessor:
         # Debugging output for risk map
         print(f"Risk map: {probs}")
 
-        print(f"[RISK] Received board id={id(board)}, class={board.__class__}, grid id={id(board.grid)}")
+        print(
+            f"[RISK] Received board id={id(board)}, class={board.__class__}, grid id={id(board.grid)}"
+        )
 
         return probs
 
@@ -139,24 +144,22 @@ class RiskAssessor:
         """
         cell.state = State.FLAGGED
         board.update_confidence()  # Update confidence after marking the contradiction
-        print(f"[INFO] Contradiction at {cell.row}, {cell.col} flagged. Confidence updated.")
+        print(
+            f"[INFO] Contradiction at {cell.row}, {cell.col} flagged. Confidence updated."
+        )
 
     @staticmethod
-    def choose_move(board: Board):
+    def choose_move(board: Board) -> tuple[int, int]:
         """
-        Return the Cell with the **lowest** mine‐probability.
-        If multiple cells tie, choose the one with minimal (row,col).
+        Choose the next move based on the lowest probability.
+
+        :param board: The current board state.
+        :return: Coordinates (row, col) of the chosen move.
         """
-        prob_map = RiskAssessor.estimate(board)
+        probabilities = RiskAssessor.estimate(board)
+        if not probabilities:
+            raise RuntimeError("No valid moves remaining.")
 
-        if not prob_map:
-            return None
-
-        # Extract safest cell (lowest probability)
-        best_coord = min(prob_map, key=prob_map.get)
-        row, col = best_coord
-        cell = board.grid[row][col]
-
-        if cell.state.value == State.HIDDEN.value:
-            return best_coord
-        return None
+        # Find the cell with the lowest probability
+        move = min(probabilities, key=probabilities.get)
+        return move
