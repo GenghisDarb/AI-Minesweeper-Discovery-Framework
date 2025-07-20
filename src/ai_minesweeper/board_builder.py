@@ -24,7 +24,7 @@ class BoardBuilder:
             cells: list[Cell] = []
             for token in row:
                 token_str = "" if pd.isna(token) else str(token).strip()
-                if token_str.upper() in {"", "X"}:  # Blank or 'X' → mine
+                if token_str.upper() in {"", "X", "*"}:  # Blank, 'X', or '*' → mine
                     cell = Cell(is_mine=True, state=State.HIDDEN)
                     cell.symbol = token_str  # Assign symbol for mines
                     cells.append(cell)
@@ -83,6 +83,9 @@ class BoardBuilder:
     def from_text(text: str) -> Board:
         """Parse raw text into a Board object."""
         rows = [line.split() for line in text.strip().splitlines()]
+        if not rows or not rows[0]:
+            # Handle empty text by creating a minimal 1x1 board
+            return BoardBuilder._empty_board(1, 1)
         board = BoardBuilder._empty_board(len(rows), len(rows[0]))
         BoardBuilder._populate_board(board, rows)
         return board
@@ -219,16 +222,17 @@ class BoardBuilder:
                 cell = board.grid[r][c]
                 if isinstance(value, Cell):
                     cell.symbol = value.symbol  # Preserve the symbol attribute
-                if value in {"M", "X"}:
+                elif str(value).upper() in {"MINE", "M", "X"}:
                     cell.is_mine = True
                 elif isinstance(value, int):
                     cell.state = State.REVEALED
                     cell.adjacent_mines = value
-                # Hidden empty cells are already initialized by default
-                if pd.isna(value) or str(value).strip().upper() in {"", "X"}:
-                    cell.is_mine = True
-                else:
+                elif str(value).strip().upper() in {"", "."}:
                     cell.state = State.HIDDEN
+                elif str(value).upper() == "HIDDEN":
+                    cell.state = State.HIDDEN
+                else:
+                    raise ValueError(f"Invalid cell value: {value}")
 
         # Safety checks for list accesses
         for r in range(board.n_rows):
@@ -244,3 +248,19 @@ class BoardBuilder:
                             and x < len(board.grid)
                             and y < len(board.grid[x])
                         ]
+
+        # Check if rows is empty before accessing len(rows[0])
+        if not grid or not grid[0]:
+            raise ValueError("The provided text does not contain a valid board layout.")
+
+    @staticmethod
+    def empty_board(rows: int, cols: int) -> Board:
+        """
+        Create an empty board with the specified dimensions.
+
+        :param rows: Number of rows in the board.
+        :param cols: Number of columns in the board.
+        :return: A Board object with all cells hidden and no mines.
+        """
+        grid = [[Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)]
+        return Board(n_rows=rows, n_cols=cols, grid=grid)

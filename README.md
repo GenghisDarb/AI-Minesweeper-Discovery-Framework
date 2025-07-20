@@ -195,6 +195,12 @@ The AI Minesweeper Discovery Framework now includes a 14-lane recursion engine b
 ### How to Use
 Run the Streamlit app and click "Run 14-Lane Recursion Engine" to see the results of the multi-lane simulation.
 
+## Deprecation Notice
+
+### State Enum Changes
+
+As of version 1.0.1, the `State.TRUE` and `State.FALSE` aliases have been removed. Please use `State.REVEALED` and `State.FLAGGED` respectively. This change ensures consistency across the codebase and eliminates duplicate enum definitions.
+
 ## [1.0.0] - 2025-07-13
 - Full Streamlit UI with copy/export/chat/confidence history
 - Dynamic board expansion and visual feedback loop

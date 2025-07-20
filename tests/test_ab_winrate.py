@@ -12,7 +12,9 @@ def test_ab_winrate():
 def test_beta_confidence():
     conf = BetaConfidence()
     assert conf.mean() == 0.5
-    conf.update(success=True)
+    # Simulate successful prediction: high predicted probability and actual mine
+    conf.update(predicted_probability=0.9, revealed_is_mine=True)
     assert conf.mean() > 0.5
-    conf.update(success=False)
+    # Simulate failed prediction: high predicted probability but no mine
+    conf.update(predicted_probability=0.9, revealed_is_mine=False)
     assert conf.mean() < 1.0

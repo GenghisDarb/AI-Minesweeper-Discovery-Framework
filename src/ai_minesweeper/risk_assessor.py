@@ -37,7 +37,10 @@ class RiskAssessor:
             print(f"[RiskAssessor] Hidden cells found: {len(hidden)}")
             for cell in hidden:
                 print(f"Hidden cell: {cell}")
-        if not hidden:
+        if not hidden or all(
+            cell.is_mine is False and cell.clue is None for row in board.grid for cell in row
+        ):
+            print("[RISK] No mines or clues found. Returning empty risk map.")
             return {}
 
         if DEBUG:

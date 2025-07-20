@@ -6,6 +6,7 @@ from src.ai_minesweeper.ui_widgets import (
 )
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
+from ai_minesweeper.beta_confidence import BetaConfidence
 import json
 import tempfile
 
@@ -106,9 +107,18 @@ def main():
                 tmp_path = tmp_file.name
             st.download_button("Download JSON", tmp_path, file_name="board_state.json")
 
-    # Placeholder for confidence level
-    confidence = 0.75  # Example confidence value
-    display_confidence(confidence, mode="streamlit")
+    # Initialize BetaConfidence instance
+    if "beta_confidence" not in st.session_state:
+        st.session_state.beta_confidence = BetaConfidence()
+
+    # Update confidence dynamically
+    current_confidence = st.session_state.beta_confidence.mean()
+    display_confidence(current_confidence, mode="streamlit")
+
+    # Example: Update BetaConfidence based on user input (placeholder logic)
+    if st.button("Simulate Confidence Update"):
+        st.session_state.beta_confidence.update(success=True)
+        st.experimental_rerun()
 
     # Example board rendering
     st.markdown("### Minesweeper Board")

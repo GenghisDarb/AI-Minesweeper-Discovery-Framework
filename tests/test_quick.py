@@ -220,4 +220,39 @@ def test_add_high_contrast_mode():
         pytest.fail(f"add_high_contrast_mode raised an exception: {e}")
 
 
+def test_ui_widgets_render_cell_with_tooltip():
+    html = render_cell_with_tooltip("safe", "This cell is safe.")
+    assert "background-color: green" in html
+    assert "This cell is safe." in html
+
+
+from unittest.mock import Mock
+
+# Fix for add_accessibility_labels_to_cells
+def test_ui_widgets_add_accessibility_labels_to_cells():
+    mock_board = Mock()
+    mock_board.grid = []  # Mock the grid attribute
+    try:
+        add_accessibility_labels_to_cells(mock_board)
+    except Exception as e:
+        pytest.fail(f"add_accessibility_labels_to_cells raised an exception: {e}")
+
+# Fix for update_hypotheses_panel
+def test_ui_widgets_update_hypotheses_panel():
+    mock_board = Mock()
+    mock_board.get_revealed_hypotheses = Mock(return_value=[])  # Mock the method
+    mock_board.grid = [[]]  # Mock the grid attribute as a list of lists
+    try:
+        update_hypotheses_panel(mock_board)
+    except Exception as e:
+        pytest.fail(f"update_hypotheses_panel raised an exception: {e}")
+
+# Fix for ensure_grid_styling_consistency
+def test_ui_widgets_ensure_grid_styling_consistency():
+    try:
+        ensure_grid_styling_consistency()  # Call without arguments as per the function definition
+    except Exception as e:
+        pytest.fail(f"ensure_grid_styling_consistency raised an exception: {e}")
+
+
 logger.debug(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in test_quick")
