@@ -2,12 +2,16 @@ from .cell import Cell, State  # re-export so tests can import State here
 import json
 from datetime import datetime
 from ai_minesweeper.constants import DEBUG
-from typing import Optional
+from typing import Optional, List, Tuple
 
 __all__ = ["Board", "Cell", "State"]  # optional but nice
 
+PathHistory = List[Tuple[int, int]]
+
 
 class Board:
+    _history: Optional[PathHistory] = None
+
     def __init__(
         self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, grid=None
     ):

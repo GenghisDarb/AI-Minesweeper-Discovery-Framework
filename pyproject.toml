@@ -41,9 +41,11 @@ minesweeper = "ai_minesweeper.cli:app"
 exclude = ["notebooks"]
 
 [tool.mypy]
+python_version = "3.10"
 mypy_path = "src"
-exclude = ["build/", "dist/", ".venv/", "archive/", "ai_minesweeper/utils/risk_assessor_spread.py", ".*egg-info/", "tests/helpers/", "ai-minesweeper-framework/src/ai_minesweeper"]
-namespace_packages = true
 modules = ["ai_minesweeper"]
+ignore_missing_imports = ["openai", "yaml"]
+exclude = ["tests/helpers/", "archive/"]
+namespace_packages = true
 explicit_package_bases = true
 
