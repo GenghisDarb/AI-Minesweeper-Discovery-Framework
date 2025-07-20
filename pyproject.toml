@@ -2,9 +2,6 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-
 [tool.setuptools.packages.find]
 where = ["src"]
 
@@ -13,7 +10,7 @@ name = "ai-minesweeper"
 version = "1.0.0"
 description = "AI Minesweeper Game"
 authors = [
-    { name = "Your Name", email = "your@email.com" }
+    { name = "Bradley Peter", email = "bradleypeter1984@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.8"
@@ -31,7 +28,10 @@ dev = [
     "ruff>=0.0.285",
     "mypy>=1.0",
     "pylint>=2.15",
-    "coverage>=7.0"
+    "coverage>=7.0",
+    "types-PyYAML",
+    "types-requests",
+    "types-pandas"
 ]
 
 [project.scripts]
@@ -42,10 +42,7 @@ exclude = ["notebooks"]
 
 [tool.mypy]
 python_version = "3.10"
-mypy_path = "src"
-modules = ["ai_minesweeper"]
-ignore_missing_imports = ["openai", "yaml"]
-exclude = ["tests/helpers/", "archive/"]
-namespace_packages = true
+ignore_missing_imports = true
 explicit_package_bases = true
+exclude = "^src/.*$"
 

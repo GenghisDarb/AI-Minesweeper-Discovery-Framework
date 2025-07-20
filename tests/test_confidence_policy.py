@@ -106,3 +106,48 @@ def test_confidence_policy():
     # Simulate another move
     move = policy.choose_move(board)
     assert move == (0, 1)  # Next lowest probability cell
+
+
+def test_fallback_logic_no_safe_moves():
+    """
+    Test that ConfidencePolicy.choose_move falls back to the first hidden cell
+    when no safe moves are available.
+    """
+    board = Board(
+        grid=[
+            [Cell(state=State.HIDDEN), Cell(state=State.HIDDEN)],
+            [Cell(state=State.HIDDEN), Cell(state=State.HIDDEN)],
+        ]
+    )
+    confidence = BetaConfidence()
+    policy = ConfidencePolicy(SpreadRiskAssessor(), confidence)
+
+    # Mock the probability map to simulate no safe moves
+    policy.solver.predict = lambda _: {
+        (0, 0): 0.9, (0, 1): 0.9,
+        (1, 0): 0.9, (1, 1): 0.9
+    }
+
+    move = policy.choose_move(board)
+    assert move is not None
+    assert board.grid[move.row][move.col].state == State.HIDDEN
+
+
+def test_confidence_policy_deterministic_move():
+    board = Board(
+        grid=[
+            [Cell(state=State.HIDDEN), Cell(state=State.HIDDEN)],
+            [Cell(state=State.HIDDEN), Cell(state=State.HIDDEN)],
+        ]
+    )
+    confidence = BetaConfidence()
+    policy = ConfidencePolicy(SpreadRiskAssessor(), confidence)
+
+    # Mock the probability map to simulate deterministic behavior
+    policy.solver.predict = lambda _: {
+        (0, 0): 0.1, (0, 1): 0.2,
+        (1, 0): 0.3, (1, 1): 0.4
+    }
+
+    move = policy.choose_move(board)
+    assert move.row == 0 and move.col == 0  # Lowest probability cell

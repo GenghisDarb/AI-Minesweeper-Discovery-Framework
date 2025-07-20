@@ -55,26 +55,29 @@ class Cell:
         return f"Cell(state={self.state}, is_false_hypothesis={self.is_false_hypothesis}, row={self.row}, col={self.col}, clue={self.clue}, confidence={self.confidence:.2f})"
 
     @staticmethod
-    def from_token(token: Union[str, "Cell"]) -> "Cell":
+    def from_token(token: Union[str, "Cell", None]) -> "Cell":
         """
         Creates a Cell object from a token.
 
-        :param token: A string or Cell object representing the cell's state.
+        :param token: A string, Cell object, or None representing the cell's state.
         :return: A Cell object initialized based on the token.
         """
         if isinstance(token, Cell):
             return token
-        token = str(token).strip().upper()
+        try:
+            token = str(token).strip().upper() if token is not None else ""
+        except Exception:
+            token = ""
+
         cell = Cell()
         cell.symbol = token  # Set the symbol attribute for all tokens
         if token in ["HIDDEN", ".", "1"]:
             cell.state = State.HIDDEN
         elif token in ["MINE", "*", "X"]:
             cell.state = State.MINE
-        elif token in ["FALSE"] or token.startswith("EKA"):
-            cell.is_false_hypothesis = True
-        elif token.isdigit() and int(token) > 100:
-            cell.is_false_hypothesis = True
+        elif token.isdigit() and 0 <= int(token) <= 8:
+            cell.state = State.REVEALED
+            cell.clue = int(token)
         else:
             cell.confidence = 0.0  # Default confidence level
         return cell

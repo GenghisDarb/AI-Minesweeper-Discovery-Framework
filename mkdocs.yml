@@ -15,17 +15,9 @@ extra_css:
   - css/badges.css
 nav:
   - Home: index.md
-  - Fractal Demo: torus_brot_demo.md
-  - Meta-Cell Guide:
-      - Meta-Cell Confidence Design: docs/design_meta_cell.md
-      - χ-Tests:
-          - Prime Residue: prime_residue.md
-          - Confidence Oscillation: confidence_osc.md
-  - Validations:
-      - Gravitational Wave Phase A: gw_validation.md
-      - Prime Spiral Phase B: prime_spirals.md
-      - Bicycle Ghost Rider: bicycle_validation.md
-  - Drafts:
-      - LLM Backends: LLM_backends.md
-      - Contributor Guide: contributor_guide.md
-      - Roadmap Overview: roadmap_overview.md
+  - Architecture:
+      - Meta-Cell Confidence: docs/design_meta_cell.md
+      - GW Validation: docs/gw_validation.md
+      - Prime Spirals: docs/prime_spirals.md
+      - Bicycle Validation: docs/bicycle_validation.md
+  - API Reference: reference/

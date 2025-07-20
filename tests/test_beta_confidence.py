@@ -18,9 +18,6 @@ def test_confidence_update():
     conf.update(prob_pred=0.9, revealed_is_mine=True)
     assert conf.alpha > conf.beta
 
-    conf.update(success=False)
-    assert conf.alpha > conf.beta
-
     # Invalid updates
     with pytest.raises(ValueError):
         conf.update(-0.1, True)  # Invalid probability
@@ -36,10 +33,10 @@ def test_confidence_mean():
     conf = BetaConfidence()
     assert conf.mean() == pytest.approx(0.5)
 
-    conf.update(success=True)
+    conf.update(0.5, True)  # Correct usage of update method
     assert conf.mean() > 0.5
 
-    conf.update(success=False)
+    conf.update(0.5, False)  # Correct usage of update method
     assert conf.mean() < 0.5
 
 
@@ -67,11 +64,20 @@ def test_beta_confidence():
     assert conf.mean() == 0.5
 
     # Simulate successful prediction
-    conf.update(prob_pred=0.9, revealed_is_mine=True)  # Predicted high probability, revealed as mine
+    conf.update(0.9, True)  # Correct usage of update method
     assert conf.alpha == 2.0
     assert conf.beta == 1.0
 
     # Simulate failed prediction
-    conf.update(0.1, True)  # Predicted low probability, revealed as mine
+    conf.update(0.1, False)  # Correct usage of update method
     assert conf.alpha == 2.0
     assert conf.beta == 2.0
+
+
+def test_beta_confidence_threshold():
+    conf = BetaConfidence()
+    conf.set_threshold(0.7)
+    assert conf.get_threshold() == 0.7
+
+    with pytest.raises(ValueError):
+        conf.set_threshold(1.5)

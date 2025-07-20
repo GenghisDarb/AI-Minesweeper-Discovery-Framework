@@ -24,7 +24,7 @@ class BoardBuilder:
             cells: list[Cell] = []
             for token in row:
                 token_str = "" if pd.isna(token) else str(token).strip()
-                if token_str.upper() in {"X", "*", "MINE"}:  # Marked mine
+                if token_str.upper() in {"X", "*", "MINE", ""}:  # Marked mine or blank
                     cell = Cell(is_mine=True, state=State.HIDDEN)
                     cell.symbol = token_str  # Assign symbol for mines
                     cells.append(cell)
@@ -210,23 +210,14 @@ class BoardBuilder:
         return board
 
     @classmethod
-    def from_manual(
-        cls, grid: list[list[str | int]], *, invalidate: bool = True
-    ) -> "Board":
-        """
-        Build a Board directly from an in-memory grid.
-
-        grid: 2-D list where each element is
-              - "M" or "X"  → mine
-              - "" or "."   → hidden empty
-              - 0-8 (int)   → pre-revealed clue
-        invalidate: if True, verify clue numbers
-        """
-        if invalidate:
-            cls._validate_grid(grid)
+    def from_data(cls, grid: "list[list[str | int]]") -> "Board":
+        """Build Board directly from a 2-D python list (no I/O)."""
         board = cls._empty_board(len(grid), len(grid[0]))
         cls._populate_board(board, grid)
         return board
+
+    # Alias if tests expect `from_manual`
+    from_manual = from_data
 
     @staticmethod
     def _validate_grid(grid: list[list[str | int]]) -> None:

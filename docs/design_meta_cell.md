@@ -72,6 +72,15 @@ This mechanism ensures a couple of behaviors:
 - **High Confidence (m near 1):** $\tau$ is very low, so the solver will refuse to click anything that isn’t almost certain to be safe. It will only proceed if it finds an extremely low-probability cell. In practical terms, if the solver is doing well, it becomes very selective, avoiding any move that looks even slightly risky. This greediness maximizes the chance of winning when the solver “believes” it’s on the right track.
 - **Low Confidence (m drops):** $\tau$ increases, meaning the solver is willing to click cells that have a higher probability of being mines. This might seem counter-intuitive (why click risky cells?), but it’s a form of **exploration**. A low confidence implies the solver’s model might be wrong or incomplete, so taking a calculated risk can reveal new information and potentially break it out of a situation where it’s stuck or repeatedly wrong. Essentially, the solver becomes curious and experimentally probes the board when it doubts itself.
 
+## Confidence Visualization
+
+The confidence level of the solver is dynamically displayed in the Streamlit app. This includes:
+
+- **Metric Display**: Shows the current confidence as a percentage.
+- **Progress Bar**: Provides a visual representation of the confidence level.
+
+These elements update in real-time as the solver makes moves and adjusts its confidence based on outcomes. This feature helps users understand the solver's decision-making process and its calibration over time.
+
 ## References
 - TORUS Theory and Bicycle Self-Stability §3, §4
 - Unified Glossary – entries "χ-cycle", "Controller Dimension".

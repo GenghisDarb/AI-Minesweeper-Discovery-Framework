@@ -4,9 +4,11 @@ from datetime import datetime
 from ai_minesweeper.constants import DEBUG
 from typing import Optional, List, Tuple
 
-__all__ = ["Board", "Cell", "State"]  # optional but nice
+__all__ = ["Board", "Cell", "State"]
 
+Coord = Tuple[int, int]
 PathHistory = List[Tuple[int, int]]
+_history: Optional[List[Coord]] = None
 
 
 class Board:
@@ -209,6 +211,10 @@ class Board:
                     hidden_cells.append(cell)
         return hidden_cells
 
+    def hidden_coordinates(self) -> List[Tuple[int, int]]:
+        """Return a list of coordinates for all hidden cells."""
+        return [(r, c) for r, row in enumerate(self.grid) for c, cell in enumerate(row) if cell.state == State.HIDDEN]
+
     @property
     def mines_remaining(self) -> int:
         """Return the number of mines remaining on the board."""
@@ -242,7 +248,7 @@ class Board:
         return self.grid[r][c].state == State.FLAGGED
 
     def is_hidden(self, r: int, c: int) -> bool:
-        """Check if a cell is hidden."""
+        """True if cell (r,c) is unrevealed and unflagged."""
         return self.grid[r][c].state == State.HIDDEN
 
     def revealed_cells(self):

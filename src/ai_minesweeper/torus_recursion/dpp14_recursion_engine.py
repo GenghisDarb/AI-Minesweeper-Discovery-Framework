@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, Tuple
+from ai_minesweeper.board import Board  # Fix undefined
 
 
 class DPP14RecursionEngine:
@@ -115,4 +116,4 @@ class DPP14RecursionEngine:
 
     def _visualize_board(self, board: "Board") -> None:
         """(Dev stub) No-op visualiser used only in debug mode."""
-        return
+        pass

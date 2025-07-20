@@ -1,6 +1,5 @@
 import streamlit as st
 from ai_minesweeper.ui_widgets import (
-    display_confidence,
     color_coded_cell_rendering,
     copy_results_button,
 )
@@ -113,7 +112,8 @@ def main():
 
     # Update confidence dynamically
     current_confidence = st.session_state.beta_confidence.mean()
-    display_confidence(current_confidence, mode="streamlit")
+    st.metric("Solver Confidence", f"{current_confidence:.2%}")
+    st.progress(current_confidence)
 
     # Example: Update BetaConfidence based on user input (placeholder logic)
     if st.button("Simulate Confidence Update"):

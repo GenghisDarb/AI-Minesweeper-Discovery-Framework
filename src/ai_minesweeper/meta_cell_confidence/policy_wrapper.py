@@ -1,6 +1,7 @@
 from .confidence import BetaConfidence
 from ai_minesweeper.board import Board
-from typing import Any, Tuple
+from ai_minesweeper.cell import Cell
+from typing import Any
 
 
 class ConfidencePolicy:
@@ -20,7 +21,7 @@ class ConfidencePolicy:
         self.confidence = BetaConfidence(alpha, beta)
         # Risk threshold τ will be computed each move as a function of confidence
 
-    def choose_move(self, board_state: Board) -> Tuple[int, int]:
+    def choose_move(self, board_state: Board) -> Cell:
         """
         Select the next move based on confidence-adjusted risk threshold.
 
@@ -44,7 +45,14 @@ class ConfidencePolicy:
             # no cell is below threshold; take the least risky cell available
             move = min(hidden_cells, key=lambda cell: prob_map[cell])
 
-        # We do not reveal the cell here; that should be done by the game environment.
-        # After the game reveals the outcome, the confidence should be updated externally:
-        # self.confidence.update(prob_map[move], outcome_is_mine)
-        return move
+        # Ensure the returned object is a valid Cell with proper attributes
+        r, c = move
+        cell = board_state.grid[r][c]
+        cell.row, cell.col = r, c
+
+        # 4. Return a Cell object for the chosen move
+        if safe_candidates:
+            return min(safe_candidates, key=lambda cell: (prob_map[cell], cell.row, cell.col))
+
+        # Fallback: choose the least risky cell
+        return min(prob_map.keys(), key=lambda cell: prob_map[cell])

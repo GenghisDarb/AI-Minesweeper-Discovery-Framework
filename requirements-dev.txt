@@ -1,1 +1,4 @@
+types-pandas>=0.6
+types-requests>=2.31
 types-PyYAML>=6.0
+pytest-cov

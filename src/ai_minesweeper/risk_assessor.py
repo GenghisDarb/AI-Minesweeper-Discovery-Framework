@@ -176,32 +176,15 @@ class RiskAssessor:
                     yield (r, c)
 
 
-class SpreadRiskAssessor:
+class SpreadRiskAssessor(RiskAssessor):
     def __init__(self, tau_getter=lambda: 0.1):
         """Initialize the SpreadRiskAssessor with an optional tau_getter."""
         self.tau_getter = tau_getter
 
-    def estimate(self, board):
-        """Estimate probabilities for all hidden cells on the board."""
-        return self.get_probabilities(board)
+    def get_probabilities(self, board: Board) -> dict[tuple[int, int], float]:
+        hidden = board.hidden_coordinates()
+        prob = {(r, c): 1/len(hidden) for r, c in hidden}
+        self.last_prob = prob
+        return prob
 
-    def get_probabilities(self, board):
-        """Spread equal probability across all hidden cells with slight variation."""
-        hidden_cells = [(cell.row, cell.col) for row in board.grid for cell in row if cell.is_hidden()]
-        num_hidden = len(hidden_cells)
-        if num_hidden == 0:
-            return {}
-
-        base_prob = 1 / num_hidden
-        tau = self.tau_getter()
-        probabilities = {}
-
-        for idx, (row, col) in enumerate(hidden_cells):
-            variation = tau if idx % 2 == 0 else -tau
-            probabilities[(row, col)] = max(0, base_prob + variation)
-
-        return probabilities
-
-    def predict(self, board):
-        """Predict probabilities for all cells on the board."""
-        return self.get_probabilities(board)
+    estimate = get_probabilities

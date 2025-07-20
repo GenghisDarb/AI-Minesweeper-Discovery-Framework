@@ -4,6 +4,10 @@ from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 from ai_minesweeper.risk_assessor import SpreadRiskAssessor
 
 
+# Define a mock board_state for testing
+board_state = ...
+
+
 def test_quick():
     # Example grid: 3x3 with a mine and some clues
     grid = [["M", "", ""], ["", 1, ""], ["", "", "M"]]
