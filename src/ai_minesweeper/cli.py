@@ -2,6 +2,7 @@ import logging
 import typer
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.constraint_solver import ConstraintSolver
+from ai_minesweeper.cell import State
 
 
 # Configure logging
@@ -44,15 +45,30 @@ def play(
     ),
 ):
     """Play Minesweeper using a CSV board."""
+    print(f"[DEBUG] Starting play command with csv_path={csv_path}, dry_run={dry_run}")
     try:
+        print(f"[DEBUG] About to load board from {csv_path}")
         board = BoardBuilder.from_csv(csv_path)
+        print(f"[DEBUG] Board loaded, dry_run={dry_run}")
         if dry_run:
+<<<<<<< HEAD
             if board.is_valid():
                 message = "The board is valid."
             else:
                 message = "The board has inconsistencies."
             logger.info(message)
             print(message)
+=======
+            print(f"[DEBUG] Running validation...")
+            if board.is_valid():
+                message = "The board is valid."
+                logger.info(message)
+                print(message)
+            else:
+                message = "The board has inconsistencies."
+                logger.warning(message)
+                print(message)
+>>>>>>> origin/copilot/fix-66e80e14-9a03-42e2-940c-2e106230e889
             return
 
         solver = ConstraintSolver()

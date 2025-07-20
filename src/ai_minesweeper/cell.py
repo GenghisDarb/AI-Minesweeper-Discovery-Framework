@@ -15,8 +15,8 @@ class State(Enum):
         return self.value
 
 
-print(f"[DEBUG] State.HIDDEN id during import: {id(State.HIDDEN)}")
-print(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module cell")
+# print(f"[DEBUG] State.HIDDEN id during import: {id(State.HIDDEN)}")
+# print(f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module cell")
 
 
 @dataclass
@@ -41,9 +41,10 @@ class Cell:
     period: int | None = None  # Period number for periodic table cells
 
     def __post_init__(self):
-        print(
-            f"[DEBUG] Cell initialized with state: {self.state}, State id: {id(self.state)}, Expected State.HIDDEN id: {id(State.HIDDEN)}"
-        )
+        pass
+        # print(
+        #     f"[DEBUG] Cell initialized with state: {self.state}, State id: {id(self.state)}, Expected State.HIDDEN id: {id(State.HIDDEN)}"
+        # )
 
     def __repr__(self) -> str:
         """

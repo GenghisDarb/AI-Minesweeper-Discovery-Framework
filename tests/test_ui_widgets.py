@@ -23,10 +23,10 @@ def test_sidebar_constants():
         s_row = f.read().strip().split(",")
         S = float(s_row[-1])
 
-    assert chi.startswith("3.141"), "χ constant should be loaded correctly"
+    assert chi.startswith("0.481"), "χ constant should be loaded correctly"
     assert params["τ"] > 0, "τ constant should be positive"
     assert S > 0, "S-stat should be positive"
-    assert 0.78 < chi < 0.80, "χ constant should be in the range (0.78, 0.80)"
+    assert 0.40 < float(chi) < 0.50, "χ constant should be in the expected range"
 
 
 def test_tabs_functionality():

@@ -1,6 +1,6 @@
 import streamlit as st
 import logging
-from ai_minesweeper.constants import State
+from ai_minesweeper.cell import State
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

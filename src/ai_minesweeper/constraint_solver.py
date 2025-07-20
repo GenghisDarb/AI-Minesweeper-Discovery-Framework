@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 from ai_minesweeper.board import State
 from ai_minesweeper.risk_assessor import RiskAssessor
+=======
+# src/ai_minesweeper/constraint_solver.py
+from ai_minesweeper.cell import State
+>>>>>>> origin/copilot/fix-66e80e14-9a03-42e2-940c-2e106230e889
 
 
 class ConstraintSolver:
