@@ -15,7 +15,7 @@ def test_confidence_update():
     conf.update(1.0, True)  # Full confidence mine, revealed as mine
     assert conf.alpha > conf.beta  # confidence up
 
-    conf.update(success=True)
+    conf.update(prob_pred=0.9, revealed_is_mine=True)
     assert conf.alpha > conf.beta
 
     conf.update(success=False)
@@ -60,3 +60,18 @@ def test_set_and_get_threshold():
     # Threshold not set
     conf = BetaConfidence()
     assert conf.get_threshold() is None
+
+
+def test_beta_confidence():
+    conf = BetaConfidence()
+    assert conf.mean() == 0.5
+
+    # Simulate successful prediction
+    conf.update(prob_pred=0.9, revealed_is_mine=True)  # Predicted high probability, revealed as mine
+    assert conf.alpha == 2.0
+    assert conf.beta == 1.0
+
+    # Simulate failed prediction
+    conf.update(0.1, True)  # Predicted low probability, revealed as mine
+    assert conf.alpha == 2.0
+    assert conf.beta == 2.0

@@ -1,5 +1,6 @@
 from .board import Board, State
 from ai_minesweeper.constants import DEBUG
+from typing import Optional, Tuple
 
 
 class RiskAssessor:
@@ -152,7 +153,7 @@ class RiskAssessor:
         )
 
     @staticmethod
-    def choose_move(board: Board) -> tuple[int, int]:
+    def choose_move(board: Board) -> Optional[Tuple[int, int]]:
         """
         Choose the next move based on the lowest probability.
 
@@ -161,8 +162,39 @@ class RiskAssessor:
         """
         probabilities = RiskAssessor.estimate(board)
         if not probabilities:
-            raise RuntimeError("No valid moves remaining.")
+            return None  # No valid moves remaining
 
         # Find the cell with the lowest probability
         move = min(probabilities, key=probabilities.get)
         return move
+
+
+class SpreadRiskAssessor:
+    def __init__(self, tau_getter=lambda: 0.1):
+        """Initialize the SpreadRiskAssessor with an optional tau_getter."""
+        self.tau_getter = tau_getter
+
+    def estimate(self, board):
+        """Estimate probabilities for all hidden cells on the board."""
+        return self.get_probabilities(board)
+
+    def get_probabilities(self, board):
+        """Spread equal probability across all hidden cells with slight variation."""
+        hidden_cells = [(cell.row, cell.col) for row in board.grid for cell in row if cell.is_hidden()]
+        num_hidden = len(hidden_cells)
+        if num_hidden == 0:
+            return {}
+
+        base_prob = 1 / num_hidden
+        tau = self.tau_getter()
+        probabilities = {}
+
+        for idx, (row, col) in enumerate(hidden_cells):
+            variation = tau if idx % 2 == 0 else -tau
+            probabilities[(row, col)] = max(0, base_prob + variation)
+
+        return probabilities
+
+    def predict(self, board):
+        """Predict probabilities for all cells on the board."""
+        return self.get_probabilities(board)

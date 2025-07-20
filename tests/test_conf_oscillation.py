@@ -8,6 +8,6 @@ def test_confidence_oscillation():
     conf = BetaConfidence()
     for _ in range(14):
         # Simulate successful predictions: high predicted probability and actual mine
-        conf.update(predicted_probability=0.9, revealed_is_mine=True)
+        conf.update(0.9, True)
     # The test should check if confidence improves with successful predictions
     assert conf.mean() > 0.8  # Adjusted to realistic expectation

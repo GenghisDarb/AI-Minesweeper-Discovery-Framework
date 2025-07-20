@@ -2,12 +2,15 @@ from .cell import Cell, State  # re-export so tests can import State here
 import json
 from datetime import datetime
 from ai_minesweeper.constants import DEBUG
+from typing import Optional
 
-__all__ = ["Board", "State"]  # optional but nice
+__all__ = ["Board", "Cell", "State"]  # optional but nice
 
 
 class Board:
-    def __init__(self, n_rows=None, n_cols=None, grid=None):
+    def __init__(
+        self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, grid=None
+    ):
         if DEBUG:
             print(f"[DEBUG] Board.__init__ received grid: type={type(grid)}")
             if isinstance(grid, list):
@@ -234,9 +237,8 @@ class Board:
         r, c = cell
         return self.grid[r][c].state == State.FLAGGED
 
-    def is_hidden(self, cell: tuple[int, int]) -> bool:
+    def is_hidden(self, r: int, c: int) -> bool:
         """Check if a cell is hidden."""
-        r, c = cell
         return self.grid[r][c].state == State.HIDDEN
 
     def revealed_cells(self):

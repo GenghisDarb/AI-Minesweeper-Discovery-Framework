@@ -1,4 +1,4 @@
-from ai_minesweeper.risk_assessor import RiskAssessor
+from ai_minesweeper.risk_assessor import RiskAssessor, SpreadRiskAssessor
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.cell import State
 
@@ -45,3 +45,19 @@ def test_estimate_fully_revealed_board():
 
     risk_map = RiskAssessor.estimate(board)
     assert len(risk_map) == 0, "Risk map should be empty for a fully revealed board"
+
+
+def test_spread_risk_assessor_probabilities():
+    board = BoardBuilder.empty_board(rows=2, cols=2)
+    for r in range(2):
+        for c in range(2):
+            board.grid[r][c].state = State.HIDDEN
+
+    assessor = SpreadRiskAssessor()
+    probabilities = assessor.get_probabilities(board)
+
+    assert isinstance(probabilities, dict)
+    assert len(probabilities) == 4, "All hidden cells should have probabilities."
+    assert all(isinstance(key, tuple) and len(key) == 2 for key in probabilities.keys())
+    assert all(isinstance(value, float) for value in probabilities.values())
+    assert sum(probabilities.values()) == 1, "Probabilities should sum to 1."

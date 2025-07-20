@@ -1,7 +1,7 @@
 from ai_minesweeper import BoardBuilder
 from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
 from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
-from ai_minesweeper.utils.risk_assessor_spread import SpreadRiskAssessor
+from ai_minesweeper.risk_assessor import SpreadRiskAssessor
 
 
 def test_quick():
@@ -20,7 +20,7 @@ def test_quick():
     probs = assessor.get_probabilities(board)
     assert probs is not None, "Probabilities should not be None"
 
-    choice = policy.choose_move(board)
+    choice = policy.choose_move(board_state)
     assert choice is not None, "Policy should choose a move"
 
     print("Initial probabilities:", probs)

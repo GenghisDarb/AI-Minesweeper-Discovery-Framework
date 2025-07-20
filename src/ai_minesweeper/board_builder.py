@@ -41,9 +41,6 @@ class BoardBuilder:
         if not grid or not grid[0]:
             raise ValueError("CSV file is empty or malformed (no data rows).")
         row_len = len(grid[0])
-        if any(len(r) != row_len for r in grid):
-            raise ValueError("CSV rows have inconsistent column counts.")
-
         board = Board(n_rows=len(grid), n_cols=row_len, grid=grid)
         return board
     

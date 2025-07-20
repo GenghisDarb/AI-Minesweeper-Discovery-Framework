@@ -1,5 +1,5 @@
 import streamlit as st
-from src.ai_minesweeper.ui_widgets import (
+from ai_minesweeper.ui_widgets import (
     display_confidence,
     color_coded_cell_rendering,
     copy_results_button,

@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 
 class DPP14RecursionEngine:
@@ -13,7 +13,7 @@ class DPP14RecursionEngine:
             self.board = board
             self.solver_policy = solver_policy
             self.chi_value = None
-            self.resonance_zones = []
+            self.resonance_zones: List[Tuple[int, int]] = []
             self.collapsed = False
 
     def __init__(self, board: Any, solver_policy_class: Any, debug_mode: bool = False):

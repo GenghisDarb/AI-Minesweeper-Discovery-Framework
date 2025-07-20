@@ -15,3 +15,4 @@ def test_play_command():
     assert result.exit_code == 0
     assert "Game completed!" in result.output
     assert "The board is valid." not in result.output  # Ensure no dry-run message appears
+    assert board.is_hidden(v[0], v[1])

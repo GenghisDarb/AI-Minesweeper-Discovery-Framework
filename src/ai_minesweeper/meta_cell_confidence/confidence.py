@@ -1,90 +1,59 @@
-from typing import Union
+from typing import Union, Optional
 from ai_minesweeper.board import Cell
 
 class BetaConfidence:
+    """Bayesian confidence tracker for Minesweeper solver predictions.
+
+    Maintains a Beta(α, β) distribution representing the solver’s calibration. After 
+    each move, update α (confidence in solver when correct) or β (when wrong) to 
+    adjust the estimated accuracy. This meta-level state is analogous to TORUS’s 
+    controller dimension operator that compensates a ~25.7° phase gap to 
+    achieve perfect 13→0 closure. In our context, it “closes the loop” 
+    between predicted probabilities and actual outcomes.
+
+    The Beta distribution’s mean (α/(α+β)) serves as the solver’s current confidence 
+    level (0 = totally uncalibrated, 1 = perfectly calibrated). A high mean indicates 
+    the solver’s predictions have been accurate, whereas a low mean signals 
+    systematic errors, prompting more exploratory moves.
     """
-    Tracks confidence in false-hypothesis predictions using a Beta distribution.
 
-    Attributes:
-        alpha (float): Success count parameter of the Beta distribution, representing correct predictions.
-        beta (float): Failure count parameter of the Beta distribution, representing incorrect predictions.
-        _tau (float): Risk threshold, representing the probability of encountering a false hypothesis.
-    """
+    def __init__(self, alpha: float = 1.0, beta: float = 1.0):
+        """Initialize with a prior Beta(α, β). Defaults to an uninformative prior (1,1)."""
+        self.alpha: float = alpha
+        self.beta: float = beta
 
-    def __init__(self, alpha: float = 1.0, beta: float = 1.0, tau: float = 0.10):
-        """
-        Initialize the BetaConfidence object with parameters for the Beta distribution.
-
-        Args:
-            alpha (float): Initial success count parameter of the Beta distribution.
-            beta (float): Initial failure count parameter of the Beta distribution.
-            tau (float): Initial risk threshold, representing the probability of encountering a false hypothesis.
-        """
-        self.alpha = alpha
-        self.beta = beta
-        self._tau = tau  # initial risk threshold
-
-    def get_threshold(self) -> float:
-        """
-        Return the current risk threshold τ, representing the probability of encountering a false hypothesis.
-        """
-        return self._tau
-
-    def set_threshold(self, tau: float) -> None:
-        """
-        Set the risk threshold τ, ensuring it remains within the range [0.01, 0.49].
-
-        Args:
-            tau (float): The desired risk threshold.
-        """
-        self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
-
-    def update(
-        self,
-        predicted_probability: float = None,
-        revealed_is_mine: bool = None,
-        success: bool = None,
-    ):
-        """
-        Update confidence values based on prediction accuracy.
-
-        :param predicted_probability: The predicted probability of the cell being a mine.
-        :param revealed_is_mine: Whether the revealed cell is actually a mine.
-        :param success: Whether the prediction was successful (True for success, False for failure).
-        """
-        if success is not None:
-            if success:
-                self.alpha += 1
-            else:
-                self.beta += 1
-        elif predicted_probability is not None and revealed_is_mine is not None:
-            if revealed_is_mine:
-                self.alpha += predicted_probability
-            else:
-                self.beta += (1 - predicted_probability)
+    def update(self, prob_pred: float, revealed_is_mine: bool) -> None:
+        """Update confidence based on a move’s predicted probability and the actual outcome."""
+        predicted_mine = prob_pred >= 0.5
+        actual_mine = revealed_is_mine
+        if predicted_mine == actual_mine:
+            self.alpha += 1.0
         else:
-            raise ValueError(
-                "Either `success` or both `predicted_probability` and `revealed_is_mine` must be provided."
-            )
+            self.beta += 1.0
 
     def mean(self) -> float:
-        """
-        Calculate the mean of the Beta distribution.
+        """Get current confidence level (expected accuracy of solver).
 
-        Returns:
-            float: The mean value of the Beta distribution.
+        Returns the mean of the Beta distribution, α / (α + β). This represents the 
+        solver’s estimated probability that its next prediction will be correct. A 
+        value near 1 means the solver is well-calibrated (nearly always correct), 
+        whereas ~0.5 indicates it’s right only about half the time (no better than 
+        chance), and lower means it’s often wrong. 
+
+        This metric allows the solver to modulate its strategy: high confidence → 
+        stick to safe moves; low confidence → take more exploratory risks.
         """
         return self.alpha / (self.alpha + self.beta)
 
-    def variance(self) -> float:
-        """
-        Calculate the variance of the Beta distribution.
+    def set_threshold(self, tau: float) -> None:
+        """Set a confidence threshold for external use."""
+        if not (0.0 <= tau <= 1.0):
+            raise ValueError("Threshold must be between 0 and 1.")
+        self.tau = tau
 
-        Returns:
-            float: The variance of the Beta distribution.
-        """
-        total = self.alpha + self.beta
-        return (self.alpha * self.beta) / (total**2 * (total + 1))
+    def get_threshold(self) -> Optional[float]:
+        """Get the current confidence threshold."""
+        return getattr(self, 'tau', None)
 
     def choose_move(self, board) -> Union[Cell, None]:
         """

@@ -1,7 +1,7 @@
 from ai_minesweeper.board import Board
 from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
 from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
-from helpers.risk_assessor_spread import SpreadRiskAssessor
+from ai_minesweeper.risk_assessor import SpreadRiskAssessor
 from ai_minesweeper.cell import Cell, State
 
 
@@ -13,7 +13,7 @@ def test_policy_choose_move():
         ]
     )
     confidence = BetaConfidence()
-    policy = ConfidencePolicy(SpreadRiskAssessor, confidence)
+    policy = ConfidencePolicy(SpreadRiskAssessor(), confidence)
 
     move = policy.choose_move(board)
     assert move is not None
@@ -59,3 +59,49 @@ def test_confidence_threshold_mapping():
         board.grid[move_high_confidence.row][move_high_confidence.col].state
         == State.HIDDEN
     )
+
+
+def test_beta_confidence():
+    confidence = BetaConfidence()
+    assert confidence.mean() == 0.5  # Initial mean with alpha=1, beta=1
+
+    confidence.update(0.1, False)  # Incorrect prediction
+    assert confidence.alpha == 1.0
+    assert confidence.beta == 2.0
+    assert confidence.mean() == pytest.approx(1 / 3)
+
+    confidence.update(0.9, True)  # Correct prediction
+    assert confidence.alpha == 2.0
+    assert confidence.beta == 2.0
+    assert confidence.mean() == 0.5
+
+
+def test_confidence_policy():
+    class MockSolver:
+        def __init__(self):
+            self.last_prob = {}
+
+        def predict(self, board):
+            # Mock probability map for testing
+            self.last_prob = {(0, 0): 0.1, (0, 1): 0.2, (1, 0): 0.3, (1, 1): 0.4}
+            return self.last_prob
+
+    class MockBoard:
+        def is_hidden(self, r, c):
+            # Mock all cells as hidden for simplicity
+            return True
+
+    solver = MockSolver()
+    board = MockBoard()
+    policy = ConfidencePolicy(solver)
+
+    move = policy.choose_move(board)
+    assert move == (0, 0)  # Lowest probability cell
+
+    # Simulate a correct prediction and update confidence
+    policy.confidence.update(0.1, False)
+    assert policy.confidence.mean() == pytest.approx(1 / 3)
+
+    # Simulate another move
+    move = policy.choose_move(board)
+    assert move == (0, 1)  # Next lowest probability cell

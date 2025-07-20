@@ -1,9 +1,11 @@
 import logging
+from typing import Optional
 
 class BetaConfidence:
-    def __init__(self):
-        self.alpha = 1.0
-        self.beta = 1.0
+    def __init__(self, alpha: float = 1.0, beta: float = 1.0, predicted_probability: Optional[float] = None):
+        self.alpha = alpha
+        self.beta = beta
+        self.predicted_probability = predicted_probability
         self.logger = logging.getLogger(__name__)
         self.threshold = None  # Initialize threshold with None
 

@@ -1,5 +1,7 @@
 from .confidence import BetaConfidence
 from ai_minesweeper.board import Board
+import numpy as np
+from typing import Any, Tuple
 
 
 class ConfidencePolicy:
@@ -8,99 +10,42 @@ class ConfidencePolicy:
     Adjusts risk tolerance dynamically based on solver confidence.
     """
 
-    def __init__(self, base_solver, confidence: BetaConfidence):
+    def __init__(self, base_solver: Any, alpha: float = 1.0, beta: float = 1.0):
         """
         Initialize with a base solver and confidence tracker.
         :param base_solver: Solver providing mine probability estimates.
-        :param confidence: BetaConfidence instance for tracking.
+        :param alpha: initial α for confidence prior.
+        :param beta: initial β for confidence prior.
         """
-        self.base_solver = base_solver()
-        self.confidence = confidence
+        self.solver = base_solver
+        self.confidence = BetaConfidence(alpha, beta)
+        # Risk threshold τ will be computed each move as a function of confidence
 
-    def choose_move(self, board_state: Board):
+    def choose_move(self, board_state: Board) -> Tuple[int, int]:
         """
         Select the next move based on confidence-adjusted risk threshold.
 
         :param board_state: Current state of the Minesweeper board.
         :return: The chosen Cell object.
         """
-        from ai_minesweeper.cell import Cell
-        
-        tau = self.confidence.get_threshold()
-        prob_map = self.base_solver.estimate(board_state)
+        # 1. Get the probability map from the underlying solver
+        prob_map = self.solver.predict(board_state)  # assume returns a 2D array or dict of probabilities for each cell
+        hidden_cells = [(r, c) for r, c in prob_map.keys() if board_state.is_hidden(r, c)]
 
-        if not prob_map:
-            # Fallback: no probability info – choose the first hidden, unflagged cell
-            for r in range(board_state.n_rows):
-                for c in range(board_state.n_cols):
-                    cell = board_state.grid[r][c]
-                    if cell.is_hidden() and not cell.is_flagged():
-                        return cell
-            raise RuntimeError("No valid moves remaining.")
+        # 2. Compute dynamic risk threshold τ based on current confidence level
+        conf_mean = self.confidence.mean()
+        tau = 0.25 - 0.20 * conf_mean   # map confidence to [0.25 (low conf) .. 0.05 (high conf)]
 
-        # Λ-ladder curve (Observer-State §2.3):
-        # early confidence moves the threshold quickly; high confidence tapers.
-        tau_min, tau_max = 0.05, 0.25
-        tau = tau_min + (tau_max - tau_min) * (1 - self.confidence.mean()) ** 2
-
-        print(f"Using Λ-ladder threshold: {tau}")
-
-        # Select the move with the lowest probability below the threshold
-        for cell, prob in prob_map.items():
-            if prob < tau:
-                return cell
-
-        # Fallback: If no probabilities are below the threshold, pick the lowest
-        return min(prob_map, key=prob_map.get)
-
-        # ── guaranteed-safe fallback ──
-        for r in range(board_state.n_rows):
-            for c in range(board_state.n_cols):
-                cell = board_state[r, c]
-                if cell.is_hidden() and not cell.is_flagged():
-                    return cell
-
-        # No moves left – board solved or invalid
-        raise RuntimeError("No valid moves remaining on the board.")
-        # safe_cells = [cell for cell, prob in prob_map.items() if prob <= tau]
-        confidence = self.confidence.mean()
-        
-        result = None
-        if confidence > 0.8:
-            # High confidence: exploit
-            if hasattr(self.base_solver, 'choose_safest_move'):
-                result = self.base_solver.choose_safest_move(board_state)
-            else:
-                result = self.base_solver.choose_move(board_state)
-        elif confidence < 0.5:
-            # Low confidence: explore
-            if hasattr(self.base_solver, 'choose_information_rich_move'):
-                result = self.base_solver.choose_information_rich_move(board_state)
-            else:
-                result = self.base_solver.choose_move(board_state)
+        # 3. Find candidate moves with probability <= τ
+        safe_candidates = [cell for cell in hidden_cells if prob_map[cell] <= tau]
+        if safe_candidates:
+            # choose the candidate with the lowest mine probability
+            move = min(safe_candidates, key=lambda cell: prob_map[cell])
         else:
-            # Moderate confidence: default behavior
-            result = self.base_solver.choose_move(board_state)
-        
-        # Type validation: ensure we return a Cell object
-        if result is None:
-            return None
-        
-        if isinstance(result, tuple) and len(result) == 2:
-            # Convert tuple (row, col) to Cell object
-            row, col = result
-            if (0 <= row < board_state.n_rows and 
-                0 <= col < board_state.n_cols):
-                cell = board_state.grid[row][col]
-                if cell.row is None:
-                    cell.row = row
-                if cell.col is None:
-                    cell.col = col
-                return cell
-            return None
-        elif isinstance(result, Cell):
-            return result
-        else:
-            # Unexpected return type, log and return None
-            print(f"Warning: base_solver returned unexpected type {type(result)}: {result}")
-            return None
+            # no cell is below threshold; take the least risky cell available
+            move = min(hidden_cells, key=lambda cell: prob_map[cell])
+
+        # We do not reveal the cell here; that should be done by the game environment.
+        # After the game reveals the outcome, the confidence should be updated externally:
+        # self.confidence.update(prob_map[move], outcome_is_mine)
+        return move

@@ -62,7 +62,11 @@ def play(
                 move = solver.choose_move(board)
                 if move is None:
                     break
-                board.reveal(move.row, move.col)
+                if isinstance(move, tuple):
+                    row, col = move
+                else:
+                    row, col = move.row, move.col
+                board.reveal(row, col)
 
         message = "Game completed! All hypotheses resolved."
         logger.info(message)
