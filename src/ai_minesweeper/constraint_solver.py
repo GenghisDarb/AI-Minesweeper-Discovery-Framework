@@ -1,7 +1,11 @@
 from ai_minesweeper.board import State
+from ai_minesweeper.risk_assessor import RiskAssessor
 
 
 class ConstraintSolver:
+    def __init__(self):
+        self.risk_assessor = RiskAssessor()
+
     def choose_move(self, board):
         """
         Choose the next move based on deterministic Minesweeper rules.
@@ -28,13 +32,8 @@ class ConstraintSolver:
                             neighbor.state = State.REVEALED
                         return None  # Continue solving
 
-        for row in board.grid:
-            for cell in row:
-                if cell.state == State.HIDDEN:
-                    return cell
-
-        # Fallback: No deterministic move found
-        return None
+        # Fallback: Use RiskAssessor for probabilistic move
+        return self.risk_assessor.choose_move(board)
 
     def solve(self, board):
         """

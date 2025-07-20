@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.1] - 2025-07-19
+- Connected confidence bar in Streamlit UI to BetaConfidence tracker for real-time updates.
+- Integrated RiskAssessor into ConstraintSolver for probabilistic fallback.
+- Added integration tests for solver logic.
+- Replaced debug print statements with proper logging.
+- Unified changelogs into a single file.
+
+## v0.4 – TORUS-brot and Meta-Cell Update (2025-07)
+- Integrated TORUS-brot fractal module (renderer, data, notebook, documentation).
+- Streamlit app now includes TORUS-brot demo domain.
+- Meta-Cell Confidence Module can be toggled; added UI visualization of solver confidence.
+- Improved documentation (README, glossary) to explain new features and theoretical context.
+
 ## v0.3-beta
 - Added Meta-Cell Confidence Module.
 - Created tutorial notebook demonstrating confidence oscillation.

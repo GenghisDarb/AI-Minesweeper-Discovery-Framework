@@ -222,14 +222,14 @@ class BoardBuilder:
                 cell = board.grid[r][c]
                 if isinstance(value, Cell):
                     cell.symbol = value.symbol  # Preserve the symbol attribute
-                elif value.upper() in {"MINE", "M", "X"}:
+                elif str(value).upper() in {"MINE", "M", "X"}:
                     cell.is_mine = True
                 elif isinstance(value, int):
                     cell.state = State.REVEALED
                     cell.adjacent_mines = value
                 elif str(value).strip().upper() in {"", "."}:
                     cell.state = State.HIDDEN
-                elif value.upper() == "HIDDEN":
+                elif str(value).upper() == "HIDDEN":
                     cell.state = State.HIDDEN
                 else:
                     raise ValueError(f"Invalid cell value: {value}")
@@ -252,3 +252,15 @@ class BoardBuilder:
         # Check if rows is empty before accessing len(rows[0])
         if not grid or not grid[0]:
             raise ValueError("The provided text does not contain a valid board layout.")
+
+    @staticmethod
+    def empty_board(rows: int, cols: int) -> Board:
+        """
+        Create an empty board with the specified dimensions.
+
+        :param rows: Number of rows in the board.
+        :param cols: Number of columns in the board.
+        :return: A Board object with all cells hidden and no mines.
+        """
+        grid = [[Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)]
+        return Board(n_rows=rows, n_cols=cols, grid=grid)
