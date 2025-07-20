@@ -1,3 +1,5 @@
+from typing import Union
+
 class BetaConfidence:
     """
     Tracks confidence in false-hypothesis predictions using a Beta distribution.
@@ -36,6 +38,7 @@ class BetaConfidence:
         """
         self._tau = max(0.01, min(0.99, tau))  # allow high manual τ for tests
 
+<<<<<<< HEAD
     def update(
         self,
         predicted_probability: float = None,
@@ -63,6 +66,25 @@ class BetaConfidence:
             raise ValueError(
                 "Either `success` or both `predicted_probability` and `revealed_is_mine` must be provided."
             )
+=======
+    def update(self, predicted_prob: float, actual_result: bool) -> None:
+        """
+        Update the Beta distribution based on prediction accuracy.
+
+        Args:
+            predicted_prob (float): The predicted probability of finding a mine (0.0 to 1.0)
+            actual_result (bool): True if there was actually a mine, False otherwise
+        """
+        # Update based on how well we predicted
+        # If actual_result is True (mine found), we update alpha by predicted_prob
+        # If actual_result is False (safe), we update beta by (1 - predicted_prob)
+        if actual_result:
+            # There was a mine - reward based on how much we predicted it
+            self.alpha += predicted_prob
+        else:
+            # There was no mine - reward based on how much we predicted safety
+            self.beta += (1.0 - predicted_prob)
+>>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
 
     def mean(self) -> float:
         """
@@ -83,7 +105,7 @@ class BetaConfidence:
         total = self.alpha + self.beta
         return (self.alpha * self.beta) / (total**2 * (total + 1))
 
-    def choose_move(self, board) -> tuple[int, int] | None:
+    def choose_move(self, board) -> Union["Cell", None]:
         """
         Select the next cell to probe based on confidence and risk assessment.
         """
@@ -98,6 +120,11 @@ class BetaConfidence:
         if pick is None:  # Fallback logic
             for r in range(board.n_rows):
                 for c in range(board.n_cols):
-                    if board[r, c].is_hidden() and not board[r, c].is_flagged():
-                        return (r, c)
+                    cell = board.grid[r][c]
+                    if cell.is_hidden() and not cell.is_flagged():
+                        if cell.row == -1:
+                            cell.row = r
+                        if cell.col == -1:
+                            cell.col = c
+                        return cell
         return pick

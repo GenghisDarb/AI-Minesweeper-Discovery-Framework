@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 ## [1.0.1] - 2025-07-19
 - Connected confidence bar in Streamlit UI to BetaConfidence tracker for real-time updates.
 - Integrated RiskAssessor into ConstraintSolver for probabilistic fallback.
@@ -12,6 +13,38 @@
 - Streamlit app now includes TORUS-brot demo domain.
 - Meta-Cell Confidence Module can be toggled; added UI visualization of solver confidence.
 - Improved documentation (README, glossary) to explain new features and theoretical context.
+=======
+## v0.4-stable (CI Stability & Bug Fixes)
+
+### Fixed
+- **RecursionError in ConstraintSolver**: Refactored circular `choose_move`/`solve` dependency into iterative loop with base-case guard
+- **AttributeError 'tuple' has no attribute 'row'**: Updated `RiskAssessor.choose_move` to return Cell objects instead of tuples
+- **Type validation**: Added comprehensive type checking in `ConfidencePolicy.choose_move` with fallback handling
+- **CSV parsing**: Fixed `BoardBuilder.from_csv` to properly respect `header` parameter and support both relational and grid CSV formats  
+- **Board constructor**: Fixed Board(n_rows, n_cols) pattern to properly initialize grid when dimensions are provided
+- **State enum usage**: Replaced invalid `State.TRUE` references with `State.REVEALED` in tests
+- **Board validation**: Fixed `is_valid()` method to check logical consistency instead of requiring all cells to be revealed
+- **Hidden cells logic**: Removed incorrect assertion in `hidden_cells()` method that prevented boards with mixed states
+- **Bounds checking**: Added comprehensive bounds validation to DPP14RecursionEngine and other utilities
+- **CLI output**: Standardized messages to match test expectations and added backwards compatibility for move handling
+- **BetaConfidence update**: Fixed probability-based update logic to match expected test behavior
+
+### Enhanced
+- **Defensive programming**: Added `dict.get()` with defaults for optional keys in engine results
+- **Error handling**: Improved exception handling and fallback logic throughout the codebase
+- **Type safety**: Enhanced type annotations and validation across policy wrappers
+- **CSV support**: Added robust parsing for both traditional grid and relational CSV formats
+
+### CI Improvements
+- **Multi-version testing**: Added Python 3.10, 3.11, 3.12 compatibility testing
+- **Additional linting**: Integrated pylint and mypy checks into CI pipeline
+- **Enhanced validation**: Improved test coverage and edge case handling
+
+### Breaking Changes
+- `RiskAssessor.choose_move()` now returns Cell objects instead of tuples
+- `ConfidencePolicy.choose_move()` returns Cell objects with enhanced type validation
+- CSV parsing behavior changed to respect header parameter properly
+>>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
 
 ## v0.3-beta
 - Added Meta-Cell Confidence Module.

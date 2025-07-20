@@ -47,9 +47,15 @@ class DPP14RecursionEngine:
         collapsed_lanes = [lane.lane_id for lane in self.lanes if lane.collapsed]
 
         return {
+            "chi_values": chi_values,
             "final_chi14": final_chi14,
+<<<<<<< HEAD
             "lane_results": [lane.resonance_zones for lane in self.lanes],
             "collapsed_lanes": collapsed_lanes,
+=======
+            "resonance_zones": [getattr(lane, 'resonance_zones', []) for lane in self.lanes],
+            "collapsed_lanes": [lane.lane_id for lane in self.lanes if getattr(lane, 'collapsed', False)],
+>>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
         }
 
     def _run_lane(self, lane: RecursionLane) -> None:
@@ -83,7 +89,7 @@ class DPP14RecursionEngine:
             print(
                 f"[DPP14] Step {steps} – Chose cell ({move.row},{move.col}), result={result}"
             )
-            print(lane.board.visualize())
+            self._visualize_board(lane.board)
 
             if result == "contradiction":
                 print(
@@ -96,6 +102,7 @@ class DPP14RecursionEngine:
 
     def _test_hypothesis(self, board: Any, move: Any) -> str:
         """Simulates testing a hypothesis."""
+<<<<<<< HEAD
         if isinstance(move, tuple):
             row, col = move
         else:
@@ -103,6 +110,11 @@ class DPP14RecursionEngine:
 
         cell = board[row][col]
         if cell.state == "mine":  # adjust for actual cell structure
+=======
+        # Use board.grid for direct access or board[(row, col)] for __getitem__
+        cell = board.grid[move.row][move.col]
+        if cell.is_mine:  # Check if it's a mine using proper attribute
+>>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
             return "contradiction"
         else:
             if isinstance(move, tuple):
