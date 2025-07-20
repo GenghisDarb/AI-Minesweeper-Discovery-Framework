@@ -1,6 +1,6 @@
 from .board import Board, State
 from ai_minesweeper.constants import DEBUG
-from typing import Optional, Tuple
+from typing import Generator, Optional, Tuple
 
 
 class RiskAssessor:
@@ -167,6 +167,13 @@ class RiskAssessor:
         # Find the cell with the lowest probability
         move = min(probabilities, key=probabilities.get)
         return move
+
+    def iter_safe_candidates(self, board: "Board") -> Generator[Tuple[int, int], None, None]:
+        """Yield safe candidate cells."""
+        for r, row in enumerate(board.grid):
+            for c, cell in enumerate(row):
+                if board.is_hidden(r, c):
+                    yield (r, c)
 
 
 class SpreadRiskAssessor:

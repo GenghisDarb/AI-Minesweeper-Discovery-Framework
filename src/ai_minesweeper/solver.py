@@ -34,6 +34,7 @@ class ConstraintSolver:
                 return
 
             move = policy.choose_move(board)
+            row, col = move  # Unpack tuple
             if move is None:
                 logging.info("No moves left to make.")
                 logging.debug(f"Board state when no moves left: {board}")

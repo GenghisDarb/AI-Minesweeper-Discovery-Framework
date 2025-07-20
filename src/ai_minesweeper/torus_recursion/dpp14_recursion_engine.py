@@ -112,3 +112,7 @@ class DPP14RecursionEngine:
 
             board.reveal(row, col)
             return "valid"
+
+    def _visualize_board(self, board: "Board") -> None:
+        """(Dev stub) No-op visualiser used only in debug mode."""
+        return
