@@ -9,7 +9,7 @@ class BetaConfidence:
         self.logger = logging.getLogger(__name__)
         self.threshold = None  # Initialize threshold with None
 
-    def update(self, predicted_probability: float = None, revealed_is_mine: bool = None, success: bool = None):
+    def update(self, predicted_probability: Optional[float] = None, revealed_is_mine: Optional[bool] = None, success: Optional[bool] = None):
         """
         Update confidence values based on prediction accuracy.
 

@@ -126,7 +126,7 @@ class Board:
         return nbrs
 
     def reveal(
-        self, row: int | tuple[int, int], col: int = None, flood: bool = False
+        self, row: int | tuple[int, int], col: Optional[int] = None, flood: bool = False
     ) -> None:
         if col is None and isinstance(row, tuple):
             row, col = row
@@ -138,7 +138,7 @@ class Board:
                 for neighbor in self.neighbors(row, col):
                     self.reveal(neighbor.row, neighbor.col, flood=True)
 
-    def flag(self, row: int | tuple[int, int], col: int = None) -> None:
+    def flag(self, row: int | tuple[int, int], col: Optional[int] = None) -> None:
         if col is None and isinstance(row, tuple):
             row, col = row
         cell = self.grid[row][col]
