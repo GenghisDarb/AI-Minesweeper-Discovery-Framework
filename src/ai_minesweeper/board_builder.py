@@ -7,7 +7,6 @@ class BoardBuilder:
     """Factory helpers for Board objects."""
 
     @staticmethod
-<<<<<<< HEAD
     def from_csv(path: str | Path, header: bool | None = None) -> Board:
         """
         Parse a CSV file into a Board object.
@@ -25,12 +24,13 @@ class BoardBuilder:
             cells: list[Cell] = []
             for token in row:
                 token_str = "" if pd.isna(token) else str(token).strip()
-                if token_str.upper() in {"", "X", "*"}:  # Blank, 'X', or '*' → mine
+                if token_str.upper() in {"X", "*", "MINE"}:  # Marked mine
                     cell = Cell(is_mine=True, state=State.HIDDEN)
                     cell.symbol = token_str  # Assign symbol for mines
                     cells.append(cell)
                 elif token_str.isdigit() and 0 <= int(token_str) <= 8:  # Clue
-                    cells.append(Cell(state=State.REVEALED, clue=int(token_str)))
+                    cell = Cell(state=State.REVEALED, clue=int(token_str))
+                    cells.append(cell)
                 else:  # Safe hidden cell
                     cell = Cell(state=State.HIDDEN)
                     cell.symbol = token_str
@@ -45,48 +45,6 @@ class BoardBuilder:
             raise ValueError("CSV rows have inconsistent column counts.")
 
         board = Board(n_rows=len(grid), n_cols=row_len, grid=grid)
-=======
-    def from_csv(path: str | Path, header: int | None = None) -> Board:
-        """Parse a CSV file into a Board object."""
-        # Respect the header parameter - if header=0, skip the first row
-        df = pd.read_csv(path, header=header)
-        print(f"[DEBUG] CSV content:\n{df}")  # Log the CSV content
-        
-        # Handle empty CSV files
-        if df.empty:
-            raise ValueError(f"CSV file {path} is empty")
-        
-        # Detect CSV format based on column names
-        if header is not None and hasattr(df, 'columns'):
-            columns = [str(col).lower() for col in df.columns]
-            if 'cell' in columns and 'row' in columns and 'column' in columns:
-                # Relational format: each row represents one cell
-                return BoardBuilder._from_relational_csv(df)
-        
-        # Traditional grid format: each row represents a board row
-        # Check for consistent row lengths
-        row_lengths = [len(row) for _, row in df.iterrows()]
-        if len(set(row_lengths)) > 1:
-            raise ValueError(f"Inconsistent row lengths in CSV: {row_lengths}")
-        
-        try:
-            grid = [
-                [Cell.from_token(str(token).strip()) for token in row]
-                for _, row in df.iterrows()
-            ]
-        except Exception as e:
-            raise ValueError(f"Error parsing CSV file {path}: {e}")
-            
-        if not grid or not grid[0]:
-            raise ValueError(f"No valid data found in CSV file {path}")
-            
-        for row in grid:
-            for cell in row:
-                print(f"[DEBUG] Created cell: {cell}")  # Log each created cell
-                
-        board = BoardBuilder._empty_board(len(grid), len(grid[0]))
-        BoardBuilder._populate_board(board, grid)
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
         return board
     
     @staticmethod

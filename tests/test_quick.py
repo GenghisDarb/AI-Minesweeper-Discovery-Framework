@@ -15,6 +15,7 @@ from ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
 from ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
 from ai_minesweeper.ui_widgets import apply_grid_styling
 from ai_minesweeper.ui_widgets import add_high_contrast_mode
+from unittest.mock import Mock
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -225,8 +226,6 @@ def test_ui_widgets_render_cell_with_tooltip():
     assert "background-color: green" in html
     assert "This cell is safe." in html
 
-
-from unittest.mock import Mock
 
 # Fix for add_accessibility_labels_to_cells
 def test_ui_widgets_add_accessibility_labels_to_cells():

@@ -17,6 +17,7 @@ class PeriodicTableDomain:
             "i",
             "eka",
             "x",
+            "mine",
         }
         return cell.symbol and cell.symbol.lower() in mine_symbols and cell.state == State.HIDDEN
 

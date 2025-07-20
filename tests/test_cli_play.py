@@ -1,5 +1,4 @@
 import os
-import sys
 from typer.testing import CliRunner
 from ai_minesweeper.cli import app
 

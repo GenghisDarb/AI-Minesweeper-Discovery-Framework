@@ -134,6 +134,9 @@ def main():
             unsafe_allow_html=True,
         )
 
+    # Define `confidence` before use
+    confidence = None
+
     # Add a button to copy results
     results = {"board_state": board, "confidence": confidence}
     copy_results_button(results)

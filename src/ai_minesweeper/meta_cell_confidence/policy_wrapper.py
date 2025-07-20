@@ -1,5 +1,5 @@
 from .confidence import BetaConfidence
-from ai_minesweeper.board import Board, State
+from ai_minesweeper.board import Board
 
 
 class ConfidencePolicy:
@@ -30,22 +30,14 @@ class ConfidencePolicy:
         prob_map = self.base_solver.estimate(board_state)
 
         if not prob_map:
-<<<<<<< HEAD
-            # Fallback: Choose the first available hidden cell
-            for row in board_state.grid:
-                for cell in row:
-                    if cell.state == State.HIDDEN:
+            # Fallback: no probability info – choose the first hidden, unflagged cell
+            for r in range(board_state.n_rows):
+                for c in range(board_state.n_cols):
+                    cell = board_state.grid[r][c]
+                    if cell.is_hidden() and not cell.is_flagged():
                         return cell
             raise RuntimeError("No valid moves remaining.")
 
-=======
-            prob_map = {
-                (row, col): 0.5
-                for row in range(board_state.n_rows)
-                for col in range(board_state.n_cols)
-                if board_state.grid[row][col].state == State.HIDDEN
-            }
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
         # Λ-ladder curve (Observer-State §2.3):
         # early confidence moves the threshold quickly; high confidence tapers.
         tau_min, tau_max = 0.05, 0.25
@@ -53,7 +45,6 @@ class ConfidencePolicy:
 
         print(f"Using Λ-ladder threshold: {tau}")
 
-<<<<<<< HEAD
         # Select the move with the lowest probability below the threshold
         for cell, prob in prob_map.items():
             if prob < tau:
@@ -71,7 +62,6 @@ class ConfidencePolicy:
 
         # No moves left – board solved or invalid
         raise RuntimeError("No valid moves remaining on the board.")
-=======
         # safe_cells = [cell for cell, prob in prob_map.items() if prob <= tau]
         confidence = self.confidence.mean()
         
@@ -114,4 +104,3 @@ class ConfidencePolicy:
             # Unexpected return type, log and return None
             print(f"Warning: base_solver returned unexpected type {type(result)}: {result}")
             return None
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe

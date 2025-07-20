@@ -22,7 +22,6 @@ class Board:
             else:
                 print("[DEBUG] grid is NOT a list")
 
-<<<<<<< HEAD
         if grid is None:
             if n_rows is None or n_cols is None:
                 raise ValueError("n_rows and n_cols must be provided if grid is None")
@@ -51,26 +50,6 @@ class Board:
 
         self.n_rows = len(self.grid)
         self.n_cols = len(self.grid[0]) if self.grid else 0
-=======
-        # Handle different constructor patterns
-        if grid is not None:
-            # Grid provided - use it and derive dimensions
-            self.grid = grid
-            self.n_rows = len(self.grid)
-            self.n_cols = len(self.grid[0]) if self.grid else 0
-        elif n_rows is not None and n_cols is not None:
-            # Dimensions provided - create empty grid
-            self.n_rows = n_rows
-            self.n_cols = n_cols
-            self.grid = [
-                [Cell(state=State.HIDDEN) for _ in range(n_cols)] for _ in range(n_rows)
-            ]
-        else:
-            # No grid or dimensions - create empty board
-            self.grid = []
-            self.n_rows = 0
-            self.n_cols = 0
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
 
         for i, row in enumerate(self.grid):
             for j, cell in enumerate(row):
@@ -216,23 +195,12 @@ class Board:
 
     def hidden_cells(self) -> list[Cell]:
         """Return a list of all hidden Cell objects."""
-<<<<<<< HEAD
         hidden_cells = []
         for r, row in enumerate(self.grid):
             for c, cell in enumerate(row):
                 if cell.state and cell.state.value == State.HIDDEN.value:
                     hidden_cells.append(cell)
         return hidden_cells
-=======
-        hidden_cells_list = []
-        for r, row in enumerate(self.grid):
-            for c, cell in enumerate(row):
-                print(f"[CHECK] ({r},{c}) state: {cell.state} (value: {getattr(cell.state, 'value', None)})")
-                if cell.state and cell.state.value == State.HIDDEN.value:
-                    print(f"[APPEND] ({r},{c}) added to hidden_cells")
-                    hidden_cells_list.append(cell)
-        return hidden_cells_list
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
 
     @property
     def mines_remaining(self) -> int:
@@ -356,7 +324,6 @@ class Board:
         return cell.is_mine
 
     def is_valid(self):
-<<<<<<< HEAD
         """
         Check if the board is in a valid state by verifying clue consistency.
 
@@ -370,32 +337,6 @@ class Board:
                     mine_count = sum(1 for neighbor in neighbors if neighbor.is_mine)
                     if mine_count != cell.clue:
                         return False
-=======
-        """Check if the board is in a valid state."""
-        # A board is valid if:
-        # 1. It has proper dimensions
-        # 2. All cells have valid states
-        # 3. No obvious inconsistencies in clue numbers vs adjacent mines
-        
-        if self.n_rows <= 0 or self.n_cols <= 0:
-            return False
-            
-        if not self.grid or len(self.grid) != self.n_rows:
-            return False
-            
-        for row in self.grid:
-            if len(row) != self.n_cols:
-                return False
-                
-        # Check each cell has a valid state
-        for row in self.grid:
-            for cell in row:
-                if not hasattr(cell, 'state') or cell.state not in State:
-                    return False
-                    
-        # For now, we consider any board with proper structure as valid
-        # More sophisticated validation could check clue consistency
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
         return True
 
     def is_solved(self):

@@ -163,25 +163,6 @@ class RiskAssessor:
         if not probabilities:
             raise RuntimeError("No valid moves remaining.")
 
-<<<<<<< HEAD
         # Find the cell with the lowest probability
         move = min(probabilities, key=probabilities.get)
         return move
-=======
-        if not prob_map:
-            return None
-
-        # Extract safest cell (lowest probability)
-        best_coord = min(prob_map, key=prob_map.get)
-        row, col = best_coord
-        cell = board.grid[row][col]
-
-        if cell.state.value == State.HIDDEN.value:
-            # Set row/col attributes for the cell if not already set
-            if cell.row is None:
-                cell.row = row
-            if cell.col is None:
-                cell.col = col
-            return cell  # Return Cell object instead of coordinates
-        return None
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
