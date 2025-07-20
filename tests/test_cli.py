@@ -3,6 +3,14 @@ from ai_minesweeper.cli import app
 
 runner = CliRunner()
 
+# Mocking board and v for the test
+class MockBoard:
+    def is_hidden(self, x, y):
+        return True  # Mocking as if the cell is hidden
+
+board = MockBoard()
+v = (0, 0)
+
 
 def test_validate_command():
     result = runner.invoke(app, ["validate", "examples/boards/sample.csv"])

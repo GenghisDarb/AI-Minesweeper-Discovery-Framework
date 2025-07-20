@@ -1,6 +1,5 @@
 from .confidence import BetaConfidence
 from ai_minesweeper.board import Board
-import numpy as np
 from typing import Any, Tuple
 
 
