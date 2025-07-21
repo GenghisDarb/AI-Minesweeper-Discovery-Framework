@@ -1,0 +1,17 @@
+site_name: AI Minesweeper Discovery Framework
+site_url: https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/
+repo_url: https://github.com/GenghisDarb/AI-Minesweeper-Discovery-Framework
+theme:
+  name: material
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+extra_css:
+  - css/custom_palette.css
+  - css/badges.css
+nav:
+  - Home: index.md

@@ -1,0 +1,3 @@
+dataset: "fold_vs_freq.csv"
+mine_definition: "false hypothesis"
+clue_logic: "phase-beat alignment"

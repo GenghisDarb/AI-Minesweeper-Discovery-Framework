@@ -1,0 +1,4 @@
+pandas-stubs
+types-requests>=2.31
+types-PyYAML>=6.0
+pytest-cov

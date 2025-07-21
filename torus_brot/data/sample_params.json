@@ -1,0 +1,6 @@
+{
+  "max_iter": 512,
+  "escape_radius": 4.0,
+  "major_radius": 1.0,
+  "minor_radius": 0.5
+}

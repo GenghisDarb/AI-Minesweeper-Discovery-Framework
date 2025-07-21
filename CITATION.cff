@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this framework in your research, please cite it as below."
+title: "AI Minesweeper Discovery Framework"
+authors:
+  - name: "Your Name"
+    affiliation: "Your Institution"
+    orcid: "0000-0000-0000-0000"
+abstract: "A framework for AI-driven discovery in Minesweeper-like environments."
+version: "1.0.0"
+date-released: "2025-07-06"
+repository-code: "https://github.com/your-repo/AI-Minesweeper-Discovery-Framework"
+license: "MIT"
+keywords:
+  - "AI"
+  - "Minesweeper"
+  - "Discovery Framework"
+  - "Game Theory"
+  - "Machine Learning"
