@@ -27,9 +27,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install mkdocs-material mkdocstrings[python]
 
-      - name: Install mkdocs-env plugin
-        run: pip install mkdocs-env
-
       - name: Install local package
         run: pip install .
 
