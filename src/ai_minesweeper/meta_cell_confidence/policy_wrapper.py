@@ -1,7 +1,7 @@
 from typing import Any
 
 from ai_minesweeper.board import Board
-from ai_minesweeper.cell import Cell  # Ensure Cell is imported
+from ai_minesweeper.cell import Cell
 
 from .confidence import BetaConfidence
 
@@ -56,7 +56,4 @@ class ConfidencePolicy:
             # no cell is below threshold; take the least risky cell available
             move = min(hidden_cells, key=lambda cell: prob_map[cell])
 
-        # We do not reveal the cell here; that should be done by the game environment.
-        # After the game reveals the outcome, the confidence should be updated externally:
-        # self.confidence.update(prob_map[move], outcome_is_mine)
         return move

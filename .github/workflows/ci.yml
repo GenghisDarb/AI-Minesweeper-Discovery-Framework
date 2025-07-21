@@ -63,8 +63,21 @@ jobs:
           files: coverage.xml
           flags: unittests
           name: minesweeper-ci
-      - name: Test CLI Invocation
-        run: python -m ai_minesweeper.cli play examples/boards/sample.csv --dry-run
+      - name: Enforce coverage thresholds
+        run: pytest --cov=src --cov-fail-under=90 --cov-report=term-missing
+      - name: Run new unit tests
+        run: |
+          pytest tests/test_primes_chi.py
+          pytest tests/test_phase_lock_phi.py
+      - name: Run solver tests
+        run: pytest tests/test_solver_basic.py
+      - name: Run periodic table tests
+        run: pytest tests/test_periodic_table.py
+      - name: Run meta-cell confidence tests
+        run: pytest tests/test_beta_confidence.py tests/test_confidence_policy.py tests/test_ui_widgets.py
+      - name: Run tests
+        run: |
+          pytest --cov=ai_minesweeper --cov-report=xml
 
   docs:
     runs-on: ubuntu-latest

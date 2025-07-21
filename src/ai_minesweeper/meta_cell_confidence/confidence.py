@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from ai_minesweeper.board import Cell
 
@@ -75,7 +75,7 @@ class BetaConfidence:
             return self._threshold
         return 0.05 + self.mean() * (0.25 - 0.05)
 
-    def choose_move(self, board, risk_map: dict[Cell, float]) -> Cell:
+    def choose_move(self, board, risk_map: dict) -> Any:
         """
         Select the next cell to probe based on confidence and risk assessment.
         """
