@@ -1,6 +1,8 @@
 # Changelog
 
-<<<<<<< HEAD
+## [1.0.2] - 2025-07-20
+- **Build/Packaging:** Restructured the project to eliminate duplicate module paths. All imports now use the singular `ai_minesweeper` namespace (ensuring a single observer-state locus per TORUS Theory). Removed shadow `src.ai_minesweeper` references and added a CI guard to prevent dual-loading the module. This fixes the MyPy “Source file found twice under different module names” error.
+
 ## [1.0.1] - 2025-07-19
 - Connected confidence bar in Streamlit UI to BetaConfidence tracker for real-time updates.
 - Integrated RiskAssessor into ConstraintSolver for probabilistic fallback.
@@ -13,7 +15,7 @@
 - Streamlit app now includes TORUS-brot demo domain.
 - Meta-Cell Confidence Module can be toggled; added UI visualization of solver confidence.
 - Improved documentation (README, glossary) to explain new features and theoretical context.
-=======
+
 ## v0.4-stable (CI Stability & Bug Fixes)
 
 ### Fixed
@@ -44,7 +46,6 @@
 - `RiskAssessor.choose_move()` now returns Cell objects instead of tuples
 - `ConfidencePolicy.choose_move()` returns Cell objects with enhanced type validation
 - CSV parsing behavior changed to respect header parameter properly
->>>>>>> origin/copilot/fix-73693070-4d50-40b0-97b0-72eeb69256fe
 
 ## v0.3-beta
 - Added Meta-Cell Confidence Module.

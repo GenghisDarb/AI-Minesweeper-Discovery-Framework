@@ -1,13 +1,15 @@
+import json
+import tempfile
+
 import streamlit as st
+
+from ai_minesweeper.beta_confidence import BetaConfidence
+from ai_minesweeper.board_builder import BoardBuilder
+from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.ui_widgets import (
     color_coded_cell_rendering,
     copy_results_button,
 )
-from ai_minesweeper.board_builder import BoardBuilder
-from ai_minesweeper.risk_assessor import RiskAssessor
-from ai_minesweeper.beta_confidence import BetaConfidence
-import json
-import tempfile
 
 
 def main():

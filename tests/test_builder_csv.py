@@ -1,4 +1,5 @@
 import unittest
+
 from ai_minesweeper.board_builder import BoardBuilder
 
 

@@ -1,6 +1,9 @@
-from .board import Board, State
-from ai_minesweeper.constants import DEBUG
 from typing import Generator, Optional, Tuple
+
+from ai_minesweeper.cell import Cell
+from ai_minesweeper.constants import DEBUG
+
+from .board import Board, State
 
 
 class RiskAssessor:
@@ -39,7 +42,9 @@ class RiskAssessor:
             for cell in hidden:
                 print(f"Hidden cell: {cell}")
         if not hidden or all(
-            cell.is_mine is False and cell.clue is None for row in board.grid for cell in row
+            cell.is_mine is False and cell.clue is None
+            for row in board.grid
+            for cell in row
         ):
             print("[RISK] No mines or clues found. Returning empty risk map.")
             return {}
@@ -153,22 +158,24 @@ class RiskAssessor:
         )
 
     @staticmethod
-    def choose_move(board: Board) -> Optional[Tuple[int, int]]:
+    def choose_move(board: Board) -> Optional[Cell]:
         """
         Choose the next move based on the lowest probability.
 
         :param board: The current board state.
-        :return: Coordinates (row, col) of the chosen move.
+        :return: The chosen Cell object.
         """
         probabilities = RiskAssessor.estimate(board)
         if not probabilities:
             return None  # No valid moves remaining
 
         # Find the cell with the lowest probability
-        move = min(probabilities, key=probabilities.get)
-        return move
+        move_coord = min(probabilities, key=probabilities.get)
+        return board.grid[move_coord[0]][move_coord[1]]
 
-    def iter_safe_candidates(self, board: "Board") -> Generator[Tuple[int, int], None, None]:
+    def iter_safe_candidates(
+        self, board: "Board"
+    ) -> Generator[Tuple[int, int], None, None]:
         """Yield safe candidate cells."""
         for r, row in enumerate(board.grid):
             for c, cell in enumerate(row):
@@ -176,15 +183,37 @@ class RiskAssessor:
                     yield (r, c)
 
 
-class SpreadRiskAssessor(RiskAssessor):
+class SpreadRiskAssessor:
     def __init__(self, tau_getter=lambda: 0.1):
         """Initialize the SpreadRiskAssessor with an optional tau_getter."""
         self.tau_getter = tau_getter
 
-    def get_probabilities(self, board: Board) -> dict[tuple[int, int], float]:
-        hidden = board.hidden_coordinates()
-        prob = {(r, c): 1/len(hidden) for r, c in hidden}
-        self.last_prob = prob
-        return prob
+    def estimate(self, board):
+        """Estimate probabilities for all hidden cells on the board."""
+        return self.get_probabilities(board)
 
-    estimate = get_probabilities
+    def get_probabilities(self, board):
+        """Spread equal probability across all hidden cells with slight variation."""
+        hidden_cells = [
+            (cell.row, cell.col)
+            for row in board.grid
+            for cell in row
+            if cell.is_hidden()
+        ]
+        num_hidden = len(hidden_cells)
+        if num_hidden == 0:
+            return {}
+
+        base_prob = 1 / num_hidden
+        tau = self.tau_getter()
+        probabilities = {}
+
+        for idx, (row, col) in enumerate(hidden_cells):
+            variation = tau if idx % 2 == 0 else -tau
+            probabilities[(row, col)] = max(0, base_prob + variation)
+
+        return probabilities
+
+    def predict(self, board):
+        """Predict probabilities for all cells on the board."""
+        return self.get_probabilities(board)

@@ -3,6 +3,7 @@ Unit tests for Prime Residue Minesweeper Module
 """
 
 import unittest
+
 from ai_minesweeper.domain.primes_chi import (
     compute_ridge_score,
 )

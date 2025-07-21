@@ -1,11 +1,11 @@
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from ai_minesweeper.board import Board
-from ai_minesweeper.solver_logic import SolverLogic
-from ai_minesweeper.cell import Cell, State
 from ai_minesweeper.board_builder import BoardBuilder
+from ai_minesweeper.cell import Cell, State
+from ai_minesweeper.solver_logic import SolverLogic
 
 
 def test_solver_basic():

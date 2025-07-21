@@ -1,6 +1,8 @@
 from pathlib import Path
-from ai_minesweeper.board import Board, Cell, State
+
 import pandas as pd
+
+from ai_minesweeper.board import Board, Cell, State
 
 
 class BoardBuilder:
@@ -24,7 +26,7 @@ class BoardBuilder:
             cells: list[Cell] = []
             for token in row:
                 token_str = "" if pd.isna(token) else str(token).strip()
-                if token_str.upper() in {"X", "*", "MINE", ""}:  # Marked mine or blank
+                if token_str.upper() in {"X", "*", "MINE"}:  # Marked mine
                     cell = Cell(is_mine=True, state=State.HIDDEN)
                     cell.symbol = token_str  # Assign symbol for mines
                     cells.append(cell)
@@ -43,44 +45,48 @@ class BoardBuilder:
         row_len = len(grid[0])
         board = Board(n_rows=len(grid), n_cols=row_len, grid=grid)
         return board
-    
+
     @staticmethod
     def _from_relational_csv(df: pd.DataFrame) -> Board:
         """Parse a relational CSV format where each row represents one cell."""
         # Find the required columns (case-insensitive)
         columns = {col.lower(): col for col in df.columns}
-        
-        if 'cell' not in columns or 'row' not in columns or 'column' not in columns:
-            raise ValueError("Relational CSV must have 'cell', 'row', and 'column' columns")
-        
-        cell_col = columns['cell']
-        row_col = columns['row']
-        col_col = columns['column']
-        
+
+        if "cell" not in columns or "row" not in columns or "column" not in columns:
+            raise ValueError(
+                "Relational CSV must have 'cell', 'row', and 'column' columns"
+            )
+
+        cell_col = columns["cell"]
+        row_col = columns["row"]
+        col_col = columns["column"]
+
         # Find board dimensions
         max_row = int(df[row_col].max())
         max_col = int(df[col_col].max())
         n_rows = max_row + 1
         n_cols = max_col + 1
-        
+
         # Create empty board
         board = BoardBuilder._empty_board(n_rows, n_cols)
-        
+
         # Populate board from relational data
         for _, row_data in df.iterrows():
             r = int(row_data[row_col])
             c = int(row_data[col_col])
             cell_value = row_data[cell_col]
-            
+
             # Bounds checking
             if r < 0 or r >= n_rows or c < 0 or c >= n_cols:
-                raise ValueError(f"Cell coordinates ({r}, {c}) out of bounds for board size {n_rows}x{n_cols}")
-            
+                raise ValueError(
+                    f"Cell coordinates ({r}, {c}) out of bounds for board size {n_rows}x{n_cols}"
+                )
+
             cell = board.grid[r][c]
-            if pd.isna(cell_value) or str(cell_value).strip() in ['', '0']:
+            if pd.isna(cell_value) or str(cell_value).strip() in ["", "0"]:
                 cell.state = State.HIDDEN
                 cell.is_mine = False
-            elif str(cell_value).strip() in ['1', 'M', 'X', '*']:
+            elif str(cell_value).strip() in ["1", "M", "X", "*"]:
                 cell.state = State.HIDDEN  # Start hidden, can be revealed later
                 cell.is_mine = True
             else:
@@ -94,7 +100,7 @@ class BoardBuilder:
                     # Default to hidden empty cell
                     cell.state = State.HIDDEN
                     cell.is_mine = False
-        
+
         return board
 
     @staticmethod
@@ -210,14 +216,23 @@ class BoardBuilder:
         return board
 
     @classmethod
-    def from_data(cls, grid: "list[list[str | int]]") -> "Board":
-        """Build Board directly from a 2-D python list (no I/O)."""
+    def from_manual(
+        cls, grid: list[list[str | int]], *, invalidate: bool = True
+    ) -> "Board":
+        """
+        Build a Board directly from an in-memory grid.
+
+        grid: 2-D list where each element is
+              - "M" or "X"  → mine
+              - "" or "."   → hidden empty
+              - 0-8 (int)   → pre-revealed clue
+        invalidate: if True, verify clue numbers
+        """
+        if invalidate:
+            cls._validate_grid(grid)
         board = cls._empty_board(len(grid), len(grid[0]))
         cls._populate_board(board, grid)
         return board
-
-    # Alias if tests expect `from_manual`
-    from_manual = from_data
 
     @staticmethod
     def _validate_grid(grid: list[list[str | int]]) -> None:
@@ -243,9 +258,7 @@ class BoardBuilder:
 
         All cells are initialized as hidden and empty.
         """
-        grid = [
-            [Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)
-        ]
+        grid = [[Cell(state=State.HIDDEN) for _ in range(cols)] for _ in range(rows)]
         board = Board(grid=grid)
         return board
 

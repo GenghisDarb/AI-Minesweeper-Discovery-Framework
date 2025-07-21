@@ -1,6 +1,7 @@
-from .openai_provider import OpenAIProvider
-from .base import LLMProvider
 import yaml
+
+from .base import LLMProvider
+from .openai_provider import OpenAIProvider
 
 CONFIG_PATH = "config/llm.yaml"
 

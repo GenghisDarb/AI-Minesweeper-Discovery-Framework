@@ -1,5 +1,6 @@
-from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.board import State
+from ai_minesweeper.board_builder import BoardBuilder
+
 
 def test_periodic_table_integration():
     """

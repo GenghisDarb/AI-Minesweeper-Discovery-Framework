@@ -1,6 +1,7 @@
 import tempfile
-from ai_minesweeper.board_builder import BoardBuilder
+
 from ai_minesweeper.board import Board
+from ai_minesweeper.board_builder import BoardBuilder
 
 
 def test_from_csv():
