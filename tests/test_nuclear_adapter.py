@@ -1,5 +1,5 @@
-from ai_minesweeper.domain_loader import DomainLoader
 from ai_minesweeper.cell import State
+from ai_minesweeper.domain_loader import DomainLoader
 
 
 def test_nuclear_adapter():

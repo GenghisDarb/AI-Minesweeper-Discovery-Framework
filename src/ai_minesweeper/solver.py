@@ -1,9 +1,10 @@
+import logging
+
 from .board import Board, State  # Import State to resolve NameError
-from .solver_logic import Flagger, CascadePropagator
-from .risk_assessor import RiskAssessor
 from .meta_cell_confidence.confidence import BetaConfidence
 from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
-import logging
+from .risk_assessor import RiskAssessor
+from .solver_logic import CascadePropagator, Flagger
 
 
 class ConstraintSolver:

@@ -19,7 +19,11 @@ class PeriodicTableDomain:
             "x",
             "mine",
         }
-        return cell.symbol and cell.symbol.lower() in mine_symbols and cell.state == State.HIDDEN
+        return (
+            cell.symbol
+            and cell.symbol.lower() in mine_symbols
+            and cell.state == State.HIDDEN
+        )
 
     @staticmethod
     def get_neighbors(cell, board):

@@ -25,8 +25,10 @@ jobs:
           pip install -e .[dev]
       - name: Run Ruff linter
         run: ruff check src tests
+      - name: Ensure single import path
+        run: python scripts/ensure_single_module.py
       - name: Run MyPy type checker
-        run: mypy src/ --ignore-missing-imports
+        run: mypy -p ai_minesweeper
       - name: Run PyLint
         run: pylint src/ --disable=missing-docstring,invalid-name,too-few-public-methods
 

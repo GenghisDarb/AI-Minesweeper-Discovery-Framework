@@ -1,8 +1,7 @@
 from ai_minesweeper import BoardBuilder
-from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
 from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
+from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
 from ai_minesweeper.risk_assessor import SpreadRiskAssessor
-
 
 # Define a mock board_state for testing
 board_state = ...

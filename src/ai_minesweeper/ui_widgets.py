@@ -1,5 +1,7 @@
-import streamlit as st
 import logging
+
+import streamlit as st
+
 from ai_minesweeper.cell import State
 
 # Configure logging
@@ -420,6 +422,7 @@ class BarMeter:
         filled_length = int(self.confidence * bar_length)
         bar = "■" * filled_length + "□" * (bar_length - filled_length)
         print(f"CONFIDENCE {bar} {self.confidence * 100:.0f} %")
+
 
 def render_chi_brot_visualizer():
     """Render a placeholder χ-brot fractal visualizer."""

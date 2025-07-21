@@ -1,6 +1,6 @@
-from ai_minesweeper.risk_assessor import RiskAssessor, SpreadRiskAssessor
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.cell import State
+from ai_minesweeper.risk_assessor import RiskAssessor, SpreadRiskAssessor
 
 
 def test_choose_move_returns_valid_hidden_cell():
@@ -8,7 +8,7 @@ def test_choose_move_returns_valid_hidden_cell():
     move = RiskAssessor().choose_move(board)
     assert move is not None
     # move should be a Cell object with row/col attributes
-    assert hasattr(move, 'row') and hasattr(move, 'col')
+    assert hasattr(move, "row") and hasattr(move, "col")
     r, c = move.row, move.col
     cell = board.grid[r][c]
     assert cell.is_hidden()
@@ -27,7 +27,9 @@ def test_estimate_risk_map_variance():
     board = BoardBuilder.random_board(rows=4, cols=4, mines=2)
     risk_map = RiskAssessor.estimate(board)
 
-    assert len(set(risk_map.values())) > 1, "Risk map should have variance in probabilities"
+    assert len(set(risk_map.values())) > 1, (
+        "Risk map should have variance in probabilities"
+    )
 
 
 def test_estimate_empty_board():

@@ -1,7 +1,8 @@
-from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14RecursionEngine
+from pathlib import Path
+
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.solver import RiskAssessor
-from pathlib import Path
+from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14RecursionEngine
 
 FIXTURE_DIR = Path(__file__).resolve().parent.parent / "examples" / "boards"
 
