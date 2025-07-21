@@ -1,4 +1,5 @@
 from ai_minesweeper.board import Board
+
 from ..cell import State
 
 
@@ -10,8 +11,9 @@ class NuclearIsotopeAdapter:
         Build a Minesweeper board for nuclear isotopes.
         :param csv_path: Path to the isotopes CSV file.
         """
-        import pandas as pd
         from pathlib import Path
+
+        import pandas as pd
 
         csv_path = Path(csv_path)
         if not csv_path.exists():

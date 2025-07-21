@@ -4,10 +4,11 @@ Usage: `python torus_brot_renderer.py --out image.png`
 """
 
 import argparse
-import numpy as np
-import matplotlib.pyplot as plt
-import pathlib
 import hashlib
+import pathlib
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def torus_brot(z0, max_iter=512, escape=4.0):
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     print(f"Running in {args.mode} mode")
 
     img = render_grid(n=400)
-    plt.imshow(img, cmap="inferno", extent=[-2, 2, -2, 2])
+    plt.imshow(img, cmap="inferno", extent=(-2.0, 2.0, -2.0, 2.0))
     plt.axis("off")
     plt.title("TORUS-brot demo")
     outfile = pathlib.Path(args.out)

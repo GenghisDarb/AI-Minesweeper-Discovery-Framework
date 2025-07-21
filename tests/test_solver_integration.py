@@ -1,6 +1,7 @@
+from ai_minesweeper.board import State
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.constraint_solver import ConstraintSolver
-from ai_minesweeper.board import State
+
 
 def test_solver_integration():
     # Create a simple board for testing
@@ -23,5 +24,7 @@ def test_solver_integration():
             assert cell.state in [State.REVEALED, State.FLAGGED]
 
     # Ensure no hidden cells remain
-    hidden_cells = [cell for row in board.grid for cell in row if cell.state == State.HIDDEN]
+    hidden_cells = [
+        cell for row in board.grid for cell in row if cell.state == State.HIDDEN
+    ]
     assert len(hidden_cells) == 0

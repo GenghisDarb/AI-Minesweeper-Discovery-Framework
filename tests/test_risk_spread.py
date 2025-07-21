@@ -1,5 +1,5 @@
-from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.board_builder import BoardBuilder
+from ai_minesweeper.risk_assessor import RiskAssessor
 
 
 def test_risk_has_variance():

@@ -1,21 +1,25 @@
-import pytest
-from ai_minesweeper.board_builder import BoardBuilder
-from ai_minesweeper.risk_assessor import RiskAssessor
-from ai_minesweeper.cell import State
 import logging
 import types
-from ai_minesweeper.ui_widgets import render_cell_with_tooltip
-from ai_minesweeper.ui_widgets import add_accessibility_labels_to_cells
-from ai_minesweeper.ui_widgets import update_hypotheses_panel
-from ai_minesweeper.ui_widgets import ensure_grid_styling_consistency
-from ai_minesweeper.ui_widgets import align_chat_input_with_ui
-from ai_minesweeper.ui_widgets import render_hypotheses_with_tooltips
-from ai_minesweeper.ui_widgets import highlight_zero_value_reveals
-from ai_minesweeper.ui_widgets import ensure_persistent_unexplored_cells
-from ai_minesweeper.ui_widgets import highlight_newly_revealed_cells
-from ai_minesweeper.ui_widgets import apply_grid_styling
-from ai_minesweeper.ui_widgets import add_high_contrast_mode
 from unittest.mock import Mock
+
+import pytest
+
+from ai_minesweeper.board_builder import BoardBuilder
+from ai_minesweeper.cell import State
+from ai_minesweeper.risk_assessor import RiskAssessor
+from ai_minesweeper.ui_widgets import (
+    add_accessibility_labels_to_cells,
+    add_high_contrast_mode,
+    align_chat_input_with_ui,
+    apply_grid_styling,
+    ensure_grid_styling_consistency,
+    ensure_persistent_unexplored_cells,
+    highlight_newly_revealed_cells,
+    highlight_zero_value_reveals,
+    render_cell_with_tooltip,
+    render_hypotheses_with_tooltips,
+    update_hypotheses_panel,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -236,6 +240,7 @@ def test_ui_widgets_add_accessibility_labels_to_cells():
     except Exception as e:
         pytest.fail(f"add_accessibility_labels_to_cells raised an exception: {e}")
 
+
 # Fix for update_hypotheses_panel
 def test_ui_widgets_update_hypotheses_panel():
     mock_board = Mock()
@@ -245,6 +250,7 @@ def test_ui_widgets_update_hypotheses_panel():
         update_hypotheses_panel(mock_board)
     except Exception as e:
         pytest.fail(f"update_hypotheses_panel raised an exception: {e}")
+
 
 # Fix for ensure_grid_styling_consistency
 def test_ui_widgets_ensure_grid_styling_consistency():

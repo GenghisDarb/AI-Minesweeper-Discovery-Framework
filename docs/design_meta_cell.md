@@ -81,6 +81,11 @@ The confidence level of the solver is dynamically displayed in the Streamlit app
 
 These elements update in real-time as the solver makes moves and adjusts its confidence based on outcomes. This feature helps users understand the solver's decision-making process and its calibration over time.
 
+## Module Path Architecture
+
+### Architectural Note
+The Minesweeper framework now enforces a single import path for its core module (`ai_minesweeper`). This is by design, reflecting TORUS Theory’s principle of a single observer-state locus. In practice, it means the codebase is accessed through one coherent package namespace, ensuring consistency (no duplicate modules). This change eliminates ambiguity in the code’s “point of view,” analogous to maintaining a single frame of reference for all observations in TORUS’s χ-consistent system.
+
 ## References
 - TORUS Theory and Bicycle Self-Stability §3, §4
 - Unified Glossary – entries "χ-cycle", "Controller Dimension".

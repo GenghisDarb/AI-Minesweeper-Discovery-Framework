@@ -1,4 +1,5 @@
 import json
+
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.solver import ConstraintSolver
 

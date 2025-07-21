@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 name = "ai-minesweeper"
-version = "1.0.0"
+version = "1.0.2"
 description = "AI Minesweeper Game"
 authors = [
     { name = "Bradley Peter", email = "bradleypeter1984@gmail.com" }
@@ -43,6 +43,4 @@ exclude = ["notebooks"]
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
-explicit_package_bases = true
-exclude = "^src/.*$"
 

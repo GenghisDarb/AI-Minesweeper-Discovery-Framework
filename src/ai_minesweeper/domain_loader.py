@@ -1,6 +1,7 @@
-from ai_minesweeper.domain.nuclear_isotopes import NuclearIsotopeAdapter
-from pathlib import Path
 import os
+from pathlib import Path
+
+from ai_minesweeper.domain.nuclear_isotopes import NuclearIsotopeAdapter
 
 DATA_DIR = Path(__file__).resolve().parent.parent.parent / "examples"
 PERIODIC_PATH = DATA_DIR / "periodic_table" / "elements.csv"

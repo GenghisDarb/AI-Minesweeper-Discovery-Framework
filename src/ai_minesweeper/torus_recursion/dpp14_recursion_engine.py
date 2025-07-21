@@ -1,5 +1,6 @@
-from typing import Dict, Any, List, Tuple
-from ai_minesweeper.board import Board  # Fix undefined
+from typing import Any, Dict, List, Tuple
+
+from ai_minesweeper.board import Board
 
 
 class DPP14RecursionEngine:
@@ -47,7 +48,9 @@ class DPP14RecursionEngine:
         final_chi14 = sum(lane.chi_value or 0 for lane in self.lanes) / len(self.lanes)
         collapsed_lanes = [lane.lane_id for lane in self.lanes if lane.collapsed]
 
-        chi_values = [lane.chi_value for lane in self.lanes]  # Ensure chi_values is defined
+        chi_values = [
+            lane.chi_value for lane in self.lanes
+        ]  # Ensure chi_values is defined
 
         return {
             "chi_values": chi_values,
@@ -116,4 +119,4 @@ class DPP14RecursionEngine:
 
     def _visualize_board(self, board: "Board") -> None:
         """(Dev stub) No-op visualiser used only in debug mode."""
-        pass
+        return

@@ -106,12 +106,12 @@ streamlit run streamlit_app.py
 ### CLI
 Run the CLI play command to simulate Minesweeper gameplay:
 ```bash
-python -m src.ai_minesweeper.cli play examples/boards/sample.csv
+python -m ai_minesweeper.cli play examples/boards/sample.csv
 ```
 
 Validate a CSV board to ensure its integrity before gameplay:
 ```bash
-python -m src.ai_minesweeper.cli validate examples/boards/sample.csv
+python -m ai_minesweeper.cli validate examples/boards/sample.csv
 ```
 The `validate` command checks for inconsistencies or errors in the board configuration, ensuring a smooth gameplay experience.
 

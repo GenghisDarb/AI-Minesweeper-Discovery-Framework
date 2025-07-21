@@ -1,9 +1,10 @@
 import pytest
+
 from ai_minesweeper.board import Board
-from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
-from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
-from ai_minesweeper.risk_assessor import SpreadRiskAssessor
 from ai_minesweeper.cell import Cell, State
+from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
+from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
+from ai_minesweeper.risk_assessor import SpreadRiskAssessor
 
 
 def test_policy_choose_move():
@@ -124,8 +125,10 @@ def test_fallback_logic_no_safe_moves():
 
     # Mock the probability map to simulate no safe moves
     policy.solver.predict = lambda _: {
-        (0, 0): 0.9, (0, 1): 0.9,
-        (1, 0): 0.9, (1, 1): 0.9
+        (0, 0): 0.9,
+        (0, 1): 0.9,
+        (1, 0): 0.9,
+        (1, 1): 0.9,
     }
 
     move = policy.choose_move(board)
@@ -145,8 +148,10 @@ def test_confidence_policy_deterministic_move():
 
     # Mock the probability map to simulate deterministic behavior
     policy.solver.predict = lambda _: {
-        (0, 0): 0.1, (0, 1): 0.2,
-        (1, 0): 0.3, (1, 1): 0.4
+        (0, 0): 0.1,
+        (0, 1): 0.2,
+        (1, 0): 0.3,
+        (1, 1): 0.4,
     }
 
     move = policy.choose_move(board)

@@ -1,6 +1,6 @@
-from enum import Enum
 from dataclasses import dataclass
-from typing import Union, Optional, List
+from enum import Enum
+from typing import List, Optional, Union
 
 
 class State(Enum):
@@ -55,29 +55,26 @@ class Cell:
         return f"Cell(state={self.state}, is_false_hypothesis={self.is_false_hypothesis}, row={self.row}, col={self.col}, clue={self.clue}, confidence={self.confidence:.2f})"
 
     @staticmethod
-    def from_token(token: Union[str, "Cell", None]) -> "Cell":
+    def from_token(token: Union[str, "Cell"]) -> "Cell":
         """
         Creates a Cell object from a token.
 
-        :param token: A string, Cell object, or None representing the cell's state.
+        :param token: A string or Cell object representing the cell's state.
         :return: A Cell object initialized based on the token.
         """
         if isinstance(token, Cell):
             return token
-        try:
-            token = str(token).strip().upper() if token is not None else ""
-        except Exception:
-            token = ""
-
+        token = str(token).strip().upper()
         cell = Cell()
         cell.symbol = token  # Set the symbol attribute for all tokens
         if token in ["HIDDEN", ".", "1"]:
             cell.state = State.HIDDEN
         elif token in ["MINE", "*", "X"]:
             cell.state = State.MINE
-        elif token.isdigit() and 0 <= int(token) <= 8:
-            cell.state = State.REVEALED
-            cell.clue = int(token)
+        elif token in ["FALSE"] or token.startswith("EKA"):
+            cell.is_false_hypothesis = True
+        elif token.isdigit() and int(token) > 100:
+            cell.is_false_hypothesis = True
         else:
             cell.confidence = 0.0  # Default confidence level
         return cell

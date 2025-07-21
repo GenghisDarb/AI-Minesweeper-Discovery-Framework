@@ -1,14 +1,14 @@
-from .cell import Cell, State  # re-export so tests can import State here
 import json
 from datetime import datetime
+from typing import List, Optional, Tuple
+
 from ai_minesweeper.constants import DEBUG
-from typing import Optional, List, Tuple
 
-__all__ = ["Board", "Cell", "State"]
+from .cell import Cell, State  # re-export so tests can import State here
 
-Coord = Tuple[int, int]
+__all__ = ["Board", "Cell", "State"]  # optional but nice
+
 PathHistory = List[Tuple[int, int]]
-_history: Optional[List[Coord]] = None
 
 
 class Board:
@@ -169,13 +169,20 @@ class Board:
         """
         # Expand rows if necessary
         while row >= self.n_rows:
-            self.grid.append([Cell(row=len(self.grid), col=c, state=State.HIDDEN) for c in range(self.n_cols)])
+            self.grid.append(
+                [
+                    Cell(row=len(self.grid), col=c, state=State.HIDDEN)
+                    for c in range(self.n_cols)
+                ]
+            )
             self.n_rows += 1
 
         # Expand columns if necessary
         for r in range(self.n_rows):
             while col >= self.n_cols:
-                self.grid[r].append(Cell(row=r, col=len(self.grid[r]), state=State.HIDDEN))
+                self.grid[r].append(
+                    Cell(row=r, col=len(self.grid[r]), state=State.HIDDEN)
+                )
             self.n_cols = max(self.n_cols, col + 1)
 
         # Add the new cell
@@ -211,10 +218,6 @@ class Board:
                     hidden_cells.append(cell)
         return hidden_cells
 
-    def hidden_coordinates(self) -> List[Tuple[int, int]]:
-        """Return a list of coordinates for all hidden cells."""
-        return [(r, c) for r, row in enumerate(self.grid) for c, cell in enumerate(row) if cell.state == State.HIDDEN]
-
     @property
     def mines_remaining(self) -> int:
         """Return the number of mines remaining on the board."""
@@ -248,7 +251,9 @@ class Board:
         return self.grid[r][c].state == State.FLAGGED
 
     def is_hidden(self, r: int, c: int) -> bool:
-        """True if cell (r,c) is unrevealed and unflagged."""
+        """Check if a cell is hidden."""
+        if isinstance(r, tuple):
+            r, c = r
         return self.grid[r][c].state == State.HIDDEN
 
     def revealed_cells(self):
