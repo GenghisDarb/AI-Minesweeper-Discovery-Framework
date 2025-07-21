@@ -14,11 +14,17 @@ from ai_minesweeper.ui_widgets import (
     add_colorblind_friendly_palette,
     add_high_contrast_mode,
     color_coded_cell_rendering,
+    highlight_newly_revealed_cells,
+    highlight_zero_value_reveals,
 )
 
 
 def main():
     st.title("AI Minesweeper Discovery Framework")
+
+    # Define toggles for execution modes
+    step_by_step = st.sidebar.checkbox("Step-by-step mode", value=True)
+    auto_discover = st.sidebar.checkbox("Auto-discover (run continuously)", value=False)
 
     # Upload CSV board
     csv_file = st.file_uploader("Upload a CSV board", type=["csv"])
@@ -54,7 +60,8 @@ def main():
         # Step-by-step mode logic
         if step_by_step and st.button("Step Move"):
             cell = st.session_state.solver.choose_move(st.session_state.board)
-            predicted_probability = st.session_state.solver.estimate_risk(cell)
+            risk_map = st.session_state.solver.estimate(st.session_state.board)
+            predicted_probability = risk_map[cell]
             st.session_state.board.reveal(cell)
             st.session_state.beta_confidence.update(
                 predicted_probability=predicted_probability, revealed_is_mine=cell.is_mine
@@ -73,15 +80,10 @@ def main():
             render_unresolved_hypotheses(st.session_state.board)
             update_hypotheses_panel(st.session_state.board)
 
-            # Replace inline color rendering with styled div elements
-            st.write("Updated Board State:")
-            for row in st.session_state.board.grid:
-                st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
-
             # Handle cascade reveals
             if cell.clue == 0:
-                cascade_cells = st.session_state.board.get_cascade_cells(cell)
-                highlight_zero_value_reveals(cascade_cells)
+                cascade_cells = []  # Placeholder for actual cascade logic
+                highlight_zero_value_reveals(st.session_state.board, cascade_cells)
                 st.session_state.revealed_hypotheses.extend(cascade_cells)
 
         # Auto-discover mode logic
@@ -151,21 +153,6 @@ def main():
         if "confidence_history" not in st.session_state:
             st.session_state.confidence_history = []
 
-        if st.button("Update Confidence History"):
-            current_confidence = board.get_current_confidence()
-            st.session_state.confidence_history.append(current_confidence)
-            st.line_chart(st.session_state.confidence_history)
-
-        # Update Export Board Functionality
-        if st.button("Export Board State"):
-            board_state = board.export_state()
-            with tempfile.NamedTemporaryFile(
-                delete=False, suffix=".json", mode="w", encoding="utf-8"
-            ) as tmp_file:
-                json.dump(board_state, tmp_file, indent=2)
-                tmp_path = tmp_file.name
-            st.download_button("Download JSON", tmp_path, file_name="board_state.json")
-
     # Initialize BetaConfidence instance
     if "beta_confidence" not in st.session_state:
         st.session_state.beta_confidence = BetaConfidence()
@@ -174,56 +161,6 @@ def main():
     current_confidence = st.session_state.beta_confidence.mean()
     st.metric("Solver Confidence", f"{current_confidence:.2%}")
     st.progress(current_confidence)
-
-    # Example: Update BetaConfidence based on user input (placeholder logic)
-    if st.button("Simulate Confidence Update"):
-        st.session_state.beta_confidence.update(success=True)
-        st.experimental_rerun()
-
-    # Example board rendering
-    st.markdown("### Minesweeper Board")
-    board = [
-        ["hidden", "safe", "mine"],
-        ["clue", "hidden", "safe"],
-        ["mine", "clue", "hidden"],
-    ]
-
-    for row in board:
-        st.markdown(
-            " ".join([color_coded_cell_rendering(cell) for cell in row]),
-            unsafe_allow_html=True,
-        )
-
-    # Define `confidence` before use
-    confidence = None
-
-    # Add a button to copy results
-    results = {"board_state": board, "confidence": confidence}
-    copy_results_button(results)
-
-    # Chat/Feedback Input Box
-    user_feedback = st.text_input("💬 Ask the AI or provide feedback:")
-    if user_feedback:
-        st.write(f"You said: {user_feedback}")
-        # Placeholder for future AI interaction logic
-
-    # Revealed Hypotheses Panel
-    if "revealed_hypotheses" not in st.session_state:
-        st.session_state.revealed_hypotheses = []
-
-    st.sidebar.markdown("### Revealed Hypotheses")
-    for cell in st.session_state.revealed_hypotheses:
-        st.sidebar.write(f"Cell ({cell.row}, {cell.col})")
-
-    # Highlight newly revealed cells
-    def highlight_newly_revealed_cells(revealed_cells):
-        for cell in revealed_cells:
-            st.write(f"Highlighting cell ({cell.row}, {cell.col})")
-
-    # Cascade reveals
-    def highlight_zero_value_reveals(cascade_cells):
-        for cell in cascade_cells:
-            st.write(f"Cascade reveal for cell ({cell.row}, {cell.col})")
 
     # Add board export functionality
     if st.button("Export Board as CSV"):
