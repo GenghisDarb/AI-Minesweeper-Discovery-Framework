@@ -14,7 +14,6 @@ from ai_minesweeper.ui_widgets import (
     add_colorblind_friendly_palette,
     add_high_contrast_mode,
     color_coded_cell_rendering,
-    highlight_newly_revealed_cells,
     highlight_zero_value_reveals,
 )
 
@@ -26,9 +25,11 @@ def main():
     step_by_step = st.sidebar.checkbox("Step-by-step mode", value=True)
     auto_discover = st.sidebar.checkbox("Auto-discover (run continuously)", value=False)
 
-    # Initialize revealed_hypotheses in session state
+    # Initialize session state variables
     if "revealed_hypotheses" not in st.session_state:
         st.session_state.revealed_hypotheses = []
+    if "solver_paused" not in st.session_state:
+        st.session_state.solver_paused = True
 
     # Upload CSV board
     csv_file = st.file_uploader("Upload a CSV board", type=["csv"])
@@ -88,7 +89,7 @@ def main():
             # Placeholder logic removed; implement cascade logic if needed
 
         # Auto-discover mode logic
-        if auto_discover:
+        if auto_discover and "board" in st.session_state:
             tau = st.session_state.beta_confidence.get_threshold()
             while not st.session_state.board.is_solved():
                 cell = st.session_state.solver.choose_move(st.session_state.board)
@@ -112,21 +113,6 @@ def main():
         # Placeholder for AI response logic
         st.write("AI Assistant: [Response goes here]")
 
-    # Add dynamic grid expansion controls
-    st.sidebar.subheader("Grid Expansion")
-    new_rows = st.sidebar.number_input("Add Rows", min_value=0, step=1, value=0)
-    new_cols = st.sidebar.number_input("Add Columns", min_value=0, step=1, value=0)
-
-    if st.sidebar.button("Expand Grid"):
-        if new_rows > 0 or new_cols > 0:
-            st.session_state.board.expand_grid(new_rows, new_cols)
-            st.write(f"Grid expanded by {new_rows} rows and {new_cols} columns.")
-
-            # Re-render the updated grid
-            st.write("Updated Board State:")
-            for row in st.session_state.board.grid:
-                st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
-
     # Update revealed hypotheses logic
     if st.session_state.revealed_hypotheses:
         st.sidebar.markdown("### Revealed Hypotheses")
@@ -139,7 +125,7 @@ def main():
         return
 
     # Modify end condition logic
-    if board.is_solved():
+    if "board" in st.session_state and st.session_state.board.is_solved():
         st.write("All hypotheses resolved. Discovery complete!")
         return
 
