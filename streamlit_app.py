@@ -7,29 +7,33 @@ from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.ui_widgets import (
+    apply_grid_styling,
+    color_coded_cell_rendering,
     render_unresolved_hypotheses,
     update_hypotheses_panel,
-    apply_grid_styling,
-    add_accessibility_labels_to_cells,
-    add_colorblind_friendly_palette,
-    add_high_contrast_mode,
-    color_coded_cell_rendering,
-    highlight_zero_value_reveals,
 )
 
 
 def main():
     st.title("AI Minesweeper Discovery Framework")
 
-    # Define toggles for execution modes
-    step_by_step = st.sidebar.checkbox("Step-by-step mode", value=True)
-    auto_discover = st.sidebar.checkbox("Auto-discover (run continuously)", value=False)
-
     # Initialize session state variables
+    if "board" not in st.session_state:
+        st.session_state.board = None
+    if "solver" not in st.session_state:
+        st.session_state.solver = None
+    if "beta_confidence" not in st.session_state:
+        st.session_state.beta_confidence = BetaConfidence()
     if "revealed_hypotheses" not in st.session_state:
         st.session_state.revealed_hypotheses = []
     if "solver_paused" not in st.session_state:
         st.session_state.solver_paused = True
+    if "confidence_history" not in st.session_state:
+        st.session_state.confidence_history = []
+
+    # Define toggles for execution modes
+    step_by_step = st.sidebar.checkbox("Step-by-step mode", value=True)
+    auto_discover = st.sidebar.checkbox("Auto-discover (run continuously)", value=False)
 
     # Upload CSV board
     csv_file = st.file_uploader("Upload a CSV board", type=["csv"])
@@ -42,76 +46,26 @@ def main():
             st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
 
         # Initialize solver in session state
-        if "solver" not in st.session_state:
+        if not st.session_state.solver:
             st.session_state.solver = RiskAssessor()
-
-        # Initialize BetaConfidence and confidence history in session state
-        if "beta_confidence" not in st.session_state:
-            st.session_state.beta_confidence = BetaConfidence()
-        if "confidence_history" not in st.session_state:
-            st.session_state.confidence_history = []
 
         # Apply grid styling and accessibility features at app start
         apply_grid_styling()
-        if st.sidebar.checkbox("Enable colorblind-friendly palette"):
-            add_colorblind_friendly_palette()
-        if st.sidebar.checkbox("Enable high-contrast mode"):
-            add_high_contrast_mode()
 
-        # Add accessibility labels to cells
-        if "board" in st.session_state:
-            add_accessibility_labels_to_cells(st.session_state.board)
-
-        # Step-by-step mode logic
-        if step_by_step and st.button("Step Move"):
+    # Auto-discover mode logic
+    if auto_discover and st.session_state.board and st.session_state.solver:
+        tau = st.session_state.beta_confidence.get_threshold()
+        while not st.session_state.board.is_solved():
             cell = st.session_state.solver.choose_move(st.session_state.board)
             risk_map = st.session_state.solver.estimate(st.session_state.board)
-            predicted_probability = risk_map[cell]
+            risk = risk_map[cell]
+            if risk > tau:
+                st.write("Stopping auto-play: Risk exceeds threshold.")
+                break
             st.session_state.board.reveal(cell)
             st.session_state.beta_confidence.update(
-                predicted_probability=predicted_probability, revealed_is_mine=cell.is_mine
+                predicted_probability=risk, revealed_is_mine=cell.is_mine
             )
-
-            # Append to confidence history and update chart
-            current_mean = st.session_state.beta_confidence.mean()
-            st.session_state.confidence_history.append(current_mean)
-            st.line_chart(st.session_state.confidence_history)
-
-            # Display current confidence
-            st.metric("Confidence Level", f"{current_mean * 100:.2f}%")
-            st.progress(current_mean)
-
-            # Render unresolved hypotheses and update panel
-            render_unresolved_hypotheses(st.session_state.board)
-            update_hypotheses_panel(st.session_state.board)
-
-            # Handle cascade reveals
-            # Placeholder logic removed; implement cascade logic if needed
-
-        # Auto-discover mode logic
-        if auto_discover and "board" in st.session_state:
-            tau = st.session_state.beta_confidence.get_threshold()
-            while not st.session_state.board.is_solved():
-                cell = st.session_state.solver.choose_move(st.session_state.board)
-                risk_map = st.session_state.solver.estimate(st.session_state.board)
-                risk = risk_map[cell]
-                if risk > tau:
-                    st.write("Stopping auto-play: Risk exceeds threshold.")
-                    break
-                st.session_state.board.reveal(cell)
-                st.session_state.beta_confidence.update(
-                    predicted_probability=risk, revealed_is_mine=cell.is_mine
-                )
-
-    # Remove Export Board as CSV button
-    # The Board class does not implement to_csv; export functionality removed
-
-    # Add chat input widget
-    user_input = st.text_input("Chat with the AI Minesweeper Assistant:")
-    if user_input:
-        st.write(f"You said: {user_input}")
-        # Placeholder for AI response logic
-        st.write("AI Assistant: [Response goes here]")
 
     # Update revealed hypotheses logic
     if st.session_state.revealed_hypotheses:
@@ -125,7 +79,7 @@ def main():
         return
 
     # Modify end condition logic
-    if "board" in st.session_state and st.session_state.board.is_solved():
+    if st.session_state.board and st.session_state.board.is_solved():
         st.write("All hypotheses resolved. Discovery complete!")
         return
 
