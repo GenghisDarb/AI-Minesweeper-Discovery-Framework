@@ -3,7 +3,7 @@ import tempfile
 
 import streamlit as st
 
-from ai_minesweeper.beta_confidence import BetaConfidence
+from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.ui_widgets import (
@@ -25,6 +25,10 @@ def main():
     # Define toggles for execution modes
     step_by_step = st.sidebar.checkbox("Step-by-step mode", value=True)
     auto_discover = st.sidebar.checkbox("Auto-discover (run continuously)", value=False)
+
+    # Initialize revealed_hypotheses in session state
+    if "revealed_hypotheses" not in st.session_state:
+        st.session_state.revealed_hypotheses = []
 
     # Upload CSV board
     csv_file = st.file_uploader("Upload a CSV board", type=["csv"])
@@ -81,17 +85,15 @@ def main():
             update_hypotheses_panel(st.session_state.board)
 
             # Handle cascade reveals
-            if cell.clue == 0:
-                cascade_cells = []  # Placeholder for actual cascade logic
-                highlight_zero_value_reveals(st.session_state.board, cascade_cells)
-                st.session_state.revealed_hypotheses.extend(cascade_cells)
+            # Placeholder logic removed; implement cascade logic if needed
 
         # Auto-discover mode logic
         if auto_discover:
             tau = st.session_state.beta_confidence.get_threshold()
             while not st.session_state.board.is_solved():
                 cell = st.session_state.solver.choose_move(st.session_state.board)
-                risk = st.session_state.solver.estimate_risk(cell)
+                risk_map = st.session_state.solver.estimate(st.session_state.board)
+                risk = risk_map[cell]
                 if risk > tau:
                     st.write("Stopping auto-play: Risk exceeds threshold.")
                     break
@@ -100,78 +102,8 @@ def main():
                     predicted_probability=risk, revealed_is_mine=cell.is_mine
                 )
 
-                # Append to confidence history and update chart
-                current_mean = st.session_state.beta_confidence.mean()
-                st.session_state.confidence_history.append(current_mean)
-                st.line_chart(st.session_state.confidence_history)
-            st.write("Final Board State:")
-            for row in st.session_state.board.grid:
-                st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
-
-        # Solver Move button for step-by-step mode
-        if step_by_step:
-            # Add button to trigger a solver step
-            if st.button("🔍 Solver Move (Step)"):
-                st.session_state.solver_paused = False
-
-            if not st.session_state.solver_paused:
-                cell = st.session_state.solver.choose_move(st.session_state.board)
-                st.session_state.board.reveal(cell)
-                st.session_state.beta_confidence.update(
-                    predicted_probability=st.session_state.solver.estimate_risk(cell),
-                    revealed_is_mine=cell.is_mine
-                )
-
-                # Append to confidence history and update chart
-                current_mean = st.session_state.beta_confidence.mean()
-                st.session_state.confidence_history.append(current_mean)
-                st.line_chart(st.session_state.confidence_history)
-
-                # Render unresolved hypotheses and update panel
-                render_unresolved_hypotheses(st.session_state.board)
-                update_hypotheses_panel(st.session_state.board)
-
-                st.session_state.solver_paused = True
-
-        # Display the summary panel
-        if revealed_hypotheses:
-            st.sidebar.markdown("### Revealed Hypotheses")
-            for cell in revealed_hypotheses:
-                st.sidebar.write(f"({cell.row}, {cell.col}) is {cell.state}")
-
-        # Finish session button
-        if st.button("Finish Session"):
-            st.write("Session ended by user.")
-            return
-
-        # Modify end condition logic
-        if board.is_solved():
-            st.write("All hypotheses resolved. Discovery complete!")
-            return
-
-        # Confidence History & τ Trajectory Visualization
-        if "confidence_history" not in st.session_state:
-            st.session_state.confidence_history = []
-
-    # Initialize BetaConfidence instance
-    if "beta_confidence" not in st.session_state:
-        st.session_state.beta_confidence = BetaConfidence()
-
-    # Update confidence dynamically
-    current_confidence = st.session_state.beta_confidence.mean()
-    st.metric("Solver Confidence", f"{current_confidence:.2%}")
-    st.progress(current_confidence)
-
-    # Add board export functionality
-    if st.button("Export Board as CSV"):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
-            st.session_state.board.to_csv(temp_file.name)
-            st.download_button(
-                label="Download Board CSV",
-                data=open(temp_file.name, "rb").read(),
-                file_name="board_state.csv",
-                mime="text/csv",
-            )
+    # Remove Export Board as CSV button
+    # The Board class does not implement to_csv; export functionality removed
 
     # Add chat input widget
     user_input = st.text_input("Chat with the AI Minesweeper Assistant:")
@@ -194,6 +126,35 @@ def main():
             st.write("Updated Board State:")
             for row in st.session_state.board.grid:
                 st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
+
+    # Update revealed hypotheses logic
+    if st.session_state.revealed_hypotheses:
+        st.sidebar.markdown("### Revealed Hypotheses")
+        for cell in st.session_state.revealed_hypotheses:
+            st.sidebar.write(f"({cell.row}, {cell.col}) is {cell.state}")
+
+    # Finish session button
+    if st.button("Finish Session"):
+        st.write("Session ended by user.")
+        return
+
+    # Modify end condition logic
+    if board.is_solved():
+        st.write("All hypotheses resolved. Discovery complete!")
+        return
+
+    # Confidence History & τ Trajectory Visualization
+    if "confidence_history" not in st.session_state:
+        st.session_state.confidence_history = []
+
+    # Initialize BetaConfidence instance
+    if "beta_confidence" not in st.session_state:
+        st.session_state.beta_confidence = BetaConfidence()
+
+    # Update confidence dynamically
+    current_confidence = st.session_state.beta_confidence.mean()
+    st.metric("Solver Confidence", f"{current_confidence:.2%}")
+    st.progress(current_confidence)
 
 
 if __name__ == "__main__":
