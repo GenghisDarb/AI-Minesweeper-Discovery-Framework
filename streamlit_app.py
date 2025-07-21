@@ -7,8 +7,13 @@ from ai_minesweeper.beta_confidence import BetaConfidence
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor
 from ai_minesweeper.ui_widgets import (
+    render_unresolved_hypotheses,
+    update_hypotheses_panel,
+    apply_grid_styling,
+    add_accessibility_labels_to_cells,
+    add_colorblind_friendly_palette,
+    add_high_contrast_mode,
     color_coded_cell_rendering,
-    copy_results_button,
 )
 
 
@@ -20,48 +25,86 @@ def main():
 
     if csv_file:
         board = BoardBuilder.from_csv(csv_file)
+        st.session_state.board = board  # Persist board in session state
         st.write("Initial Board State:")
-        st.write(board)
+        for row in board.grid:
+            st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
 
-        # Step-by-step mode toggle
-        step_by_step = st.checkbox("Step-by-step mode", value=True)
-
-        # Auto-discover toggle
-        auto_discover = st.sidebar.checkbox("Auto-discover mode", value=False)
-        st.session_state.auto_discover = auto_discover
-
-        # Revealed Hypotheses Summary Panel
-        revealed_hypotheses = []
-
-        # Initialize session state for solver pause
-        if "solver_paused" not in st.session_state:
-            st.session_state.solver_paused = True
-
-        # Initialize session state for solver and revealed_hypotheses
+        # Initialize solver in session state
         if "solver" not in st.session_state:
-            st.session_state["solver"] = None
+            st.session_state.solver = RiskAssessor()
 
-        if "revealed_hypotheses" not in st.session_state:
-            st.session_state["revealed_hypotheses"] = []
+        # Initialize BetaConfidence and confidence history in session state
+        if "beta_confidence" not in st.session_state:
+            st.session_state.beta_confidence = BetaConfidence()
+        if "confidence_history" not in st.session_state:
+            st.session_state.confidence_history = []
 
-        if st.button("Start Discovery"):
-            solver = RiskAssessor()
+        # Apply grid styling and accessibility features at app start
+        apply_grid_styling()
+        if st.sidebar.checkbox("Enable colorblind-friendly palette"):
+            add_colorblind_friendly_palette()
+        if st.sidebar.checkbox("Enable high-contrast mode"):
+            add_high_contrast_mode()
 
-            # Main loop logic for step-by-step mode
-            if not st.session_state.solver_paused or auto_discover:
-                solver.step(board)  # Removed unused variable 'result'
-                if not auto_discover:
-                    st.session_state.solver_paused = True
+        # Add accessibility labels to cells
+        if "board" in st.session_state:
+            add_accessibility_labels_to_cells(st.session_state.board)
 
-            if auto_discover:
-                while not board.is_solved():
-                    move = solver.choose_move(board)
-                    board.reveal(move)
-                    st.write(board)
-            else:
-                move = solver.choose_move(board)
-                board.reveal(move)
-                st.write(board)
+        # Step-by-step mode logic
+        if step_by_step and st.button("Step Move"):
+            cell = st.session_state.solver.choose_move(st.session_state.board)
+            predicted_probability = st.session_state.solver.estimate_risk(cell)
+            st.session_state.board.reveal(cell)
+            st.session_state.beta_confidence.update(
+                predicted_probability=predicted_probability, revealed_is_mine=cell.is_mine
+            )
+
+            # Append to confidence history and update chart
+            current_mean = st.session_state.beta_confidence.mean()
+            st.session_state.confidence_history.append(current_mean)
+            st.line_chart(st.session_state.confidence_history)
+
+            # Display current confidence
+            st.metric("Confidence Level", f"{current_mean * 100:.2f}%")
+            st.progress(current_mean)
+
+            # Render unresolved hypotheses and update panel
+            render_unresolved_hypotheses(st.session_state.board)
+            update_hypotheses_panel(st.session_state.board)
+
+            # Replace inline color rendering with styled div elements
+            st.write("Updated Board State:")
+            for row in st.session_state.board.grid:
+                st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
+
+            # Handle cascade reveals
+            if cell.clue == 0:
+                cascade_cells = st.session_state.board.get_cascade_cells(cell)
+                highlight_zero_value_reveals(cascade_cells)
+                st.session_state.revealed_hypotheses.extend(cascade_cells)
+
+        # Auto-discover mode logic
+        if auto_discover:
+            tau = st.session_state.beta_confidence.get_threshold()
+            while not st.session_state.board.is_solved():
+                cell = st.session_state.solver.choose_move(st.session_state.board)
+                risk = st.session_state.solver.estimate_risk(cell)
+                if risk > tau:
+                    st.write("Stopping auto-play: Risk exceeds threshold.")
+                    break
+                st.session_state.board.reveal(cell)
+                st.session_state.beta_confidence.update(
+                    predicted_probability=risk, revealed_is_mine=cell.is_mine
+                )
+
+                # Append to confidence history and update chart
+                current_mean = st.session_state.beta_confidence.mean()
+                st.session_state.confidence_history.append(current_mean)
+                st.line_chart(st.session_state.confidence_history)
+            st.write("Final Board State:")
+            for row in st.session_state.board.grid:
+                st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
 
         # Solver Move button for step-by-step mode
         if step_by_step:
@@ -148,6 +191,57 @@ def main():
     if user_feedback:
         st.write(f"You said: {user_feedback}")
         # Placeholder for future AI interaction logic
+
+    # Revealed Hypotheses Panel
+    if "revealed_hypotheses" not in st.session_state:
+        st.session_state.revealed_hypotheses = []
+
+    st.sidebar.markdown("### Revealed Hypotheses")
+    for cell in st.session_state.revealed_hypotheses:
+        st.sidebar.write(f"Cell ({cell.row}, {cell.col})")
+
+    # Highlight newly revealed cells
+    def highlight_newly_revealed_cells(revealed_cells):
+        for cell in revealed_cells:
+            st.write(f"Highlighting cell ({cell.row}, {cell.col})")
+
+    # Cascade reveals
+    def highlight_zero_value_reveals(cascade_cells):
+        for cell in cascade_cells:
+            st.write(f"Cascade reveal for cell ({cell.row}, {cell.col})")
+
+    # Add board export functionality
+    if st.button("Export Board as CSV"):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
+            st.session_state.board.to_csv(temp_file.name)
+            st.download_button(
+                label="Download Board CSV",
+                data=open(temp_file.name, "rb").read(),
+                file_name="board_state.csv",
+                mime="text/csv",
+            )
+
+    # Add chat input widget
+    user_input = st.text_input("Chat with the AI Minesweeper Assistant:")
+    if user_input:
+        st.write(f"You said: {user_input}")
+        # Placeholder for AI response logic
+        st.write("AI Assistant: [Response goes here]")
+
+    # Add dynamic grid expansion controls
+    st.sidebar.subheader("Grid Expansion")
+    new_rows = st.sidebar.number_input("Add Rows", min_value=0, step=1, value=0)
+    new_cols = st.sidebar.number_input("Add Columns", min_value=0, step=1, value=0)
+
+    if st.sidebar.button("Expand Grid"):
+        if new_rows > 0 or new_cols > 0:
+            st.session_state.board.expand_grid(new_rows, new_cols)
+            st.write(f"Grid expanded by {new_rows} rows and {new_cols} columns.")
+
+            # Re-render the updated grid
+            st.write("Updated Board State:")
+            for row in st.session_state.board.grid:
+                st.write([color_coded_cell_rendering(cell.state.name) for cell in row])
 
 
 if __name__ == "__main__":
