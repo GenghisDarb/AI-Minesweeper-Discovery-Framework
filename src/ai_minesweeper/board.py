@@ -245,16 +245,24 @@ class Board:
                     neighbors.append((r, c))
         return neighbors
 
-    def is_flagged(self, cell: tuple[int, int]) -> bool:
+    def is_flagged(self, r: int | Cell, c: int | None = None) -> bool:
         """Check if a cell is flagged."""
-        r, c = cell
-        return self.grid[r][c].state == State.FLAGGED
+        if isinstance(r, Cell):
+            return r.state is State.FLAGGED
+        return self.grid[r][c].state is State.FLAGGED
 
-    def is_hidden(self, r: int, c: int) -> bool:
+    def is_hidden(self, r: int | Cell, c: int | None = None) -> bool:
         """Check if a cell is hidden."""
-        if isinstance(r, tuple):
-            r, c = r
-        return self.grid[r][c].state == State.HIDDEN
+        if isinstance(r, Cell):
+            return r.state is State.HIDDEN
+        return self.grid[r][c].state is State.HIDDEN
+
+    def flag(self, r: int | Cell, c: int | None = None) -> None:
+        """Flag a cell as a mine."""
+        if isinstance(r, Cell):
+            r.state = State.FLAGGED
+        else:
+            self.grid[r][c].state = State.FLAGGED
 
     def revealed_cells(self):
         """Return all revealed cells."""

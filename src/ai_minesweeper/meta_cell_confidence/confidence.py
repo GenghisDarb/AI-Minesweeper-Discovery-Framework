@@ -19,34 +19,32 @@ class BetaConfidence:
     systematic errors, prompting more exploratory moves.
     """
 
-    def __init__(self, alpha: float = 1.0, beta: float = 1.0):
+    def __init__(self, alpha: float = 1.0, beta: float = 1.0) -> None:
         """Initialize with a prior Beta(α, β). Defaults to an uninformative prior (1,1)."""
         self.alpha: float = alpha
         self.beta: float = beta
+        self._threshold: float | None = None  # allow override
 
     def update(
         self,
-        prob_pred: float | None = None,
-        revealed_is_mine: bool | None = None,
-        *,
         predicted_probability: float | None = None,
-        success: bool | None = None,
-    ):
-        if success is not None:  # legacy quick path
-            if success:
-                self.alpha += 1.0
+        revealed_is_mine: bool | None = None,
+    ) -> None:
+        """
+        Update the Beta distribution given a predicted probability and outcome.
+        If both args are provided, use a Brier-score style update; otherwise fall back to simple counts.
+        """
+        if predicted_probability is not None and revealed_is_mine is not None:
+            # Brier error: 1−p for a mine, p for a safe cell
+            error = (1.0 - predicted_probability) if revealed_is_mine else predicted_probability
+            self.alpha += (1.0 - error)
+            self.beta += error
+        elif revealed_is_mine is not None:
+            # no prob provided, treat as 0.5 baseline
+            if revealed_is_mine:
+                self.beta += 1
             else:
-                self.beta += 1.0
-        else:
-            p = prob_pred if prob_pred is not None else predicted_probability
-            if p is None or revealed_is_mine is None:
-                raise ValueError("Both probability and outcome must be provided.")
-            predicted_mine = p >= 0.5
-            actual_mine = revealed_is_mine
-            if predicted_mine == actual_mine:
-                self.alpha += 1.0
-            else:
-                self.beta += 1.0
+                self.alpha += 1
 
     def mean(self) -> float:
         """Get current confidence level (expected accuracy of solver).
@@ -62,36 +60,23 @@ class BetaConfidence:
         """
         return self.alpha / (self.alpha + self.beta)
 
-    def set_threshold(self, tau: float) -> None:
+    def set_threshold(self, value: float) -> None:
         """Set a confidence threshold for external use."""
-        if not (0.0 <= tau <= 1.0):
-            raise ValueError("Threshold must be between 0 and 1.")
-        self.tau = tau
+        self._threshold = value
 
-    def get_threshold(self) -> Optional[float]:
+    def get_threshold(self) -> float:
         """Get the current confidence threshold."""
-        return getattr(self, "tau", None)
+        if self._threshold is not None:
+            return self._threshold
+        return 0.05 + self.mean() * (0.25 - 0.05)
 
-    def choose_move(self, board) -> Union[Cell, None]:
+    def choose_move(self, board, risk_map: dict[Cell, float]) -> Cell:
         """
         Select the next cell to probe based on confidence and risk assessment.
         """
-        prob_map = self.assessor.estimate(board)  # keys are Cell objects
-        tau = self.confidence.get_threshold()
-        safe = [cell for cell, p in prob_map.items() if p <= tau]
-        pick = (
-            min(safe, key=lambda cell: (prob_map[cell], cell.row, cell.col))
-            if safe
-            else None
-        )
-        if pick is None:  # Fallback logic
-            for r in range(board.n_rows):
-                for c in range(board.n_cols):
-                    cell = board.grid[r][c]
-                    if cell.is_hidden() and not cell.is_flagged():
-                        if cell.row == -1:
-                            cell.row = r
-                        if cell.col == -1:
-                            cell.col = c
-                        return cell
-        return pick
+        tau = self.get_threshold()
+        candidates = [cell for cell, risk in risk_map.items() if risk < tau]
+        if candidates:
+            return min(candidates, key=lambda c: risk_map[c])
+        # fallback: return the minimum risk cell
+        return min(risk_map, key=risk_map.get)

@@ -183,7 +183,7 @@ class RiskAssessor:
                     yield (r, c)
 
 
-class SpreadRiskAssessor:
+class SpreadRiskAssessor(RiskAssessor):
     def __init__(self, tau_getter=lambda: 0.1):
         """Initialize the SpreadRiskAssessor with an optional tau_getter."""
         self.tau_getter = tau_getter
@@ -217,3 +217,8 @@ class SpreadRiskAssessor:
     def predict(self, board):
         """Predict probabilities for all cells on the board."""
         return self.get_probabilities(board)
+
+    def normalize(self, risk_map: dict[Cell, float]) -> dict[Cell, float]:
+        """Normalize the risk map to sum to one."""
+        total = sum(risk_map.values())
+        return {cell: risk / total for cell, risk in risk_map.items()}

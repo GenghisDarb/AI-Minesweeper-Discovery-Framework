@@ -1,1 +1,1 @@
-::: ai_minesweeper
+::: src.ai_minesweeper

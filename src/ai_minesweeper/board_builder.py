@@ -16,35 +16,48 @@ class BoardBuilder:
         :param path: Path to the CSV file.
         :param header: Whether the CSV file has a header row (True/False/None).
         """
-        # Interpret header argument
         header_option = 0 if header else None
         df = pd.read_csv(path, header=header_option)
 
-        # Convert DataFrame → grid of Cell objects
         grid: list[list[Cell]] = []
         for _, row in df.iterrows():
             cells: list[Cell] = []
-            for token in row:
-                token_str = "" if pd.isna(token) else str(token).strip()
-                if token_str.upper() in {"X", "*", "MINE"}:  # Marked mine
-                    cell = Cell(is_mine=True, state=State.HIDDEN)
-                    cell.symbol = token_str  # Assign symbol for mines
-                    cells.append(cell)
-                elif token_str.isdigit() and 0 <= int(token_str) <= 8:  # Clue
-                    cell = Cell(state=State.REVEALED, clue=int(token_str))
-                    cells.append(cell)
-                else:  # Safe hidden cell
-                    cell = Cell(state=State.HIDDEN)
-                    cell.symbol = token_str
-                    cells.append(cell)
+            for token_str in row:
+                token = token_str.strip()
+                if any(ch in token.upper() for ch in ("*", "X")):
+                    is_mine = True
+                    clue = None
+                elif token.isdigit():
+                    clue = int(token)
+                    is_mine = False
+                else:
+                    is_mine = False
+                    clue = None
+
+                cell = Cell(is_mine=is_mine, clue=clue, state=State.HIDDEN)
+                cells.append(cell)
             grid.append(cells)
 
-        # Defensive checks
-        if not grid or not grid[0]:
-            raise ValueError("CSV file is empty or malformed (no data rows).")
-        row_len = len(grid[0])
-        board = Board(n_rows=len(grid), n_cols=row_len, grid=grid)
-        return board
+        if not any(cell.is_mine for row in grid for cell in row):
+            raise ValueError("No mines detected in the board.")
+
+        return Board(grid=grid)
+
+    @classmethod
+    def from_data(cls, data: Sequence[Sequence[dict]]) -> Board:
+        """Build a board from a nested list of dictionaries."""
+        grid = [
+            [
+                Cell(
+                    state=State(cell_data["state"]),
+                    clue=cell_data.get("clue"),
+                    is_mine=cell_data.get("is_mine", False),
+                )
+                for cell_data in row
+            ]
+            for row in data
+        ]
+        return Board(grid=grid)
 
     @staticmethod
     def _from_relational_csv(df: pd.DataFrame) -> Board:

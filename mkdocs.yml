@@ -10,6 +10,8 @@ plugins:
         python:
           options:
             show_source: true
+  - env:
+      PYTHONPATH: src
 extra_css:
   - css/custom_palette.css
   - css/badges.css
