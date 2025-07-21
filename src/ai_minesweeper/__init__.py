@@ -8,13 +8,17 @@ Version 1.1.0
 __version__ = "1.1.0"
 __author__ = "AI Minesweeper Discovery Framework Team"
 
-from .board import Board
-from .risk_assessor import RiskAssessor
-from .constraint_solver import ConstraintSolver
-
-__all__ = [
-    "Board",
-    "RiskAssessor", 
-    "ConstraintSolver",
-    "__version__"
-]
+try:
+    from .board import Board
+    from .risk_assessor import RiskAssessor
+    from .constraint_solver import ConstraintSolver
+    
+    __all__ = [
+        "Board",
+        "RiskAssessor", 
+        "ConstraintSolver",
+        "__version__"
+    ]
+except ImportError as e:
+    # Graceful degradation for incomplete imports
+    __all__ = ["__version__"]
