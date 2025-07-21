@@ -9,8 +9,9 @@ __version__ = "1.1.0"
 __author__ = "AI Minesweeper Discovery Framework Team"
 
 from .board import Board
-from .risk_assessor import RiskAssessor
 from .constraint_solver import ConstraintSolver
+from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
+from .risk_assessor import RiskAssessor
 
 __all__ = [
     "Board",

@@ -1,0 +1,471 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/design_meta_cell/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Meta-Cell Confidence Module - AI Minesweeper Discovery Framework</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/custom_palette.css">
+    
+      <link rel="stylesheet" href="../css/badges.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#meta-cell-confidence-module" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="AI Minesweeper Discovery Framework" class="md-header__button md-logo" aria-label="AI Minesweeper Discovery Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AI Minesweeper Discovery Framework
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Meta-Cell Confidence Module
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/GenghisDarb/AI-Minesweeper-Discovery-Framework" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="AI Minesweeper Discovery Framework" class="md-nav__button md-logo" aria-label="AI Minesweeper Discovery Framework" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    AI Minesweeper Discovery Framework
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GenghisDarb/AI-Minesweeper-Discovery-Framework" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#betaconfidence-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      BetaConfidence Class
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confidencepolicy-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      ConfidencePolicy Class
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualization
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expected-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Outcomes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="meta-cell-confidence-module">Meta-Cell Confidence Module</h1>
+<h2 id="overview">Overview</h2>
+<p>The Meta-Cell Confidence Module introduces a feedback loop to dynamically adjust the hypothesis solver's risk tolerance based on its prediction accuracy. Inspired by TORUS Theory's controller dimension, this module ensures the solver maintains a balanced strategy between exploration and exploitation.</p>
+<h2 id="rationale">Rationale</h2>
+<p>The Meta-Cell Confidence Module dynamically adjusts risk tolerance based on solver accuracy. Using a Beta distribution, it tracks success rates and tunes the solver's behavior.</p>
+<h2 id="betaconfidence-class">BetaConfidence Class</h2>
+<p>Tracks solver confidence using a Beta distribution. Updates confidence based on prediction accuracy using the Brier score.</p>
+<h2 id="confidencepolicy-class">ConfidencePolicy Class</h2>
+<p>Wraps the base solver to adjust move selection based on confidence. Implements a risk threshold that varies with confidence level.</p>
+<h2 id="visualization">Visualization</h2>
+<p>Displays confidence in GUI (Streamlit) or CLI mode, providing real-time feedback on solver calibration.</p>
+<h2 id="expected-outcomes">Expected Outcomes</h2>
+<p>Confidence oscillates over time, reflecting the solver's self-correcting mechanism. This aligns with TORUS Theory's \chi-cycle structure.</p>
+<h2 id="usage">Usage</h2>
+<p>To enable the confidence module, wrap the base solver with ConfidencePolicy and use BetaConfidence for tracking.</p>
+<p>Wrap your solver with <code>ConfidencePolicy</code>:</p>
+<pre><code class="language-python">from ai_minesweeper.meta_cell_confidence.policy_wrapper import ConfidencePolicy
+from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
+
+confidence = BetaConfidence()
+policy = ConfidencePolicy(base_solver=RiskAssessor, confidence=confidence)
+move = policy.choose_move(board)
+</code></pre>
+<p>See the <code>confidence_oscillation_demo.ipynb</code> notebook for a practical demonstration.</p>
+<h1 id="meta-cell-confidence-design">Meta-Cell Confidence Design</h1>
+<h2 id="overview_1">Overview</h2>
+<p>The meta-cell confidence module tracks the accuracy of mine-probability predictions and adjusts the solver's risk threshold dynamically. This is inspired by the TORUS "controller dimension" concept, which harmonizes observer-state interactions.</p>
+<h2 id="key-concepts">Key Concepts</h2>
+<ul>
+<li><strong>Beta Confidence</strong>: A Beta distribution is used to model prediction confidence.</li>
+<li><strong>Confidence Policy</strong>: Modulates exploration vs. exploitation based on confidence.</li>
+<li><strong>χ-Cycle</strong>: The confidence oscillation period aligns with the χ-cycle (~14 moves).</li>
+</ul>
+<h2 id="motivation-and-theoretical-inspiration">Motivation and Theoretical Inspiration</h2>
+<p><strong>TORUS Controller Dimension:</strong> In TORUS Theory, when a system evolves through 14 recursive layers (0D through 13D), an exact closure is not achieved without an extra adjustment; there’s a fixed phase gap of 360°/14 in the cycle. TORUS introduces a controller operator $R_{\text{control}}$ to address this, which is applied at the end of the 13D layer to perfectly "stitch" the cycle closed. This operator doesn’t add new physics; it’s a structural, zero-trace transform that compensates the residual error, aligning the end state with the beginning. </p>
+<p><em>In our Minesweeper analogy</em>, after a sequence of moves (an analog of a full recursion cycle), the solver may have accumulated a calibration error — its internal probability estimates might not align with reality. The <strong>BetaConfidence</strong> component plays the role of $R_{\text{control}}$: it updates the solver’s state to account for that error, ensuring the next cycle of moves starts with a corrected perspective. In essence, the meta-cell provides the “twist” that closes the loop of perception and action for the solver, just as $R_{\text{control}}$ provides the final twist to close TORUS’s 14-layer loop.</p>
+<p><strong>Ghost-Loop Bicycle Analogy:</strong> A riderless bicycle can balance itself only within a narrow speed range, a long-puzzling fact explained by a hidden feedback: the spinning front wheel and the geometry form a <strong>toroidal feedback loop</strong> that self-corrects the bike’s lean. TORUS modeling showed that the wheel’s gyroscopic effect and the ground contact act like two coupled tori that resonate and stabilize the bike when conditions are right (closing the loop in a 14-layer toroidal lattice). The “ghost rider” (no human input) stays up because the system itself provides a corrective torque via this closed flux loop. </p>
+<p><em>Our meta-cell is analogous to this ghost torque loop.</em> The solver by itself (like a classical bike model) has no way to adjust if its predictions are systematically off. By adding the meta-cell, we introduce a <strong>feedback torque</strong> in the form of dynamic policy adjustments: when the solver’s confidence drops, the meta-cell pushes it to explore new areas (a corrective action); when confidence is high, it allows the solver to coast with minimal risk. This feedback ensures stability in performance in much the same way the toroidal loop stabilizes the bicycle. It’s an emergent, second-order effect not present in the base solver, but crucial for self-stability.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p><strong>BetaConfidence – Calibration Tracker:</strong> We maintain a Beta distribution $Beta(\alpha, \beta)$ that represents the solver’s belief about its own accuracy. Initially $(\alpha=1, \beta=1)$ implies no prior bias. After each move:
+- If the solver’s prediction for that move was <strong>correct</strong> (e.g., it expected a safe cell and it was safe, or expected a mine and a mine was there), we update $\alpha \leftarrow \alpha + 1$.
+- If the prediction was <strong>wrong</strong>, $\beta \leftarrow \beta + 1$.<br />
+This update rule is a simplified Bayesian calibration: essentially treating each move as a Bernoulli trial of the solver’s prediction skill. The Beta mean $m = \frac{\alpha}{\alpha+\beta}$ is the solver’s running accuracy estimate. Notably, if the solver is overconfident (making mistakes because it underestimates uncertainties), $m$ will drop below 0.5, which serves as an internal alert that the inference engine is miscalibrated.</p>
+<p>Over many moves, $\alpha$ and $\beta$ grow, and the confidence metric becomes more stable. A well-tuned solver will see $\alpha$ increase faster than $\beta$, pushing $m$ toward 1 (but never reaching it if occasional surprises occur). An erratic solver will have $m$ hover low, prompting persistent exploration.</p>
+<p><strong>ConfidencePolicy – Dynamic Risk Modulation:</strong> The policy uses the BetaConfidence $m$ to set a risk threshold $\tau$. We define a mapping $\tau = 0.25 - 0.20 \cdot m$, which yields $\tau = 0.25$ when $m = 0$ and $\tau = 0.05$ when $m = 1$. (Any monotonic function would do; this linear mapping is simple and covers the specified range 5%–25%.) Before each move, the solver requests a probability for each unopened cell (the chance that cell hides a mine). The ConfidencePolicy then:</p>
+<ol>
+<li>Calculates the current $\tau$.  </li>
+<li>Finds all cells with predicted mine probability $p \le \tau$. These are “safe enough” to click given the current confidence.  </li>
+<li>If there is at least one such cell, it chooses the one with the lowest $p$ (maximally safe). If <em>no</em> cell falls below $\tau$ (meaning the solver is very confident but all moves look dangerous, or the solver is forced to guess), the policy defaults to the least risky cell available (the minimum $p$ overall).</li>
+</ol>
+<p>This mechanism ensures a couple of behaviors:
+- <strong>High Confidence (m near 1):</strong> $\tau$ is very low, so the solver will refuse to click anything that isn’t almost certain to be safe. It will only proceed if it finds an extremely low-probability cell. In practical terms, if the solver is doing well, it becomes very selective, avoiding any move that looks even slightly risky. This greediness maximizes the chance of winning when the solver “believes” it’s on the right track.
+- <strong>Low Confidence (m drops):</strong> $\tau$ increases, meaning the solver is willing to click cells that have a higher probability of being mines. This might seem counter-intuitive (why click risky cells?), but it’s a form of <strong>exploration</strong>. A low confidence implies the solver’s model might be wrong or incomplete, so taking a calculated risk can reveal new information and potentially break it out of a situation where it’s stuck or repeatedly wrong. Essentially, the solver becomes curious and experimentally probes the board when it doubts itself.</p>
+<h2 id="confidence-visualization">Confidence Visualization</h2>
+<p>The confidence level of the solver is dynamically displayed in the Streamlit app. This includes:</p>
+<ul>
+<li><strong>Metric Display</strong>: Shows the current confidence as a percentage.</li>
+<li><strong>Progress Bar</strong>: Provides a visual representation of the confidence level.</li>
+</ul>
+<p>These elements update in real-time as the solver makes moves and adjusts its confidence based on outcomes. This feature helps users understand the solver's decision-making process and its calibration over time.</p>
+<h2 id="module-path-architecture">Module Path Architecture</h2>
+<h3 id="architectural-note">Architectural Note</h3>
+<p>The Minesweeper framework now enforces a single import path for its core module (<code>ai_minesweeper</code>). This is by design, reflecting TORUS Theory’s principle of a single observer-state locus. In practice, it means the codebase is accessed through one coherent package namespace, ensuring consistency (no duplicate modules). This change eliminates ambiguity in the code’s “point of view,” analogous to maintaining a single frame of reference for all observations in TORUS’s χ-consistent system.</p>
+<h2 id="references">References</h2>
+<ul>
+<li>TORUS Theory and Bicycle Self-Stability §3, §4</li>
+<li>Unified Glossary – entries "χ-cycle", "Controller Dimension".</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

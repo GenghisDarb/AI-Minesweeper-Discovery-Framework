@@ -1,0 +1,36 @@
+name: Nightly-Wolfram-Update
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'     # midnight UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Wolfram batch
+        run: |
+          wget https://wolframcdn.azureedge.net/public-assets/wolframscript/wolframscript_1.9.3+2024030901_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./wolframscript_1.9.3+2024030901_amd64.deb
+          wolframscript -file wolfram/run_all.wls
+      - name: Commit artefacts
+        run: |
+          git config --global user.email "gh-actions@example.com"
+          git config --global user.name  "gh-actions"
+          git add data/*.txt data/*.csv data/*.json reports/*.csv
+          if ls figures/*.png 1> /dev/null 2>&1; then
+            git add figures/*.png
+          fi
+          git commit -m "Nightly Wolfram auto-update" || echo "No file changes"
+          git push
+      - name: Build & Deploy MkDocs
+        run: |
+          pip install mkdocs mkdocs-material
+          mkdocs gh-deploy --force

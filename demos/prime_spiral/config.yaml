@@ -1,0 +1,3 @@
+dataset: "primes_window.csv"
+mine_definition: "false hypothesis"
+clue_logic: "mod-14 residue analysis"

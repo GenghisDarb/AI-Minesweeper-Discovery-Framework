@@ -1,0 +1,32 @@
+# build artefacts
+*.egg-info/
+__pycache__/
+
+
+# build artefacts
+build/
+.coverage
+*.pyc
+*.pyc
+
+
+# Node.js dependencies
+node_modules/
+
+# Tailwind and PostCSS config files
+postcss.config.js
+tailwind.config.js
+
+# Lock files
+package-lock.json
+
+# Other untracked files
+ai_minesweeper/__init__.py
+
+
+# Node/Distro related
+.DS_Store
+dist/
+coverage/
+archive/
+.venv/

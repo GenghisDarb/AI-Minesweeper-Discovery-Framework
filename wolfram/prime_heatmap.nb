@@ -1,0 +1,5 @@
+(* Wolfram Notebook for Prime Residue Heatmap *)
+(* Generates a 2-D residue heatmap for 0…13 vs window index *)
+
+heatmap = PrimeResidueHeatmap[Range[0, 13], WindowIndex];
+Export["prime_heatmap.png", heatmap];
