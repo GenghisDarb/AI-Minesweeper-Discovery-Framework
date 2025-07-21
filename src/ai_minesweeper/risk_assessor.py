@@ -110,7 +110,8 @@ class SpreadRiskAssessor(RiskAssessor):
 
     def estimate(self, board):
         """Estimate probabilities for all hidden cells on the board."""
-        return self.get_probabilities(board)
+        probabilities = self.get_probabilities(board)
+        return self.normalize(probabilities)
 
     def get_probabilities(self, board):
         """Spread equal probability across all hidden cells with slight variation."""
@@ -133,10 +134,6 @@ class SpreadRiskAssessor(RiskAssessor):
             probabilities[(row, col)] = max(0, base_prob + variation)
 
         return probabilities
-
-    def predict(self, board):
-        """Predict probabilities for all cells on the board."""
-        return self.get_probabilities(board)
 
     def normalize(self, risk_map: dict[Cell, float]) -> dict[Cell, float]:
         """Normalize the risk map to sum to one."""

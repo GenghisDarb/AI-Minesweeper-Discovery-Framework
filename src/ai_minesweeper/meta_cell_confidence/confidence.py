@@ -35,29 +35,34 @@ class BetaConfidence:
         If both args are provided, use a Brier-score style update; otherwise fall back to simple counts.
         """
         if predicted_probability is not None and revealed_is_mine is not None:
+            if not (0 <= predicted_probability <= 1):
+                raise ValueError("predicted_probability must be between 0 and 1.")
             # Brier error: 1−p for a mine, p for a safe cell
             error = (1.0 - predicted_probability) if revealed_is_mine else predicted_probability
             self.alpha += (1.0 - error)
             self.beta += error
         elif revealed_is_mine is not None:
-            # no prob provided, treat as 0.5 baseline
             if revealed_is_mine:
                 self.beta += 1
             else:
                 self.alpha += 1
+        else:
+            raise ValueError("Either `predicted_probability` and `revealed_is_mine` must be provided.")
 
     def mean(self) -> float:
         """Get current confidence level (expected accuracy of solver).
 
-        Returns the mean of the Beta distribution, α / (α + β). This represents the
-        solver’s estimated probability that its next prediction will be correct. A
+        Returns the mean of the Beta distribution, \u03b1 / (\u03b1 + \u03b2). This represents the
+        solver's estimated probability that its next prediction will be correct. A
         value near 1 means the solver is well-calibrated (nearly always correct),
-        whereas ~0.5 indicates it’s right only about half the time (no better than
-        chance), and lower means it’s often wrong.
+        whereas ~0.5 indicates it's right only about half the time (no better than
+        chance), and lower means it's often wrong.
 
         This metric allows the solver to modulate its strategy: high confidence →
         stick to safe moves; low confidence → take more exploratory risks.
         """
+        if self.alpha + self.beta == 0:
+            return 0.0
         return self.alpha / (self.alpha + self.beta)
 
     def set_threshold(self, value: float) -> None:

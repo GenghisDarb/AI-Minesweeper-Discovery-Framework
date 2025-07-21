@@ -433,3 +433,32 @@ class Board:
         else:
             row, col = cell_or_coords
             self.grid[row][col].state = State.FLAGGED
+
+    def expand_grid(self, new_rows: int, new_cols: int) -> None:
+        """
+        Expands the board grid to the specified dimensions.
+
+        :param new_rows: The new number of rows.
+        :param new_cols: The new number of columns.
+        """
+        if new_rows < self.n_rows or new_cols < self.n_cols:
+            raise ValueError("New dimensions must be greater than or equal to current dimensions.")
+
+        # Add new rows if necessary
+        for i in range(self.n_rows, new_rows):
+            new_row = [Cell(row=i, col=j, state=State.HIDDEN) for j in range(new_cols)]
+            self.grid.append(new_row)
+
+        # Expand existing rows to the new column count
+        for i, row in enumerate(self.grid):
+            for j in range(len(row), new_cols):
+                row.append(Cell(row=i, col=j, state=State.HIDDEN))
+
+        # Update board dimensions
+        self.n_rows = new_rows
+        self.n_cols = new_cols
+
+        # Update neighbors for all cells
+        for i, row in enumerate(self.grid):
+            for j, cell in enumerate(row):
+                cell.neighbors = self.adjacent_cells(i, j)

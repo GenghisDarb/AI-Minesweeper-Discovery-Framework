@@ -12,6 +12,7 @@ from ai_minesweeper.ui_widgets import (
     render_unresolved_hypotheses,
     update_hypotheses_panel,
 )
+from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14RecursionEngine
 
 
 def main():
@@ -95,6 +96,20 @@ def main():
     current_confidence = st.session_state.beta_confidence.mean()
     st.metric("Solver Confidence", f"{current_confidence:.2%}")
     st.progress(current_confidence)
+
+    # Add DPP14 Recursion Engine execution
+    if st.button("Run DPP14 Recursion Engine"):
+        if st.session_state.board:
+            engine = DPP14RecursionEngine(
+                board=st.session_state.board,
+                solver_policy_class=RiskAssessor,
+                debug_mode=True,
+            )
+            results = engine.run()
+            st.write("DPP14 Recursion Engine Results:")
+            st.json(results)
+        else:
+            st.warning("Please upload a board before running the engine.")
 
 
 if __name__ == "__main__":

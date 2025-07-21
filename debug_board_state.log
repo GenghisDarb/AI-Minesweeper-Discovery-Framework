@@ -1,3 +1,0 @@
-Board state:
-['state=State.HIDDEN, is_mine=False', 'state=State.HIDDEN, is_mine=False']
-['state=State.HIDDEN, is_mine=False', 'state=State.HIDDEN, is_mine=True']
