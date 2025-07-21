@@ -85,7 +85,7 @@ def render_unresolved_hypotheses(board):
         for cell in row:
             if cell.state == State.HIDDEN:
                 if st.button(f"Reveal ({cell.row}, {cell.col})"):
-                    board.reveal((cell.row, cell.col))
+                    board.reveal(cell)
                     st.write(f"Revealed cell at ({cell.row}, {cell.col})")
 
 
@@ -243,22 +243,21 @@ def align_chat_input_with_ui():
 
 def update_hypotheses_panel(board):
     """
-    Update the hypotheses panel to reflect the latest game state.
+    Update the hypotheses panel to display revealed and unresolved hypotheses.
 
     Args:
         board (Board): The current game board.
     """
-    st.markdown("### Updated Hypotheses Panel")
+    st.markdown("### Hypotheses Panel")
+    st.markdown("#### Revealed Hypotheses")
     for hypothesis in board.get_revealed_hypotheses():
         st.write(f"Hypothesis: {hypothesis}")
 
-    unresolved = [
-        cell for row in board.grid for cell in row if cell.state == State.HIDDEN
-    ]
-    if unresolved:
-        st.markdown("#### Unresolved Cells")
-        for cell in unresolved:
-            st.write(f"Cell: ({cell.row}, {cell.col})")
+    st.markdown("#### Unresolved Hypotheses")
+    for row in board.grid:
+        for cell in row:
+            if cell.state == State.HIDDEN:
+                st.write(f"Unresolved Cell: ({cell.row}, {cell.col})")
 
 
 def ensure_grid_styling_consistency():
@@ -396,11 +395,15 @@ def finalize_accessibility_and_visual_enhancements():
     logger.info("Accessibility and visual enhancements finalized.")
 
 
-def consolidate_functionality():
+def apply_all_css_enhancements():
     """
-    Consolidate functionality from meta_cell_confidence/ui_widgets.py into this file.
+    Apply all CSS enhancements, including grid styling, colorblind palette, and high-contrast mode.
     """
-    pass  # Placeholder for consolidated functionality
+    apply_grid_styling()
+    if st.sidebar.checkbox("Enable colorblind-friendly palette"):
+        add_colorblind_friendly_palette()
+    if st.sidebar.checkbox("Enable high-contrast mode"):
+        add_high_contrast_mode()
 
 
 class BarMeter:

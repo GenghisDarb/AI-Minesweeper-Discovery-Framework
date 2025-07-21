@@ -10,124 +10,44 @@ class RiskAssessor:
     """Very naïve probability map."""
 
     @staticmethod
-    def estimate(board: Board) -> dict[tuple[int, int], float]:
+    def estimate(board: Board) -> dict[Cell, float]:
         """
         Return a rank-ordered false-hypothesis-probability map.
 
         :param board: The current board state.
-        :return: A dictionary mapping cell coordinates to probabilities.
+        :return: A dictionary mapping Cell objects to probabilities.
         """
         if DEBUG:
             print("[DEBUG] Board state in RiskAssessor.estimate:")
             for row in board.grid:
                 print(" ".join(cell.state.name for cell in row))
 
-        print(f"[RISK] Board rows: {len(board.grid)}")
-        for i, row in enumerate(board.grid):
-            print(
-                f"[RISK] Row {i} length: {len(row)} | Sample: {repr(row[0]) if row else 'EMPTY'}"
-            )
-
-        print(
-            f"[RISK] Board class: {board.__class__} from module: {board.__class__.__module__}"
-        )
-
-        print("[RISK] Calling board.hidden_cells()...")
-        result = board.hidden_cells()
-        print(f"[RISK] hidden_cells returned {len(result)} cells")
-
-        hidden = board.hidden_cells()
+        hidden_cells = board.hidden_cells()
         if DEBUG:
-            print(f"[RiskAssessor] Hidden cells found: {len(hidden)}")
-            for cell in hidden:
-                print(f"Hidden cell: {cell}")
-        if not hidden or all(
-            cell.is_mine is False and cell.clue is None
-            for row in board.grid
-            for cell in row
-        ):
-            print("[RISK] No mines or clues found. Returning empty risk map.")
-            return {}
+            print(f"[RiskAssessor] Hidden cells found: {len(hidden_cells)}")
 
-        if DEBUG:
-            print(
-                f"[DEBUG] State.HIDDEN id = {id(State.HIDDEN)} in module risk_assessor"
-            )
-
-        base_p = board.false_hypotheses_remaining / len(hidden)
+        base_p = board.false_hypotheses_remaining / len(hidden_cells)
         last_safe = board.last_safe_reveal or (board.n_rows // 2, board.n_cols // 2)
 
         def manhattan(a, b):
             return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-        probs: dict[tuple[int, int], float] = {}
-        for r in range(board.n_rows):
-            for c in range(board.n_cols):
-                cell = board[r, c]
-                if cell.is_hidden():
-                    adj = board.adjacent_cells(r, c)
-                    flagged = sum(1 for v in adj if board.is_flagged(v))
-                    hidden_adj = sum(1 for v in adj if board.is_hidden(v))
+        probs: dict[Cell, float] = {}
+        for cell in hidden_cells:
+            adj = board.adjacent_cells(cell.row, cell.col)
+            flagged = sum(1 for v in adj if board.is_flagged(v))
+            hidden_adj = sum(1 for v in adj if board.is_hidden(v))
 
-                    local_risk = (flagged / hidden_adj) if hidden_adj else 0
-                    dist_risk = manhattan((r, c), last_safe) / (
-                        board.n_rows + board.n_cols
-                    )
+            local_risk = (flagged / hidden_adj) if hidden_adj else 0
+            dist_risk = manhattan((cell.row, cell.col), last_safe) / (
+                board.n_rows + board.n_cols
+            )
 
-                    prob = min(
-                        0.95,
-                        base_p
-                        + 1.0 * local_risk  # Increase clue info weight
-                        + 0.8 * dist_risk,
-                    )  # Increase perimeter exploration weight
-
-                    # Debug: Log intermediate values for risk calculation
-                    print(
-                        f"Cell: {cell}, Local Risk: {local_risk}, Distance Risk: {dist_risk}, Probability: {prob}"
-                    )
-
-                    # Combine randomness with heuristic weights to amplify impact
-                    weighted_random_factor = (
-                        0.1 * (r + c) / (board.n_rows + board.n_cols)
-                    ) * (local_risk + dist_risk)
-                    prob += weighted_random_factor
-
-                    # Debug: Log weighted randomness contribution
-                    print(
-                        f"Cell: {cell}, Weighted Random Factor: {weighted_random_factor}, Probability: {prob}"
-                    )
-
-                    # Significantly amplify randomness weight
-                    amplified_random_factor = (
-                        0.5 * (r + c) / (board.n_rows + board.n_cols)
-                    )
-                    prob += amplified_random_factor
-
-                    # Debug: Log amplified randomness contribution
-                    print(
-                        f"Cell: {cell}, Amplified Random Factor: {amplified_random_factor}, Probability: {prob}"
-                    )
-
-                    probs[(r, c)] = prob
-
-        # Diagnostic to check if the risk map is flat
-        if not any(p < 0.25 for p in probs.values()):
-            print("⚠ risk map flat", len(probs), "cells")
-
-        # Temporarily adjust heuristic weights
-        local_risk = 0  # Initialize local_risk to avoid UnboundLocalError
-        dist_risk = 0  # Initialize dist_risk to avoid UnboundLocalError
-
-        # Ensure probability spectrum is not flat
-        if len(set(probs.values())) < len(probs) * 0.5:
-            print("⚠ Insufficient probability variance")
-
-        # Debugging output for risk map
-        print(f"Risk map: {probs}")
-
-        print(
-            f"[RISK] Received board id={id(board)}, class={board.__class__}, grid id={id(board.grid)}"
-        )
+            prob = min(
+                0.95,
+                base_p + 1.0 * local_risk + 0.8 * dist_risk,
+            )
+            probs[cell] = prob
 
         return probs
 
@@ -158,29 +78,29 @@ class RiskAssessor:
         )
 
     @staticmethod
-    def choose_move(board: Board) -> Optional[Cell]:
+    def choose_move(board: Board) -> Cell:
         """
-        Choose the next move based on the lowest probability.
+        Select the cell with the lowest risk.
 
         :param board: The current board state.
         :return: The chosen Cell object.
         """
-        probabilities = RiskAssessor.estimate(board)
-        if not probabilities:
-            return None  # No valid moves remaining
-
-        # Find the cell with the lowest probability
-        move_coord = min(probabilities, key=probabilities.get)
-        return board.grid[move_coord[0]][move_coord[1]]
+        prob_map = RiskAssessor.estimate(board)
+        return min(prob_map, key=prob_map.get)
 
     def iter_safe_candidates(
         self, board: "Board"
-    ) -> Generator[Tuple[int, int], None, None]:
-        """Yield safe candidate cells."""
-        for r, row in enumerate(board.grid):
-            for c, cell in enumerate(row):
-                if board.is_hidden(r, c):
-                    yield (r, c)
+    ) -> Generator[Cell, None, None]:
+        """
+        Yield safe candidate cells based on risk assessment.
+
+        :param board: The current board state.
+        :yield: Safe Cell objects.
+        """
+        prob_map = RiskAssessor.estimate(board)
+        for cell, prob in prob_map.items():
+            if prob < 0.25:
+                yield cell
 
 
 class SpreadRiskAssessor(RiskAssessor):

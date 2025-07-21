@@ -371,3 +371,65 @@ class Board:
             for row in self.grid
             for cell in row
         )
+
+    def export_state(self) -> list[dict]:
+        """
+        Export the current board state as a list of dictionaries.
+
+        :return: A list of dictionaries with cell details.
+        """
+        return [
+            {
+                "row": cell.row,
+                "col": cell.col,
+                "state": cell.state.name,
+                "clue": cell.clue,
+                "risk": getattr(cell, "risk", None),
+            }
+            for row in self.grid
+            for cell in row
+        ]
+
+    def get_current_confidence(self) -> float:
+        """
+        Get the current confidence level.
+
+        :return: The mean confidence level.
+        """
+        return BetaConfidence.mean()
+
+    def is_hidden(self, cell_or_coords) -> bool:
+        """
+        Check if a cell is hidden.
+
+        :param cell_or_coords: A Cell object or (row, col) tuple.
+        :return: True if the cell is hidden, False otherwise.
+        """
+        if isinstance(cell_or_coords, Cell):
+            return cell_or_coords.state == State.HIDDEN
+        row, col = cell_or_coords
+        return self.grid[row][col].state == State.HIDDEN
+
+    def is_flagged(self, cell_or_coords) -> bool:
+        """
+        Check if a cell is flagged.
+
+        :param cell_or_coords: A Cell object or (row, col) tuple.
+        :return: True if the cell is flagged, False otherwise.
+        """
+        if isinstance(cell_or_coords, Cell):
+            return cell_or_coords.state == State.FLAGGED
+        row, col = cell_or_coords
+        return self.grid[row][col].state == State.FLAGGED
+
+    def flag(self, cell_or_coords) -> None:
+        """
+        Flag a cell.
+
+        :param cell_or_coords: A Cell object or (row, col) tuple.
+        """
+        if isinstance(cell_or_coords, Cell):
+            cell_or_coords.state = State.FLAGGED
+        else:
+            row, col = cell_or_coords
+            self.grid[row][col].state = State.FLAGGED

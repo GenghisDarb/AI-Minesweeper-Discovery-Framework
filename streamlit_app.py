@@ -113,7 +113,22 @@ def main():
                 st.session_state.solver_paused = False
 
             if not st.session_state.solver_paused:
-                solver.step(board)  # Removed unused variable 'result'
+                cell = st.session_state.solver.choose_move(st.session_state.board)
+                st.session_state.board.reveal(cell)
+                st.session_state.beta_confidence.update(
+                    predicted_probability=st.session_state.solver.estimate_risk(cell),
+                    revealed_is_mine=cell.is_mine
+                )
+
+                # Append to confidence history and update chart
+                current_mean = st.session_state.beta_confidence.mean()
+                st.session_state.confidence_history.append(current_mean)
+                st.line_chart(st.session_state.confidence_history)
+
+                # Render unresolved hypotheses and update panel
+                render_unresolved_hypotheses(st.session_state.board)
+                update_hypotheses_panel(st.session_state.board)
+
                 st.session_state.solver_paused = True
 
         # Display the summary panel

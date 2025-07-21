@@ -1,6 +1,7 @@
-from typing import Any, Tuple
+from typing import Any
 
 from ai_minesweeper.board import Board
+from ai_minesweeper.cell import Cell  # Ensure Cell is imported
 
 from .confidence import BetaConfidence
 
@@ -29,7 +30,7 @@ class ConfidencePolicy:
         self.confidence = confidence if confidence else BetaConfidence(alpha, beta)
         # Risk threshold τ will be computed each move as a function of confidence
 
-    def choose_move(self, board_state: Board) -> Tuple[int, int]:
+    def choose_move(self, board_state: Board) -> Cell:
         """
         Select the next move based on confidence-adjusted risk threshold.
 
@@ -37,18 +38,14 @@ class ConfidencePolicy:
         :return: The chosen Cell object.
         """
         # 1. Get the probability map from the underlying solver
-        prob_map = self.solver.predict(
-            board_state
-        )  # assume returns a 2D array or dict of probabilities for each cell
+        prob_map = self.solver.estimate(board_state)  # Use RiskAssessor's estimate method
+
         hidden_cells = [
-            (r, c) for r, c in prob_map.keys() if board_state.is_hidden(r, c)
+            cell for row in board_state.grid for cell in row if board_state.is_hidden(cell)
         ]
 
         # 2. Compute dynamic risk threshold τ based on current confidence level
-        conf_mean = self.confidence.mean()
-        tau = (
-            0.25 - 0.20 * conf_mean
-        )  # map confidence to [0.25 (low conf) .. 0.05 (high conf)]
+        tau = self.confidence.get_threshold()
 
         # 3. Find candidate moves with probability <= τ
         safe_candidates = [cell for cell in hidden_cells if prob_map[cell] <= tau]

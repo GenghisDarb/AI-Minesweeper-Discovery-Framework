@@ -38,18 +38,22 @@ class BoardBuilder:
                 cells.append(cell)
             grid.append(cells)
 
-        if not any(cell.is_mine for row in grid for cell in row):
-            raise ValueError("No mines detected in the board.")
-
         return Board(grid=grid)
 
-    @classmethod
-    def from_data(cls, data: Sequence[Sequence[dict]]) -> Board:
-        """Build a board from a nested list of dictionaries."""
+    @staticmethod
+    def from_data(data: list[list[dict]]) -> Board:
+        """
+        Create a Board from raw data.
+
+        :param data: A list of lists of dictionaries representing cells.
+        :return: A Board object.
+        """
         grid = [
             [
                 Cell(
-                    state=State(cell_data["state"]),
+                    row=cell_data["row"],
+                    col=cell_data["col"],
+                    state=State[cell_data["state"].upper()],
                     clue=cell_data.get("clue"),
                     is_mine=cell_data.get("is_mine", False),
                 )
