@@ -15,9 +15,3 @@ extra_css:
   - css/badges.css
 nav:
   - Home: index.md
-  - Architecture:
-      - Meta-Cell Confidence: docs/design_meta_cell.md
-      - GW Validation: docs/gw_validation.md
-      - Prime Spirals: docs/prime_spirals.md
-      - Bicycle Validation: docs/bicycle_validation.md
-  - API Reference: reference/

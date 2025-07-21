@@ -31,7 +31,7 @@ dev = [
     "coverage>=7.0",
     "types-PyYAML",
     "types-requests",
-    "types-pandas"
+    "pandas-stubs"
 ]
 
 [project.scripts]
