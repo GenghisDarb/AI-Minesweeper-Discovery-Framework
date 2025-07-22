@@ -12,12 +12,26 @@ from .board import Board
 from .constraint_solver import ConstraintSolver
 from .board_builder import BoardBuilder
 from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
+from .meta_cell_confidence.beta_confidence import BetaConfidence
+from .meta_cell_confidence.confidence import BetaConfidence as LegacyBetaConfidence
 from .risk_assessor import RiskAssessor
+
+# Optionally include SpreadRiskAssessor if present
+try:
+    from .risk_assessor import SpreadRiskAssessor
+except ImportError:
+    SpreadRiskAssessor = None
 
 __all__ = [
     "Board",
     "BoardBuilder",
-    "RiskAssessor", 
+    "RiskAssessor",
     "ConstraintSolver",
+    "ConfidencePolicy",
+    "BetaConfidence",
+    "LegacyBetaConfidence",
     "__version__"
 ]
+# Add SpreadRiskAssessor if available
+if SpreadRiskAssessor:
+    __all__.append("SpreadRiskAssessor")
