@@ -98,3 +98,18 @@ tmp/
 .temp/
 archive/
 coverage/
+
+# MkDocs build outputs
+site/
+*.html
+*.css
+*.js
+*.json
+*.inv
+
+# Node modules
+node_modules/
+
+# Other build artifacts
+*.log
+*.tmp
