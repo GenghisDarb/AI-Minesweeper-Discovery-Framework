@@ -11,7 +11,6 @@ from ..board import Board
 from .beta_confidence import BetaConfidence
 from typing import Any
 
-from ai_minesweeper.board import Board
 
 from .confidence import BetaConfidence
 
