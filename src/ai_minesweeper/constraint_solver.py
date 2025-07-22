@@ -548,22 +548,3 @@ class ConstraintSolver:
         self.confidence_tracker.reset_confidence()
         
         self.logger.info("Constraint solver reset to initial state")
-    
-    def solve(self, board: Board) -> None:
-        """
-        Repeatedly choose and reveal moves until the board is solved or no moves remain.
-        Satisfies test interface for solver.solve().
-        """
-        while not board.is_solved():
-            move = self.choose_move(board)
-            if move is None:
-                break
-            r, c = move if isinstance(move, tuple) else (move.row, move.col)
-            if hasattr(board, 'reveal'):
-                board.reveal(r, c)
-            else:
-                # fallback for mocks
-                cell = board.grid[r][c] if hasattr(board, 'grid') else None
-                if cell and hasattr(cell, 'state'):
-                    cell.state = CellState.REVEALED
-        return

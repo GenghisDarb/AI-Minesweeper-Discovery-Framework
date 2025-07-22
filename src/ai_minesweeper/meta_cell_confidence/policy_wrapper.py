@@ -6,12 +6,9 @@ risk threshold adjustment and χ-recursive decision optimization.
 """
 
 import logging
-from typing import Dict, Tuple, List
-from ..board import Board
-from .beta_confidence import BetaConfidence
-from typing import Any
-
-
+from typing import TYPE_CHECKING, Dict, Tuple, List, Any
+if TYPE_CHECKING:
+    from ..board import Board
 from .confidence import BetaConfidence
 
 
@@ -46,7 +43,7 @@ class ConfidencePolicy:
         self.legacy_decision_sequence = []
         self.legacy_confidence_tracker = self.confidence
     
-    def get_recommended_action(self, board: Board) -> Dict:
+    def get_recommended_action(self, board: 'Board') -> Dict:
         """
         Get recommended action based on confidence-adjusted risk assessment.
         
@@ -195,7 +192,7 @@ class ConfidencePolicy:
         safe_candidates: List[Tuple[Tuple[int, int], float]],
         flag_candidates: List[Tuple[Tuple[int, int], float]],
         risk_map: Dict[Tuple[int, int], float],
-        board: Board,
+        board,
         confidence: float
     ) -> Dict:
         """
@@ -263,14 +260,14 @@ class ConfidencePolicy:
     def _apply_chi_recursive_selection(
         self,
         safe_candidates: List[Tuple[Any, float]],
-        board: Board
+        board
     ) -> Tuple[Any, float]:
         """
         Apply χ-recursive selection logic to choose from safe candidates.
 
         Args:
             safe_candidates: List of safe move candidates
-            board: Current board state
+            board
 
         Returns:
             Selected candidate (position, risk)
@@ -290,14 +287,14 @@ class ConfidencePolicy:
                 x, y = pos
             else:
                 continue
-
+        board
             # Calculate information potential
             info_score = 0
             revealed_neighbors = 0
             for nx, ny in board.adjacent_cells(x, y):
                 if (nx, ny) in board.get_revealed_cells():
                     revealed_neighbors += 1
-                    # Higher numbers provide more constraint information
+            board
                     info_score += board.revealed_numbers.get((nx, ny), 0)
 
             # Prefer cells with moderate neighbor information
