@@ -91,10 +91,7 @@ def play(
         message = f"An error occurred during gameplay: {e}"
         logger.exception(message)
         print(message)
-- Auto-discovery mode
-- Confidence display and statistics
-- TORUS theory visualization
-"""
+
 
 import logging
 import sys
@@ -481,4 +478,3 @@ def main(width: int, height: int, mines: int, meta: bool, auto: bool, interactiv
 
 if __name__ == "__main__":
     main()
->>>>>>> copilot/fix-dae99444-ca86-4639-9a82-4b34463bbba0

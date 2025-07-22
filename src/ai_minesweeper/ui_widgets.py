@@ -1,13 +1,8 @@
-<<<<<<< HEAD
 import logging
 
 import streamlit as st
 
 from ai_minesweeper.cell import State
-
-        st.progress(conf)
-        st.write(f"Confidence: {conf * 100:.1f}%")
-        return f"Confidence: {conf * 100:.1f}%"
 
 
 def color_coded_cell_rendering(cell_state: str):
@@ -31,8 +26,7 @@ def color_coded_cell_rendering(cell_state: str):
 def copy_results_button(results: dict):
     """
     Add a button to copy results to the clipboard.
-
-    Args:
+    """
     if st.button("Copy Results"):
         st.write("Results copied to clipboard!")
         st.code(results, language="json")
@@ -121,32 +115,26 @@ def ensure_persistent_unexplored_cells(board):
 
 def highlight_newly_revealed_cells(revealed_cells):
     """
-    Add a brief visual cue for newly revealed cells.
-
-    Args:
-        revealed_cells (list[Cell]): The cells revealed in the last move.
+    Apply a CSS pulse animation to newly revealed cells in Streamlit.
     """
-
+    css = """
+<style>
+.highlight-pulse {
+    animation: pulse 0.8s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+    70% { box-shadow: 0 0 10px 10px rgba(0, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+}
+</style>
+"""
+    st.markdown(css, unsafe_allow_html=True)
     for cell in revealed_cells:
         st.markdown(
-            f'<div style="animation: pulse 1s; border: 2px solid green;">({cell.row}, {cell.col})</div>',
+            f'<div class="highlight-pulse" style="border: 2px solid green;">({cell.row}, {cell.col})</div>',
             unsafe_allow_html=True,
         )
-
-    # Add CSS for the pulse animation
-
-    st.markdown(
-        """
-        <style>
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
-            70% { box-shadow: 0 0 10px 10px rgba(0, 255, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 def apply_grid_styling():
@@ -956,4 +944,3 @@ class ChiBrotVisualizer:
                ha='center', va='center', transform=ax.transAxes)
         ax.set_title("χ-brot Pattern Analysis")
         return fig
->>>>>>> copilot/fix-dae99444-ca86-4639-9a82-4b34463bbba0
