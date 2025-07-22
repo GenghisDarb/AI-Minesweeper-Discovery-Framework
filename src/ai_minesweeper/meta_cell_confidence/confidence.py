@@ -78,8 +78,11 @@ class BetaConfidence:
         self._threshold = value
 
     def get_threshold(self) -> float | None:
-        """Get the current confidence threshold (or None if not set)."""
-        return self._threshold
+        """Get the current confidence threshold (dynamic if not set)."""
+        if self._threshold is not None:
+            return self._threshold
+        # Dynamic threshold: τ = 0.25 - 0.20 * mean
+        return 0.25 - 0.20 * self.mean()
 
     def choose_move(self, board, risk_map: dict) -> Any:
         """

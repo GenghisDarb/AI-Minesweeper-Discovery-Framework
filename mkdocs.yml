@@ -20,5 +20,4 @@ nav:
       - Element discovery: tutorials/element_discovery.md
       - Prime residue recursion: tutorials/prime_residue_recursion.md
   - Theory:
-      - Torus-of-tori and DPP-14: docs/torus_of_tori_and_dpp14.md
-      - Observer-state duality: docs/observer_state_duality.md
+      - Torus-of-tori and DPP-14: torus_of_tori_and_dpp14.md

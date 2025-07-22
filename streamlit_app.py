@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+ 
     st.title("AI Minesweeper Discovery Framework")
 import json
 import tempfile
@@ -495,4 +495,4 @@ def main():
 
 if __name__ == "__main__":
     main()
->>>>>>> copilot/fix-dae99444-ca86-4639-9a82-4b34463bbba0
+ 

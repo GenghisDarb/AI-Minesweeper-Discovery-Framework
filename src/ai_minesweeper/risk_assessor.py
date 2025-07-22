@@ -66,10 +66,21 @@ class RiskAssessor:
         
         # Apply χ-recursive refinement
         risk_map = self._apply_chi_recursive_refinement(risk_map, board)
-        
+
+        # Inject jitter if all risks are equal (variance for no-clue scenario)
+        import random
+        values = list(risk_map.values())
+        if len(set(values)) <= 1 and len(values) > 1:
+            for k in risk_map:
+                risk_map[k] += random.uniform(-0.01, 0.01)
+            # Normalize
+            total = sum(risk_map.values())
+            if total > 0:
+                risk_map = {k: v / total for k, v in risk_map.items()}
+
         # Cache the result
         self.risk_cache[cache_key] = risk_map
-        
+
         self.logger.debug(f"Risk map calculated for {len(hidden_cells)} hidden cells")
         return risk_map
     

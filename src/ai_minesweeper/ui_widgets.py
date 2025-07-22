@@ -54,8 +54,7 @@ def render_cell_with_tooltip(cell_state: str, tooltip: str):
 def render_unresolved_hypotheses(board):
     """
     Render unresolved hypotheses as selectable buttons.
-
-    Args:
+    """
     for row in board.grid:
         for cell in row:
             if cell.state == State.HIDDEN:
@@ -67,8 +66,7 @@ def render_unresolved_hypotheses(board):
 def render_revealed_hypotheses_summary(board):
     """
     Render a summary panel for revealed hypotheses.
-
-    Args:
+    """
     st.markdown("### Revealed Hypotheses Summary")
     for hypothesis in board.get_revealed_hypotheses():
         st.write(f"Hypothesis: {hypothesis}")
@@ -420,7 +418,6 @@ def render_chi_brot_visualizer():
 
     plt.contourf(X, Y, Z, levels=50, cmap="viridis")
     st.pyplot(plt)
-=======
 """
 UI Widgets and helpers for AI Minesweeper visualization.
 

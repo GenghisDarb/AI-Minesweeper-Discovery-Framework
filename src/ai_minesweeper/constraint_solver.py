@@ -35,7 +35,7 @@ class ConstraintSolver:
             if hasattr(board, "reveal"):
                 board.reveal(cell)
             revealed.add((x, y))
-            if getattr(cell, 'value', None) == 0:
+            if getattr(cell, 'adjacent_mines', None) == 0:
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         nx, ny = x + dx, y + dy
