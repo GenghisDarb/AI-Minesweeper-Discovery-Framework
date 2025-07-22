@@ -54,71 +54,71 @@ class CascadePropagator:
         return revealed
 
 
+# --- Patch: Add SolverLogic class for test compatibility ---
 class SolverLogic:
     @staticmethod
-    def flag_mines(board):
-        changed = False
-        for cell in board.revealed_cells():
-            clue = board.clue(cell)
-            adj = board.adjacent_cells(
-                cell.row, cell.col
-            )  # Pass row and col explicitly
-            hidden = [c for c in adj if board.is_hidden(c)]
-            flagged = [c for c in adj if board.is_flagged(c)]
-
-            if clue is None:
-                continue
-
-            if clue - len(flagged) == len(hidden):
-                for c in hidden:
-                    board.flag(c)
-                    print(f"Flagged cell {c} based on clue {clue}")  # Debugging output
-                    changed = True
-        return changed
+    def flag_mines(board: Board) -> bool:
+        # Delegate to Flagger
+        return Flagger.mark_contradictions(board)
 
     @staticmethod
-    def cascade_reveal(board):
-        changed = False
-        queue = list(board.revealed_cells())
-
-        visited = set(queue)
+    def cascade_reveal(board: Board) -> bool:
+        # Delegate to CascadePropagator
+        return CascadePropagator.open_safe_neighbors(board)
 
         while queue:
             cell = queue.pop(0)
             clue = board.clue(cell)
             adj = board.adjacent_cells(cell.row, cell.col)
             hidden = [c for c in adj if board.is_hidden(c)]
-
-            # Debugging output for cascade reveal
-            print(f"Queue: {queue}")
-            print(f"Visited: {visited}")
-            print(f"Hidden cells: {hidden}")
-
             if clue is None or len(hidden) == 0:
                 continue
-
-            if clue == len(hidden):
+            if clue == 0:
                 for c in hidden:
                     board.reveal(c[0], c[1], flood=True)
-                    print(f"Revealed cell {c} based on clue {clue}")  # Debugging output
                     changed = True
-                    if c not in visited:
-                        queue.append(c)
-                        visited.add(c)
-            elif clue == 0:
+                    new_cell = board.grid[c[0]][c[1]]
+                    if new_cell not in visited:
+                        queue.append(new_cell)
+                        visited.add(new_cell)
+            elif clue == len(hidden):
                 for c in hidden:
                     board.reveal(c[0], c[1], flood=True)
-                    print(f"Revealed cell {c} based on clue {clue}")  # Debugging output
                     changed = True
-                    if c not in visited:
-                        queue.append(c)
-                        visited.add(c)
+                    new_cell = board.grid[c[0]][c[1]]
+                    if new_cell not in visited:
+                        queue.append(new_cell)
+                        visited.add(new_cell)
             else:
-                if not cell.state.is_hidden():
+                if not hasattr(cell, 'is_hidden') or not cell.is_hidden():
                     continue
                 cell.reveal()
-                if cell.clue == 0:
+                if hasattr(cell, 'clue') and cell.clue == 0:
                     queue.extend(
-                        n for n in cell.neighbors() if n.state.is_hidden()
-                    )  # Ensure only hidden neighbors are appended
+                        n for n in getattr(cell, 'neighbors', lambda: [])() if hasattr(n, 'is_hidden') and n.is_hidden()
+                    )
+        return changed
+        while queue:
+            cell = queue.pop(0)
+            clue = board.clue(cell)
+            adj = board.adjacent_cells(cell.row, cell.col)
+            hidden = [c for c in adj if board.is_hidden(c)]
+            if clue is None or len(hidden) == 0:
+                continue
+            if clue == len(hidden) or clue == 0:
+                for c in hidden:
+                    board.reveal(c[0], c[1], flood=True)
+                    changed = True
+                    new_cell = board.grid[c[0]][c[1]]
+                    if new_cell not in visited:
+                        queue.append(new_cell)
+                        visited.add(new_cell)
+            else:
+                if not hasattr(cell, 'is_hidden') or not cell.is_hidden():
+                    continue
+                cell.reveal()
+                if hasattr(cell, 'clue') and cell.clue == 0:
+                    queue.extend(
+                        n for n in getattr(cell, 'neighbors', lambda: [])() if hasattr(n, 'is_hidden') and n.is_hidden()
+                    )
         return changed

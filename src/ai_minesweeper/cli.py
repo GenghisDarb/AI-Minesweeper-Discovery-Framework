@@ -58,16 +58,27 @@ def play(
             logger.info(message)
             print(message)
         else:
+            # Only use basic ConstraintSolver, no meta-cell/dynamic expansion in CLI
             solver = ConstraintSolver()
+            moves_made = 0
+            max_moves = board.n_rows * board.n_cols * 2
             while True:
+                if board.is_solved():
+                    print("Game completed! All hypotheses resolved.")
+                    break
                 move = solver.choose_move(board)
                 if move is None:
+                    print("Game over – no more moves.")
                     break
-                if isinstance(move, tuple):
-                    row, col = move
-                else:
+                if hasattr(move, 'row') and hasattr(move, 'col'):
                     row, col = move.row, move.col
+                else:
+                    row, col = move
                 board.reveal(row, col)
+                moves_made += 1
+                if moves_made >= max_moves:
+                    print("Reached move limit; aborting to prevent infinite loop.")
+                    break
 
         message = "Game completed! All hypotheses resolved."
         logger.info(message)

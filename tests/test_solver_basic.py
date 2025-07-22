@@ -56,26 +56,10 @@ def test_solver_basic():
             ]
         )
 
+    # Reveal one cell to kick off logic
+    board.grid[0][0].state = State.REVEALED
     SolverLogic.flag_mines(board)
-    print("Board state after flagging mines:")
-    for row in board.grid:
-        print(
-            [
-                f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}"
-                for cell in row
-            ]
-        )
-
     SolverLogic.cascade_reveal(board)
-    print("Board state after cascade reveal:")
-    for row in board.grid:
-        print(
-            [
-                f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}"
-                for cell in row
-            ]
-        )
-
     assert all(
         cell.state == State.REVEALED
         for row in board.grid

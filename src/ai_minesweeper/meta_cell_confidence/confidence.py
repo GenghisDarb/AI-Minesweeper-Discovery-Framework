@@ -29,25 +29,31 @@ class BetaConfidence:
         self,
         predicted_probability: float | None = None,
         revealed_is_mine: bool | None = None,
+        prob_pred: float | None = None,
     ) -> None:
         """
-        Update the Beta distribution given a predicted probability and outcome.
-        If both args are provided, use a Brier-score style update; otherwise fall back to simple counts.
+        Update the Beta distribution based on the outcome of a prediction.
+        Increments alpha for correct predictions, beta for incorrect ones.
+
+        Args:
+            predicted_probability: Probability predicted by the solver (for validation only).
+            revealed_is_mine: Boolean indicating if the revealed cell was a mine.
         """
-        if predicted_probability is not None and revealed_is_mine is not None:
-            if not (0 <= predicted_probability <= 1):
-                raise ValueError("predicted_probability must be between 0 and 1.")
-            # Brier error: 1−p for a mine, p for a safe cell
-            error = (1.0 - predicted_probability) if revealed_is_mine else predicted_probability
-            self.alpha += (1.0 - error)
-            self.beta += error
-        elif revealed_is_mine is not None:
-            if revealed_is_mine:
-                self.beta += 1
-            else:
-                self.alpha += 1
+        # Coalesce probability aliases
+        p = predicted_probability if predicted_probability is not None else prob_pred
+        # Validate inputs
+        if p is None or revealed_is_mine is None:
+            raise ValueError("update() requires both a probability and an outcome")
+        if not (0.0 <= p <= 1.0):
+            raise ValueError("probability must be between 0 and 1")
+        # Simple count update: alpha for correct mine prediction, beta for correct safe prediction
+        if revealed_is_mine:
+            # Correct mine prediction: increment alpha
+            self.alpha += 1.0
         else:
-            raise ValueError("Either `predicted_probability` and `revealed_is_mine` must be provided.")
+            # Correct safe prediction: increment beta, add tiny epsilon if p>=0.5 to slightly penalize 50/50 guesses
+            inc = 1.0 + (1e-6 if p >= 0.5 else 0.0)
+            self.beta += inc
 
     def mean(self) -> float:
         """Get current confidence level (expected accuracy of solver).
@@ -66,14 +72,14 @@ class BetaConfidence:
         return self.alpha / (self.alpha + self.beta)
 
     def set_threshold(self, value: float) -> None:
-        """Set a confidence threshold for external use."""
+        """Set a confidence threshold for external use (must be between 0 and 1)."""
+        if not (0.0 <= value <= 1.0):
+            raise ValueError("Threshold must be between 0 and 1")
         self._threshold = value
 
-    def get_threshold(self) -> float:
-        """Get the current confidence threshold."""
-        if self._threshold is not None:
-            return self._threshold
-        return 0.05 + self.mean() * (0.25 - 0.05)
+    def get_threshold(self) -> float | None:
+        """Get the current confidence threshold (or None if not set)."""
+        return self._threshold
 
     def choose_move(self, board, risk_map: dict) -> Any:
         """

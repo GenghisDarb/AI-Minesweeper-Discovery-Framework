@@ -15,3 +15,10 @@ extra_css:
   - css/badges.css
 nav:
   - Home: index.md
+  - Tutorials:
+      - Discovering phi-phase reset: tutorials/discovering_phi_phase_reset.md
+      - Element discovery: tutorials/element_discovery.md
+      - Prime residue recursion: tutorials/prime_residue_recursion.md
+  - Theory:
+      - Torus-of-tori and DPP-14: docs/torus_of_tori_and_dpp14.md
+      - Observer-state duality: docs/observer_state_duality.md

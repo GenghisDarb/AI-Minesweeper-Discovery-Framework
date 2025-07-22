@@ -37,11 +37,8 @@ def test_confidence_threshold_mapping():
 
     def _pick_with_tau(board, tau):
         prob = SpreadRiskAssessor().estimate(board)
-        # candidate set = cells with adjusted p ≤ τ (fallback to all)
-        # Prioritize cells with probabilities closest to the threshold
-        safe = [c for c, p in prob.items() if abs(p - tau) <= tau] or list(prob)
-        result = min(safe, key=lambda c: (abs(prob[c] - tau), c.row, c.col))
-
+        safe = [coord for coord, p in prob.items() if abs(p - tau) <= tau] or list(prob.keys())
+        result = min(safe, key=lambda coord: (abs(prob[coord] - tau), coord[0], coord[1]))
         return result
 
     confidence.set_threshold(0.1)
@@ -53,14 +50,8 @@ def test_confidence_threshold_mapping():
     move_high_confidence = _pick_with_tau(board, tau_high)
 
     assert move_low_confidence != move_high_confidence
-    assert (
-        board.grid[move_low_confidence.row][move_low_confidence.col].state
-        == State.HIDDEN
-    )
-    assert (
-        board.grid[move_high_confidence.row][move_high_confidence.col].state
-        == State.HIDDEN
-    )
+    assert board.grid[move_low_confidence[0]][move_low_confidence[1]].state == State.HIDDEN
+    assert board.grid[move_high_confidence[0]][move_high_confidence[1]].state == State.HIDDEN
 
 
 def test_beta_confidence():
@@ -98,7 +89,12 @@ def test_confidence_policy():
     policy = ConfidencePolicy(solver)
 
     move = policy.choose_move(board)
-    assert move == (0, 0)  # Lowest probability cell
+    assert move is not None
+    # Accept tuple or Cell
+    if hasattr(move, 'row') and hasattr(move, 'col'):
+        assert move.row == 0 and move.col == 0
+    else:
+        assert move == (0, 0)
 
     # Simulate a correct prediction and update confidence
     policy.confidence.update(0.1, False)
@@ -106,7 +102,11 @@ def test_confidence_policy():
 
     # Simulate another move
     move = policy.choose_move(board)
-    assert move == (0, 1)  # Next lowest probability cell
+    assert move is not None
+    if hasattr(move, 'row') and hasattr(move, 'col'):
+        assert move.row == 0 and move.col == 1
+    else:
+        assert move == (0, 1)
 
 
 def test_fallback_logic_no_safe_moves():
@@ -133,7 +133,10 @@ def test_fallback_logic_no_safe_moves():
 
     move = policy.choose_move(board)
     assert move is not None
-    assert board.grid[move.row][move.col].state == State.HIDDEN
+    if hasattr(move, 'row') and hasattr(move, 'col'):
+        assert board.grid[move.row][move.col].state == State.HIDDEN
+    else:
+        assert board.grid[move[0]][move[1]].state == State.HIDDEN
 
 
 def test_confidence_policy_deterministic_move():
@@ -155,4 +158,7 @@ def test_confidence_policy_deterministic_move():
     }
 
     move = policy.choose_move(board)
-    assert move.row == 0 and move.col == 0  # Lowest probability cell
+    if hasattr(move, 'row') and hasattr(move, 'col'):
+        assert move.row == 0 and move.col == 0
+    else:
+        assert move == (0, 0)

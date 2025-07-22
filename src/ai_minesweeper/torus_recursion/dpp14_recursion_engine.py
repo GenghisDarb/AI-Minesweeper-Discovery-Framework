@@ -5,6 +5,9 @@ from ai_minesweeper.risk_assessor import RiskAssessor
 
 
 class DPP14RecursionEngine:
+    @staticmethod
+    def _as_coords(move):
+        return move if isinstance(move, tuple) else (move.row, move.col)
     """
     Implements a 14-lane Deep Parallel Processing (DPP) recursion engine
     aligned with TORUS Theory for hypothesis discovery.
@@ -75,10 +78,22 @@ class DPP14RecursionEngine:
             print(f"[DPP14] Lane {lane.lane_id}, Step {steps}")
             move = lane.solver_policy.choose_move(lane.board)
             if move is None:
-                print(
-                    f"[DPP14] Lane {lane.lane_id} – No valid moves returned. Terminating."
-                )
+                print(f"[DPP14] Lane {lane.lane_id} – No valid moves returned. Terminating.")
                 break
+            # Accept Cell or tuple moves
+            if hasattr(move, 'row') and hasattr(move, 'col'):
+                r, c = move.row, move.col
+            else:
+                r, c = move
+            # Predict probability for feedback
+            predicted = 0.0
+            if hasattr(lane.solver_policy, 'confidence'):
+                solver = getattr(lane.solver_policy, 'solver', lane.solver_policy)
+                if hasattr(solver, 'predict'):
+                    pm = solver.predict(lane.board)
+                else:
+                    pm = solver.estimate(lane.board)
+                predicted = pm.get((r, c), 0.0)
 
             if not lane.board.has_unresolved_cells():
                 print(f"[DPP14] Lane {lane.lane_id} – Discovery converged.")
@@ -87,36 +102,48 @@ class DPP14RecursionEngine:
             print(f"[DPP14] Lane {lane.lane_id}, Board State: {lane.board}")
             print(f"[DPP14] Lane {lane.lane_id}, Move: {move}")
 
-            result = self._test_hypothesis(lane.board, move)
-            print(
-                f"[DPP14] Step {steps} – Chose cell ({move.row},{move.col}), result={result}"
-            )
+            result = self._reveal_cell(lane, r, c)
+            print(f"[DPP14] Step {steps} – Chose cell ({r},{c}), result={result}")
             self._visualize_board(lane.board)
-
-            if result == "contradiction":
-                print(
-                    f"[DPP14] Lane {lane.lane_id} collapsed: Contradiction encountered."
-                )
+            # Update confidence tracker and chi_value for this lane
+            if hasattr(lane.solver_policy, 'confidence'):
+                cell = lane.board.grid[r][c]
+                lane.solver_policy.confidence.update(predicted_probability=predicted, revealed_is_mine=cell.is_mine)
+                lane.chi_value = lane.solver_policy.confidence.mean()
+            if result == "false_hypothesis":
+                print(f"[DPP14] Lane {lane.lane_id} collapsed: Contradiction encountered.")
                 lane.collapsed = True
             else:
                 lane.resonance_zones.append(result)
             steps += 1
 
-    def _test_hypothesis(self, board: Any, move: Any) -> str:
-        """Simulates testing a hypothesis."""
-        # Use board.grid for direct access or board[(row, col)] for __getitem__
-        cell = board.grid[move.row][move.col]
-        if cell.is_mine:  # Check if it's a mine using proper attribute
-            return "contradiction"
-        else:
-            # Ensure `row` and `col` are defined before use
-            if isinstance(move, tuple):
-                row, col = move
-            else:
-                row, col = move.row, move.col
+    def _reveal_cell(self, lane, r, c):
+        cell = lane.board.grid[r][c]
+        lane.board.reveal(r, c)
+        return "false_hypothesis" if cell.is_mine else "empty"
 
-            board.reveal(row, col)
-            return "valid"
+    def _test_hypothesis(self, board: Any, move: Any) -> str:
+        """Simulates testing a hypothesis. Robust to mocks and missing board methods."""
+        # Accept both tuple and Cell moves, always use _as_coords
+        row, col = self._as_coords(move)
+        if hasattr(board, "grid"):
+            cell = board.grid[row][col]
+            is_mine = getattr(cell, "is_mine", False)
+        else:
+            is_mine = False
+        if is_mine:
+            return "contradiction"
+        # Dynamic expansion if move outside
+        try:
+            if hasattr(board, 'add_cell') and hasattr(board, 'expand_grid') and hasattr(board, 'reveal'):
+                board.add_cell(row, col, is_mine=False)
+                board.expand_grid(board.n_rows, board.n_cols)
+                board.reveal(row, col)
+            else:
+                raise AttributeError
+        except AttributeError:
+            raise AttributeError("Board is missing required methods for DPP14 engine (add_cell, expand_grid, reveal)")
+        return "valid"
 
     def _visualize_board(self, board: "Board") -> None:
         """(Dev stub) No-op visualiser used only in debug mode."""

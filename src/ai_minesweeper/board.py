@@ -32,6 +32,59 @@ class CellState(Enum):
 
 
 class Board:
+
+    def is_solved(self) -> bool:
+        """
+        Return True if all non-mine cells are REVEALED (not just not hidden).
+        """
+        from .cell import State
+        return all(
+            cell.state == State.REVEALED or cell.is_mine
+            for row in self.grid for cell in row
+        )
+
+    def reveal(self, row_or_cell, col=None, flood=False):
+        """
+        Reveal a cell at (row, col) or a Cell object. Always sets state to REVEALED for safe cells.
+        Debug prints are guarded by MINESWEEPER_DEBUG.
+        """
+        import os
+        debug = os.environ.get("MINESWEEPER_DEBUG", "0") == "1"
+        from .cell import State
+        if hasattr(row_or_cell, 'row') and hasattr(row_or_cell, 'col'):
+            cell = row_or_cell
+            row, col = cell.row, cell.col
+        else:
+            row, col = row_or_cell, col
+            cell = self.grid[row][col]
+        if debug:
+            print(f"[DEBUG] Revealing cell at ({row}, {col}) state={cell.state}")
+        if cell.state == State.HIDDEN and not cell.is_mine:
+            cell.state = State.REVEALED
+            self.last_safe_reveal = (row, col)
+            if flood and getattr(cell, 'adjacent_mines', 0) == 0:
+                for neighbor in self.neighbors(row, col):
+                    self.reveal(neighbor.row, neighbor.col, flood=True)
+        # If cell is a mine, do not reveal (classic Minesweeper behavior)
+    @property
+    def revealed_numbers(self) -> dict[tuple[int, int], int]:
+        """
+        Returns a dict mapping (row, col) of revealed cells to their clue numbers (or 0 if not set).
+        """
+        revealed = {}
+        for row in self.grid:
+            for cell in row:
+                if cell.state == State.REVEALED:
+                    clue = getattr(cell, 'clue', 0)
+                    if clue is None:
+                        clue = 0
+                    revealed[(cell.row, cell.col)] = clue
+        return revealed
+    def update_chi_cycle(self, confidence: float):
+        """
+        No-op placeholder for chi cycle update, for compatibility with constraint solver and CLI.
+        """
+        pass
     _history: Optional[PathHistory] = None
 
     def __init__(
@@ -111,6 +164,10 @@ class Board:
         self.mines_remaining: int = (
             0  # Tracks the number of mines remaining on the board
         )
+
+        # For compatibility with risk/confidence modules
+        self.confidence_history: list[float] = []
+        self.chi_cycle_count: int = 0
 
         # Debugging: Print the initialized grid state
         if DEBUG:
@@ -207,6 +264,20 @@ class Board:
 
         # Add the new cell
         self.grid[row][col] = Cell(row=row, col=col, is_mine=is_mine)
+    
+    def expand_grid(self, new_rows: int, new_cols: int) -> None:
+        """
+        Recalculate neighbor references after dynamic resizing of the grid.
+        """
+        # Update dimensions
+        self.n_rows = len(self.grid)
+        self.n_cols = len(self.grid[0]) if self.grid else 0
+        # Recompute row/col and neighbors for all cells
+        for r, row in enumerate(self.grid):
+            for c, cell in enumerate(row):
+                cell.row = r
+                cell.col = c
+                cell.neighbors = self.neighbors(r, c)
 
     def get_neighbors(self, cell):
         """Get neighboring cells for a given cell."""
@@ -237,6 +308,15 @@ class Board:
                 if cell.state and cell.state.value == State.HIDDEN.value:
                     hidden_cells.append(cell)
         return hidden_cells
+    
+    # Aliases for backward compatibility
+    def get_hidden_cells(self) -> list[Cell]:
+        """Alias for hidden_cells()."""
+        return self.hidden_cells()
+
+    def get_revealed_cells(self) -> list[Cell]:
+        """Alias for revealed_cells()."""
+        return self.revealed_cells()
 
     @property
     def mines_remaining(self) -> int:
@@ -264,6 +344,11 @@ class Board:
                 if 0 <= r < self.n_rows and 0 <= c < self.n_cols:
                     neighbors.append((r, c))
         return neighbors
+    @property
+    def cell_states(self) -> dict[tuple[int, int], State]:
+        """Map of cell coordinates to their current State."""
+        return { (cell.row, cell.col): cell.state
+                 for row in self.grid for cell in row }
 
     def is_flagged(self, r: int | Cell, c: int | None = None) -> bool:
         """Check if a cell is flagged."""

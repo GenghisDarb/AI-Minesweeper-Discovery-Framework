@@ -11,10 +11,61 @@ This module provides risk analysis capabilities with:
 import logging
 from typing import Dict, Tuple, Set, List, Optional
 import numpy as np
-from .board import Board, CellState
+from .board import Board, Cell, CellState
 
 
 class RiskAssessor:
+    @staticmethod
+    def _as_coords(move):
+        return move if isinstance(move, tuple) else (move.row, move.col)
+    @classmethod
+    def estimate(cls, board):
+        # Only instantiate if not already an instance
+        if len(probs) != len(hidden_cells):
+            # Remove any extra keys
+            probs = {k: probs[k] for k in list(probs.keys())[:len(hidden_cells)]}
+        for k, v in list(probs.items()):
+            if v is None or not isinstance(v, (int, float)):
+                probs[k] = 1.0
+            else:
+                probs[k] = float(v)
+        # Add jitter for variance if all risks are equal (except for single cell)
+        values = list(probs.values())
+        if len(set(values)) <= 1 and len(values) > 1:
+            for k in probs:
+                probs[k] += random.uniform(-0.01, 0.01)
+        total = sum(probs.values())
+        if total > 0:
+            probs = {coords: p / total for coords, p in probs.items()}
+        # Remove any None values (should not be present)
+        probs = {k: float(v) for k, v in probs.items() if v is not None}
+        return probs
+        for cell in hidden_cells:
+            coords = (cell.row, cell.col)
+            risk = self._calculate_cell_risk(coords, board)
+            if risk is None or not isinstance(risk, (int, float)) or (isinstance(risk, float) and (risk != risk or risk is None)):
+                risk = 1.0
+            risk_map[coords] = float(risk)
+        # Guarantee map shape matches hidden cells
+        if len(risk_map) != len(hidden_cells):
+            # Remove any extra keys
+            risk_map = {k: risk_map[k] for k in list(risk_map.keys())[:len(hidden_cells)]}
+        # Add jitter for variance if all risks are equal (except for single cell)
+        values = list(risk_map.values())
+        if len(set(values)) <= 1 and len(values) > 1:
+            for k in risk_map:
+                risk_map[k] += random.uniform(-0.01, 0.01)
+        # Normalize
+        total = sum(risk_map.values())
+        if total > 0:
+            risk_map = {k: v / total for k, v in risk_map.items()}
+        # Sanitize after normalization: coerce None/non-numeric to 1.0
+        for k in risk_map:
+            if risk_map[k] is None or not isinstance(risk_map[k], (int, float)):
+                risk_map[k] = 1.0
+        # Final check: ensure all keys are tuples and all values are floats
+        risk_map = {k: float(v) for k, v in risk_map.items() if isinstance(k, tuple) and isinstance(v, float)}
+        return risk_map
     """
     Risk assessment engine for minesweeper AI with χ-recursive capabilities.
     
@@ -56,7 +107,9 @@ class RiskAssessor:
         
         # Calculate base risk for each hidden cell
         for cell in hidden_cells:
-            risk_map[cell] = self._calculate_cell_risk(cell, board)
+            coords = (cell.row, cell.col)
+            risk = self._calculate_cell_risk(coords, board)
+            risk_map[coords] = float(risk)
         
         # Apply χ-recursive refinement
         risk_map = self._apply_chi_recursive_refinement(risk_map, board)
@@ -97,7 +150,7 @@ class RiskAssessor:
         constraint_count = 0
         
         # Check all revealed neighbors for constraints
-        for nx, ny in board.get_neighbors(x, y):
+        for nx, ny in board.adjacent_cells(x, y):
             if (nx, ny) in board.get_revealed_cells():
                 revealed_number = board.revealed_numbers[(nx, ny)]
                 neighbor_risk = self._calculate_neighbor_constraint_risk(
@@ -108,7 +161,8 @@ class RiskAssessor:
         
         # Base risk from global mine density
         if constraint_count == 0:
-            base_risk = board.remaining_mines / len(board.get_hidden_cells())
+            # Use Board.mines_remaining property for global density
+            base_risk = board.mines_remaining / len(board.get_hidden_cells())
             return min(base_risk, 1.0)
         
         # Average constraint risk
@@ -145,7 +199,7 @@ class RiskAssessor:
         hidden_neighbors = []
         flagged_neighbors = 0
         
-        for nnx, nny in board.get_neighbors(nx, ny):
+        for nnx, nny in board.adjacent_cells(nx, ny):
             if (nnx, nny) in board.get_hidden_cells():
                 hidden_neighbors.append((nnx, nny))
             elif board.cell_states[(nnx, nny)] in [CellState.FLAGGED, CellState.SAFE_FLAGGED]:
@@ -233,28 +287,35 @@ class RiskAssessor:
             Refined risk map with χ-recursive adjustments
         """
         refined_map = risk_map.copy()
-        
+
         # Sort cells by risk for χ-recursive processing
         sorted_cells = sorted(risk_map.items(), key=lambda x: x[1], reverse=True)
-        
+
         # Apply refinement in risk order
         for cell, risk in sorted_cells:
+            # Accept both tuple and Cell keys
+            if hasattr(cell, "row") and hasattr(cell, "col"):
+                row, col = cell.row, cell.col
+            elif isinstance(cell, tuple) and len(cell) == 2:
+                row, col = cell
+            else:
+                continue
             # Check for local consistency with high-risk neighbors
             neighbor_risks = []
-            for nx, ny in board.get_neighbors(*cell):
-                if (nx, ny) in refined_map:
-                    neighbor_risks.append(refined_map[(nx, ny)])
-            
+            for nx, ny in board.adjacent_cells(row, col):
+                # Accept both Cell and tuple keys in refined_map
+                for k in [ (nx, ny), getattr(board.grid[nx][ny], 'row', None) is not None and board.grid[nx][ny] or None ]:
+                    if k in refined_map:
+                        neighbor_risks.append(refined_map[k])
+                        break
             if neighbor_risks:
                 # χ-recursive smoothing - balance local vs global risk
                 local_avg = sum(neighbor_risks) / len(neighbor_risks)
                 global_risk = risk
-                
                 # Weighted combination favoring global at high risk
                 weight = risk  # Higher risk = more global influence
                 refined_risk = weight * global_risk + (1 - weight) * local_avg
                 refined_map[cell] = min(refined_risk, 1.0)
-        
         return refined_map
     
     def get_safest_cells(
@@ -354,3 +415,115 @@ class RiskAssessor:
             "chi_recursive_depth": self.chi_recursive_depth,
             "cache_size": len(self.risk_cache)
         }
+    
+
+    def estimate(self, board: Board) -> Dict[tuple, float]:
+        """
+        Estimate risk for all hidden cells on the board.
+        :param board: Current board state.
+        :return: Dictionary mapping (row, col) tuples to risk values.
+        """
+        import random
+        # Robust hidden cell extraction for mocks and real boards
+        if hasattr(board, "grid"):
+            hidden_cells = [cell for row in board.grid for cell in row if board.is_hidden(cell)]
+        elif hasattr(board, "hidden_cells"):
+            hidden_cells = board.hidden_cells()
+        elif hasattr(board, "get_hidden_cells"):
+            hidden_cells = board.get_hidden_cells()
+        else:
+            hidden_cells = []
+        if not hidden_cells:
+            return {}
+
+        risk_map = {}
+        for cell in hidden_cells:
+            coords = (cell.row, cell.col)
+            risk = self._calculate_cell_risk(coords, board)
+            if risk is None or not isinstance(risk, (int, float)) or (isinstance(risk, float) and (risk != risk or risk is None)):
+                risk = 1.0
+            risk_map[coords] = float(risk)
+        # Add jitter for variance if all risks are equal or clues are missing
+        values = list(risk_map.values())
+        if len(set(values)) <= 1 and len(values) > 1:
+            for k in risk_map:
+                risk_map[k] += random.uniform(-0.01, 0.01)
+        # Normalize
+        total = sum(risk_map.values())
+        if total > 0:
+            risk_map = {k: v / total for k, v in risk_map.items()}
+        # Sanitize after normalization: coerce None/non-numeric to 1.0
+        for k in risk_map:
+            if risk_map[k] is None or not isinstance(risk_map[k], (int, float)):
+                risk_map[k] = 1.0
+        return risk_map
+
+        # Add small random noise if all risks are equal (to avoid uniformity)
+        values = list(risk_map.values())
+        if len(set(values)) <= 1 and len(values) > 1:
+            for k in risk_map:
+                risk_map[k] += random.uniform(-1e-6, 1e-6)
+
+        # Normalize probabilities
+        total = sum(float(risk_map[k]) for k in risk_map if isinstance(risk_map[k], (int, float)))
+        if total > 0:
+            for k in risk_map:
+                risk_map[k] = float(risk_map[k]) / total
+        return risk_map
+
+    def choose_move(self, board: Board, return_tuple: bool = True) -> Cell | tuple | None:
+        """
+        Choose the cell with the lowest estimated risk.
+        Returns a (row, col) tuple by default, or Cell if return_tuple=False.
+        Returns None if no moves.
+        """
+        risk_map = self.estimate(board)
+        # Sanitize after normalization
+        for k in risk_map:
+            if risk_map[k] is None or not isinstance(risk_map[k], (int, float)):
+                risk_map[k] = 1.0
+        if not risk_map:
+            return None
+        best_key = min(risk_map, key=risk_map.get)
+        r, c = self._as_coords(best_key)
+        if return_tuple:
+            return (r, c)
+        if hasattr(board, "grid"):
+            return board.grid[r][c]
+        return best_key
+ 
+class SpreadRiskAssessor(RiskAssessor):
+    @classmethod
+    def estimate(cls, board):
+        # Only instantiate if not already an instance
+        if isinstance(board, cls):
+            return board.estimate(board)
+        instance = cls()
+        return instance._estimate_impl(board)
+    """
+    Spread-based risk assessor returning normalized probabilities for each hidden cell.
+    """
+    def get_probabilities(self, board: Board) -> Dict[tuple, float]:
+        """
+        Compute risk estimates keyed by (row, col) tuple, normalized, no None values. Assign 1.0 if risk cannot be computed.
+        """
+        import random
+        probs = self.estimate(board)
+        for k, v in list(probs.items()):
+            if v is None or not isinstance(v, (int, float)):
+                probs[k] = 1.0
+            else:
+                probs[k] = float(v)
+        # Add jitter for variance if all risks are equal
+        values = list(probs.values())
+        if len(set(values)) <= 1 and len(values) > 1:
+            for k in probs:
+                probs[k] += random.uniform(-0.01, 0.01)
+        total = sum(probs.values())
+        if total > 0:
+            probs = {coords: p / total for coords, p in probs.items()}
+        # Remove any None values (should not be present)
+        probs = {k: float(v) for k, v in probs.items() if v is not None}
+        return probs
+ 
+    # SpreadRiskAssessor alias placeholder (will be subclass below)

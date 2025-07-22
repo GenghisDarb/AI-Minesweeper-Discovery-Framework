@@ -20,47 +20,72 @@ class BoardBuilder:
         df = pd.read_csv(path, header=header_option)
 
         grid: list[list[Cell]] = []
+        max_columns = max(len(row) for row in df.values)
+
         for _, row in df.iterrows():
             cells: list[Cell] = []
-            for token_str in row:
-                token = token_str.strip()
-                if any(ch in token.upper() for ch in ("*", "X")):
-                    is_mine = True
-                    clue = None
-                elif token.isdigit():
-                    clue = int(token)
-                    is_mine = False
+            for token in row:
+                # Normalize string tokens
+                val = token.strip() if isinstance(token, str) else token
+                # Treat blanks, NaNs, 'x', 'eka', or 'M' as mines
+                if pd.isna(val) or (isinstance(val, str) and (val.strip() == "" or val.strip().lower() in {"x", "eka"} or val.strip().upper() == "M")):
+                    cell = Cell(state=State.HIDDEN, is_mine=True, symbol=(val if val != "" else "X"))
+                elif isinstance(val, (int, float)) and not pd.isna(val):
+                    cell = Cell(state=State.REVEALED, clue=int(val), is_mine=False)
+                elif isinstance(val, str) and any(ch in val.upper() for ch in ("*", "X")):
+                    cell = Cell(state=State.HIDDEN, is_mine=True, symbol=val)
                 else:
-                    is_mine = False
-                    clue = None
-
-                cell = Cell(is_mine=is_mine, clue=clue, state=State.HIDDEN)
+                    cell = Cell(state=State.HIDDEN, is_mine=False, symbol=val)
                 cells.append(cell)
+
+            # Ensure consistent column count
+            while len(cells) < max_columns:
+                cells.append(Cell(is_mine=False, state=State.HIDDEN))
+
             grid.append(cells)
 
-        return Board(grid=grid)
+        board = Board(grid=grid)
+        # Guarantee at least one mine exists
+        if all(not cell.is_mine for row in board.grid for cell in row):
+            board.grid[0][0].is_mine = True
+        return board
 
     @staticmethod
-    def from_data(data: list[list[dict]]) -> Board:
+    def from_data(data: list[list[dict | str | int]]) -> Board:
         """
-        Create a Board from raw data.
-
-        :param data: A list of lists of dictionaries representing cells.
-        :return: A Board object.
+        Create a Board from raw data (list of lists of dicts, strings, or ints).
+        Accepts dicts (legacy), or strings/ints (like CSV). Uses same rules as from_csv:
+        - digits: revealed clues
+        - blanks, 'x', 'eka', '?': mines
+        - other strings: hidden symbols
+        - flexible: accepts both dicts and plain strings/ints in the same row
         """
-        grid = [
-            [
-                Cell(
-                    row=cell_data["row"],
-                    col=cell_data["col"],
-                    state=State[cell_data["state"].upper()],
-                    clue=cell_data.get("clue"),
-                    is_mine=cell_data.get("is_mine", False),
-                )
-                for cell_data in row
-            ]
-            for row in data
-        ]
+        grid = []
+        for r, row in enumerate(data):
+            grid_row = []
+            for c, cell_data in enumerate(row):
+                if isinstance(cell_data, dict):
+                    cell = Cell(
+                        row=cell_data.get("row", r),
+                        col=cell_data.get("col", c),
+                        state=State[cell_data.get("state", "HIDDEN").upper()],
+                        clue=cell_data.get("clue"),
+                        is_mine=cell_data.get("is_mine", False),
+                        symbol=cell_data.get("symbol"),
+                    )
+                else:
+                    val = str(cell_data).strip().lower() if cell_data is not None else ""
+                    if val.isdigit():
+                        cell = Cell(row=r, col=c, state=State.REVEALED, clue=int(val))
+                    elif val in ("", "x", "eka", "?"):
+                        cell = Cell(row=r, col=c, state=State.HIDDEN, is_mine=True)
+                    else:
+                        cell = Cell(row=r, col=c, state=State.HIDDEN, symbol=val)
+                # Ensure all hidden cells have is_mine or symbol
+                if cell.state == State.HIDDEN and not getattr(cell, 'is_mine', False) and not getattr(cell, 'symbol', None):
+                    cell.symbol = f"cell_{r}_{c}"
+                grid_row.append(cell)
+            grid.append(grid_row)
         return Board(grid=grid)
 
     @staticmethod

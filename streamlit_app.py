@@ -54,25 +54,50 @@ def main():
         apply_grid_styling()
 
     # Auto-discover mode logic
+    def _as_coords(move):
+        return move if isinstance(move, tuple) else (move.row, move.col)
+
     if auto_discover and st.session_state.board and st.session_state.solver:
         tau = st.session_state.beta_confidence.get_threshold()
         while not st.session_state.board.is_solved():
-            cell = st.session_state.solver.choose_move(st.session_state.board)
+            move = st.session_state.solver.choose_move(st.session_state.board)
+            if move is None:
+                st.write("No moves left or board solved.")
+                break
             risk_map = st.session_state.solver.estimate(st.session_state.board)
-            risk = risk_map[cell]
+            # Sanitize risk_map: coerce None/non-numeric to 1.0 after normalization
+            for k in risk_map:
+                if risk_map[k] is None or not isinstance(risk_map[k], (int, float)):
+                    risk_map[k] = 1.0
+            coords = _as_coords(move)
+            risk = risk_map.get(coords, 1.0)
+            # Fallback: coerce None or invalid risk to 1.0
+            if risk is None or not isinstance(risk, (int, float)):
+                risk = 1.0
+            if hasattr(st.session_state.board, "grid"):
+                cell = st.session_state.board.grid[coords[0]][coords[1]]
+            else:
+                # Fallback for mocks
+                cell = move if not isinstance(move, tuple) else None
             if risk > tau:
                 st.write("Stopping auto-play: Risk exceeds threshold.")
                 break
-            st.session_state.board.reveal(cell)
+            if hasattr(st.session_state.board, "reveal") and cell is not None:
+                st.session_state.board.reveal(cell)
             st.session_state.beta_confidence.update(
-                predicted_probability=risk, revealed_is_mine=cell.is_mine
+                predicted_probability=risk, revealed_is_mine=getattr(cell, 'is_mine', False) if cell is not None else False
             )
+            # Record confidence history
+            st.session_state.confidence_history.append(st.session_state.beta_confidence.mean())
+            # Live plot of confidence oscillations
+            st.line_chart(st.session_state.confidence_history)
 
     # Update revealed hypotheses logic
     if st.session_state.revealed_hypotheses:
         st.sidebar.markdown("### Revealed Hypotheses")
         for cell in st.session_state.revealed_hypotheses:
-            st.sidebar.write(f"({cell.row}, {cell.col}) is {cell.state}")
+            label = cell.description or 'Hypothesis'
+            st.sidebar.write(f"({cell.row}, {cell.col}) – {label}: **{cell.state.name}**")
 
     # Finish session button
     if st.button("Finish Session"):
@@ -96,6 +121,9 @@ def main():
     current_confidence = st.session_state.beta_confidence.mean()
     st.metric("Solver Confidence", f"{current_confidence:.2%}")
     st.progress(current_confidence)
+    # Append and visualize at session end
+    st.session_state.confidence_history.append(current_confidence)
+    st.area_chart(st.session_state.confidence_history)
 
     # Add DPP14 Recursion Engine execution
     if st.button("Run DPP14 Recursion Engine"):
