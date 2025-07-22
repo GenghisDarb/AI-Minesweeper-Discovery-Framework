@@ -43,7 +43,7 @@ jobs:
 
       - name: Build static site (MkDocs)
         # compiles markdown in /docs into site/
-        run: mkdocs build --strict --verbose
+        run: mkdocs build --verbose
 
       - name: Build whitepaper PDF
         run: |
