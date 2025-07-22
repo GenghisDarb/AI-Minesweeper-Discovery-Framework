@@ -6,14 +6,12 @@ risk threshold adjustment and χ-recursive decision optimization.
 """
 
 import logging
-from typing import Dict, Tuple, List, Optional, Set
-from ..risk_assessor import RiskAssessor
+from typing import Dict, Tuple, List
 from ..board import Board
 from .beta_confidence import BetaConfidence
 from typing import Any
 
 from ai_minesweeper.board import Board
-from ai_minesweeper.cell import Cell
 
 from .confidence import BetaConfidence
 

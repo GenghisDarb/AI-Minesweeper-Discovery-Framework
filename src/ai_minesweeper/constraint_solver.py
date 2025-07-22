@@ -9,8 +9,7 @@ This module provides consolidated constraint solving logic with:
 """
 
 import logging
-from typing import Dict, List, Tuple, Set, Optional, Union
-from itertools import combinations
+from typing import Dict, List, Tuple
 import numpy as np
 
 from .board import Board, CellState
@@ -102,12 +101,12 @@ class ConstraintSolver:
         debug = os.environ.get("MINESWEEPER_DEBUG", "0") == "1"
         if board.is_solved():
             if debug:
-                print(f"[DEBUG] Board is solved. No moves left.")
+                print("[DEBUG] Board is solved. No moves left.")
             return None
         hidden_cells = board.hidden_cells() if hasattr(board, 'hidden_cells') else []
         if not hidden_cells:
             if debug:
-                print(f"[DEBUG] No hidden cells left. No moves possible.")
+                print("[DEBUG] No hidden cells left. No moves possible.")
             return None
         if debug:
             print(f"[DEBUG] Hidden cells remaining: {len(hidden_cells)}")
@@ -115,7 +114,7 @@ class ConstraintSolver:
         pos = result.get("position")
         if pos is None:
             if debug:
-                print(f"[DEBUG] No move returned by solver.")
+                print("[DEBUG] No move returned by solver.")
             return None
         move_tuple = self._as_coords(pos)
         if debug:
@@ -270,7 +269,7 @@ class ConstraintSolver:
                     "action": "flag",
                     "position": pos,
                     "confidence": 0.95,
-                    "reason": f"Constraint satisfaction - all remaining cells are mines"
+                    "reason": "Constraint satisfaction - all remaining cells are mines"
                 }
                 break
             
@@ -281,7 +280,7 @@ class ConstraintSolver:
                     "action": "reveal",
                     "position": pos,
                     "confidence": 0.95,
-                    "reason": f"Constraint satisfaction - no mines remaining"
+                    "reason": "Constraint satisfaction - no mines remaining"
                 }
                 break
         

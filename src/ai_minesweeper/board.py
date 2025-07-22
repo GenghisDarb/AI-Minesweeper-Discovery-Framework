@@ -9,9 +9,8 @@ This module provides the core Board class with:
 """
 
 import json
-import logging
 from datetime import datetime
-from typing import List, Optional, Tuple, Set, Dict
+from typing import List, Optional, Tuple
 from enum import Enum
 
 from ai_minesweeper.constants import DEBUG

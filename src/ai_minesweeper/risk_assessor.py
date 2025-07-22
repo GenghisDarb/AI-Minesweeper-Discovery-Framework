@@ -9,7 +9,7 @@ This module provides risk analysis capabilities with:
 """
 
 import logging
-from typing import Dict, Tuple, Set, List, Optional
+from typing import Dict, Tuple, List
 import numpy as np
 from .board import Board, Cell, CellState
 

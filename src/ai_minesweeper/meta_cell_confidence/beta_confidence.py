@@ -6,7 +6,7 @@ minesweeper AI, providing adaptive learning capabilities.
 """
 
 import logging
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 import numpy as np
 
 

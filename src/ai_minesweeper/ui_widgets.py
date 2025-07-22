@@ -429,13 +429,10 @@ This module provides UI components for:
 - TORUS theory visualization stubs
 """
 
-import logging
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from matplotlib.colors import LinearSegmentedColormap
-import seaborn as sns
 
 from .board import Board, CellState
 

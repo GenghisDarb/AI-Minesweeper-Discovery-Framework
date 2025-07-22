@@ -1,6 +1,5 @@
-from typing import Optional, Union, Any
+from typing import Any
 
-from ai_minesweeper.board import Cell
 
 
 class BetaConfidence:
