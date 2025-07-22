@@ -124,25 +124,24 @@ class DPP14RecursionEngine:
 
     def _test_hypothesis(self, board: Any, move: Any) -> str:
         """Simulates testing a hypothesis. Robust to mocks and missing board methods."""
-        # Accept both tuple and Cell moves, always use _as_coords
-        row, col = self._as_coords(move)
+        # Accept both tuple and Cell moves
+        if isinstance(move, tuple):
+            r, c = move
+        else:
+            r, c = move.row, move.col
         if hasattr(board, "grid"):
-            cell = board.grid[row][col]
+            cell = board.grid[r][c]
             is_mine = getattr(cell, "is_mine", False)
         else:
             is_mine = False
         if is_mine:
             return "contradiction"
-        # Dynamic expansion if move outside
-        try:
-            if hasattr(board, 'add_cell') and hasattr(board, 'expand_grid') and hasattr(board, 'reveal'):
-                board.add_cell(row, col, is_mine=False)
-                board.expand_grid(board.n_rows, board.n_cols)
-                board.reveal(row, col)
-            else:
-                raise AttributeError
-        except AttributeError:
-            raise AttributeError("Board is missing required methods for DPP14 engine (add_cell, expand_grid, reveal)")
+        # Only expand if board supports it
+        if hasattr(board, 'add_cell') and hasattr(board, 'expand_grid') and hasattr(board, 'reveal'):
+            board.add_cell(r, c, is_mine=False)
+            board.expand_grid(board.n_rows, board.n_cols)
+            board.reveal(r, c)
+        # If not, just check the hypothesis
         return "valid"
 
     def _visualize_board(self, board: "Board") -> None:

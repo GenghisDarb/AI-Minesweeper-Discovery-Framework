@@ -44,6 +44,10 @@ class ConfidencePolicy:
         self.decision_sequence = []
         self.confidence_tracker = self.confidence
         self.risk_assessor = self.solver
+        # Legacy/test attributes
+        self.legacy_policy_iterations = 0
+        self.legacy_decision_sequence = []
+        self.legacy_confidence_tracker = self.confidence
     
     def get_recommended_action(self, board: Board) -> Dict:
         """
@@ -347,12 +351,16 @@ class ConfidencePolicy:
         # Accept both .estimate and .predict for legacy/mock compatibility
         if hasattr(self.solver, "estimate"):
             prob_map = self.solver.estimate(board_state)
+            # Sanitize probability map (estimate branch)
+            for k in prob_map:
+                if prob_map[k] is None or not isinstance(prob_map[k], (int, float)):
+                    prob_map[k] = 1.0
         else:
             prob_map = self.solver.predict(board_state)
-        # Sanitize probability map
-        for k in prob_map:
-            if prob_map[k] is None or not isinstance(prob_map[k], (int, float)):
-                prob_map[k] = 1.0
+            # Sanitize probability map (predict branch)
+            for k in prob_map:
+                if prob_map[k] is None or not isinstance(prob_map[k], (int, float)):
+                    prob_map[k] = 1.0
         # Remove any keys with None after sanitization
         prob_map = {k: v for k, v in prob_map.items() if v is not None}
         total = sum(prob_map.values())

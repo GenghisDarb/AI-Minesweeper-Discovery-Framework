@@ -265,15 +265,25 @@ class BoardBuilder:
         Build a Board directly from an in-memory grid.
 
         grid: 2-D list where each element is
-              - "M" or "X"  → mine
-              - "" or "."   → hidden empty
+              - "M", "X", "eka", "?", or ""  → mine
               - 0-8 (int)   → pre-revealed clue
+              - other str   → hidden symbol
         invalidate: if True, verify clue numbers
         """
+        def parse_cell(val):
+            if isinstance(val, int):
+                return val
+            sval = str(val).strip().lower()
+            if sval in {"", "x", "eka", "?"}:
+                return "M"
+            if sval.isdigit():
+                return int(sval)
+            return sval
+        parsed = [[parse_cell(cell) for cell in row] for row in grid]
         if invalidate:
-            cls._validate_grid(grid)
-        board = cls._empty_board(len(grid), len(grid[0]))
-        cls._populate_board(board, grid)
+            cls._validate_grid(parsed)
+        board = cls._empty_board(len(parsed), len(parsed[0]))
+        cls._populate_board(board, parsed)
         return board
 
     @staticmethod

@@ -70,7 +70,7 @@ class SolverLogic:
             cell = queue.pop(0)
             clue = board.clue(cell)
             adj = board.adjacent_cells(cell.row, cell.col)
-            hidden = [c for c in adj if board.is_hidden(c)]
+            hidden = [c for c in adj if c.is_hidden()]
             if clue is None or len(hidden) == 0:
                 continue
             if clue == 0:

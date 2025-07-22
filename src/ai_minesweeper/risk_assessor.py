@@ -18,54 +18,7 @@ class RiskAssessor:
     @staticmethod
     def _as_coords(move):
         return move if isinstance(move, tuple) else (move.row, move.col)
-    @classmethod
-    def estimate(cls, board):
-        # Only instantiate if not already an instance
-        if len(probs) != len(hidden_cells):
-            # Remove any extra keys
-            probs = {k: probs[k] for k in list(probs.keys())[:len(hidden_cells)]}
-        for k, v in list(probs.items()):
-            if v is None or not isinstance(v, (int, float)):
-                probs[k] = 1.0
-            else:
-                probs[k] = float(v)
-        # Add jitter for variance if all risks are equal (except for single cell)
-        values = list(probs.values())
-        if len(set(values)) <= 1 and len(values) > 1:
-            for k in probs:
-                probs[k] += random.uniform(-0.01, 0.01)
-        total = sum(probs.values())
-        if total > 0:
-            probs = {coords: p / total for coords, p in probs.items()}
-        # Remove any None values (should not be present)
-        probs = {k: float(v) for k, v in probs.items() if v is not None}
-        return probs
-        for cell in hidden_cells:
-            coords = (cell.row, cell.col)
-            risk = self._calculate_cell_risk(coords, board)
-            if risk is None or not isinstance(risk, (int, float)) or (isinstance(risk, float) and (risk != risk or risk is None)):
-                risk = 1.0
-            risk_map[coords] = float(risk)
-        # Guarantee map shape matches hidden cells
-        if len(risk_map) != len(hidden_cells):
-            # Remove any extra keys
-            risk_map = {k: risk_map[k] for k in list(risk_map.keys())[:len(hidden_cells)]}
-        # Add jitter for variance if all risks are equal (except for single cell)
-        values = list(risk_map.values())
-        if len(set(values)) <= 1 and len(values) > 1:
-            for k in risk_map:
-                risk_map[k] += random.uniform(-0.01, 0.01)
-        # Normalize
-        total = sum(risk_map.values())
-        if total > 0:
-            risk_map = {k: v / total for k, v in risk_map.items()}
-        # Sanitize after normalization: coerce None/non-numeric to 1.0
-        for k in risk_map:
-            if risk_map[k] is None or not isinstance(risk_map[k], (int, float)):
-                risk_map[k] = 1.0
-        # Final check: ensure all keys are tuples and all values are floats
-        risk_map = {k: float(v) for k, v in risk_map.items() if isinstance(k, tuple) and isinstance(v, float)}
-        return risk_map
+    # Removed classmethod recursion. See instance method below.
     """
     Risk assessment engine for minesweeper AI with χ-recursive capabilities.
     
@@ -493,13 +446,7 @@ class RiskAssessor:
         return best_key
  
 class SpreadRiskAssessor(RiskAssessor):
-    @classmethod
-    def estimate(cls, board):
-        # Only instantiate if not already an instance
-        if isinstance(board, cls):
-            return board.estimate(board)
-        instance = cls()
-        return instance._estimate_impl(board)
+    # Removed classmethod recursion. Use instance method only.
     """
     Spread-based risk assessor returning normalized probabilities for each hidden cell.
     """
@@ -508,6 +455,9 @@ class SpreadRiskAssessor(RiskAssessor):
         Compute risk estimates keyed by (row, col) tuple, normalized, no None values. Assign 1.0 if risk cannot be computed.
         """
         import random
+        hidden = [(r, c) for r, row in enumerate(board.grid) for c, cell in enumerate(row) if cell.is_hidden()]
+        if not hidden:
+            return {}
         probs = self.estimate(board)
         for k, v in list(probs.items()):
             if v is None or not isinstance(v, (int, float)):
