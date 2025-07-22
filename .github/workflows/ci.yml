@@ -29,6 +29,8 @@ jobs:
         run: ruff check src tests
       - name: Ensure single import path
         run: python scripts/ensure_single_module.py
+      - name: Install MyPy
+        run: pip install mypy
       - name: Run MyPy type checker
         run: mypy -p ai_minesweeper
       - name: Run PyLint
