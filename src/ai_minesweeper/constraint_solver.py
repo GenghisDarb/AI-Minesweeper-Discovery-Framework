@@ -101,7 +101,7 @@ class ConstraintSolver:
         debug = os.environ.get("MINESWEEPER_DEBUG", "0") == "1"
         if board.is_solved():
             if debug:
-                print(f"[DEBUG] Board is solved. No moves left.")
+                print("[DEBUG] Board is solved. No moves left.")
             return None
         hidden_cells = board.hidden_cells() if hasattr(board, 'hidden_cells') else []
         if not hidden_cells:

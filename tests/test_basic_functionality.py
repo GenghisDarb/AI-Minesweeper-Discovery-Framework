@@ -191,7 +191,6 @@ class TestIntegration:
     
     def test_confidence_tracking(self):
         """Test confidence tracking throughout game."""
-        board = Board(3, 3, 1)
         solver = ConstraintSolver()
         
         # Initial confidence

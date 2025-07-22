@@ -47,7 +47,6 @@ class RiskAssessor:
         """
         risk_map = {}
         hidden_cells = board.get_hidden_cells()
-        revealed_cells = board.get_revealed_cells()
         
         if not hidden_cells:
             return risk_map
