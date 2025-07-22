@@ -120,4 +120,3 @@ jobs:
           publish_dir: ./dist
     env:
       PYTHONPATH: ${{ github.workspace }}
-      PYTHONPATH: ${{ github.workspace }}/ai_minesweeper
