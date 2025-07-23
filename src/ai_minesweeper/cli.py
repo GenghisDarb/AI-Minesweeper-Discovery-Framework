@@ -7,17 +7,47 @@ This module provides a CLI interface with:
 """
 
 import logging
+import time
 import typer
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.constraint_solver import ConstraintSolver
+from ai_minesweeper.cell import CellState
+
+app = typer.Typer()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-def main():
-    app()
 
-if __name__ == "__main__":
-    app()
+class MinesweeperCLI:
+    def __init__(self, width: int, height: int, mines: int, meta_mode: bool = False):
+        """
+        Initialize the Minesweeper CLI with board dimensions and mine count.
+        
+        Args:
+            width: Board width
+            height: Board height
+            mines: Number of mines
+            meta_mode: Enable meta-cell confidence mode
+        """
+        self.width = width
+        self.height = height
+        self.mines = mines
+        self.meta_mode = meta_mode
+        
+        self.board = None
+        self.solver = None
+        self.game_started = False
+        self.start_time = None
+        self.moves_made = 0
+        
+        self._initialize_game()
+    
+    def _initialize_game(self) -> None:
+        """Initialize the game board and solver."""
+        self.board = BoardBuilder().build(self.width, self.height, self.mines)
+        self.solver = ConstraintSolver(self.board)
+    
+    def start_game(self, first_click: tuple[int, int] = None) -> bool:
         """
         Start the game with optional first click.
         
@@ -32,14 +62,14 @@ if __name__ == "__main__":
         success = self.board.reveal_cell(*first_click)
         
         if not success:
-            print("ERROR: Hit mine on first click! This shouldn't happen.")
+            typer.echo("ERROR: Hit mine on first click! This shouldn't happen.")
             return False
         
         self.game_started = True
         self.start_time = time.time()
         self.moves_made = 1
         
-        self.logger.info(f"Game started with first click at {first_click}")
+        logging.info(f"Game started with first click at {first_click}")
         return True
     
     def play_interactive(self) -> None:
@@ -242,14 +272,8 @@ if __name__ == "__main__":
         self.display_board()
 
 
-@click.command()
-@click.option("--width", "-w", default=9, help="Board width (default: 9)")
-@click.option("--height", "-h", default=9, help="Board height (default: 9)")
-@click.option("--mines", "-m", default=10, help="Number of mines (default: 10)")
-@click.option("--meta", is_flag=True, help="Enable meta-cell confidence mode")
-@click.option("--auto", is_flag=True, help="Auto-solve without interaction")
-@click.option("--interactive", is_flag=True, help="Interactive mode (default)")
-def main(width: int, height: int, mines: int, meta: bool, auto: bool, interactive: bool):
+@app.command()
+def cli(width: int = 9, height: int = 9, mines: int = 10, meta: bool = False, auto: bool = False, interactive: bool = True):
     """
     AI Minesweeper with χ-recursive form and TORUS theory integration.
     
@@ -265,37 +289,37 @@ def main(width: int, height: int, mines: int, meta: bool, auto: bool, interactiv
     """
     # Validate inputs
     if width < 1 or height < 1:
-        click.echo("Error: Width and height must be positive integers")
+        typer.echo("Error: Width and height must be positive integers")
         return
     
     if mines < 0 or mines >= width * height:
-        click.echo("Error: Invalid number of mines")
+        typer.echo("Error: Invalid number of mines")
         return
     
     # Create CLI interface
     cli = MinesweeperCLI(width, height, mines, meta_mode=meta)
     
-    click.echo(f"AI Minesweeper - χ-Recursive Form v1.1.0")
-    click.echo(f"Board: {width}x{height}, Mines: {mines}")
+    typer.echo(f"AI Minesweeper - χ-Recursive Form v1.1.0")
+    typer.echo(f"Board: {width}x{height}, Mines: {mines}")
     if meta:
-        click.echo("Meta-cell confidence mode enabled")
+        typer.echo("Meta-cell confidence mode enabled")
     
     try:
         if auto:
             # Auto-solve mode
             success = cli.auto_solve()
             if success:
-                click.echo("✅ Auto-solve completed successfully!")
+                typer.echo("✅ Auto-solve completed successfully!")
             else:
-                click.echo("❌ Auto-solve failed")
+                typer.echo("❌ Auto-solve failed")
         else:
             # Interactive mode (default)
             cli.play_interactive()
     
     except KeyboardInterrupt:
-        click.echo("\n\nGame interrupted by user.")
+        typer.echo("\n\nGame interrupted by user.")
     except Exception as e:
-        click.echo(f"\nError: {e}")
+        typer.echo(f"\nError: {e}")
         if meta:
             # Show debug info in meta mode
             import traceback
@@ -303,4 +327,4 @@ def main(width: int, height: int, mines: int, meta: bool, auto: bool, interactiv
 
 
 if __name__ == "__main__":
-    main()
+    app()

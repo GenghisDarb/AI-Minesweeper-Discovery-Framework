@@ -28,3 +28,10 @@ Revealing Oxygen (O) might show a clue "1", indicating one of its adjacent cells
 
 ## Notes
 This demo is a simplified representation of the periodic table and is intended for educational purposes.
+
+# Element Discovery
+
+This tutorial guides you through the periodic table demo, highlighting the discovery of elements using AI-driven hypothesis exploration.
+
+## Instructions
+Run the associated notebook `notebooks/element_discovery.ipynb` to simulate element discovery using AI techniques.

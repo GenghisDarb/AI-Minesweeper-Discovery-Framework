@@ -1,6 +1,14 @@
 # Confidence Oscillation
 
-Visualize the damped χ-wave fit to solver confidence history. The chart below demonstrates the τ effect, where τ represents the decay constant of the oscillation, indicating how quickly the confidence stabilizes over time.
+Confidence oscillation relates BetaConfidence dynamics to the χ-cycle and the controller dimension. Oscillations around χ=1/√2 reflect calibration dynamics.
+
+## Overview
+The BetaConfidence component tracks solver calibration, ensuring dynamic risk modulation. Confidence oscillations align with the χ-cycle, demonstrating periodic adjustments in solver behavior.
+
+## Visualization
+Confidence oscillations are visualized in the Streamlit app, providing real-time feedback on solver calibration.
+
+The chart below demonstrates the τ effect, where τ represents the decay constant of the oscillation, indicating how quickly the confidence stabilizes over time.
 
 ![Confidence Fit](figures/confidence_fit.png)
 

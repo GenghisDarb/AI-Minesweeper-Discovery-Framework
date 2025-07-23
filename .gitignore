@@ -78,9 +78,6 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Node.js dependencies
-node_modules/
-
 # Tailwind and PostCSS config files
 postcss.config.js
 tailwind.config.js
@@ -123,3 +120,6 @@ assets/stylesheets/*.min.css
 
 # but keep any source css under docs/
 !docs/css/
+
+# Node.js dependencies
+node_modules/

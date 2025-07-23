@@ -14,7 +14,6 @@ from typing import List, Optional, Tuple, Iterable
 from enum import Enum
 
 from ai_minesweeper.constants import DEBUG
-# Correct BetaConfidence import
 from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 
 from .cell import Cell, State  # re‑export so tests can import State here
@@ -146,7 +145,7 @@ class Board:
     def reveal(self, row: int | tuple[int, int], col: Optional[int] = None, flood: bool = False, visited: Optional[set] = None) -> None:
         """
         Reveal the cell at (row, col) or at the coordinate tuple. If flood is True and the revealed cell has zero adjacent mines,
-        recursively reveal all neighbors (standard Minesweeper flood‑fill). A visited set is used to avoid infinite recursion.
+        recursively reveal all neighbors (standard Minesweeper flood-fill). A visited set is used to avoid infinite recursion.
         """
         if visited is None:
             visited = set()

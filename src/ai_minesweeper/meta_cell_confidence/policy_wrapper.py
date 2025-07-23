@@ -278,39 +278,18 @@ class ConfidencePolicy:
         # χ-recursive selection based on TORUS theory
         # Prefer cells that create more information or break symmetry
         scored_candidates = []
-
-        for pos, risk in safe_candidates[:5]:  # Limit to top 5 safest
-            # Accept both Cell and tuple keys
-            if hasattr(pos, "row") and hasattr(pos, "col"):
-                x, y = pos.row, pos.col
-            elif isinstance(pos, tuple) and len(pos) == 2:
-                x, y = pos
-            else:
-                continue
-        board
-            # Calculate information potential
+        for candidate, risk in safe_candidates:
             info_score = 0
             revealed_neighbors = 0
-            for nx, ny in board.adjacent_cells(x, y):
-                if (nx, ny) in board.get_revealed_cells():
+            for nx, ny in board.adjacent_cells(*candidate):
+                if board.is_revealed(nx, ny):
                     revealed_neighbors += 1
-            board
-                    info_score += board.revealed_numbers.get((nx, ny), 0)
+                    info_score += board.get_adjacent_mines(nx, ny)
+            scored_candidates.append((candidate, risk, info_score, revealed_neighbors))
 
-            # Prefer cells with moderate neighbor information
-            # (not isolated, but not overconstrained)
-            if revealed_neighbors > 0:
-                avg_neighbor_info = info_score / revealed_neighbors
-                selection_score = avg_neighbor_info * (1 - risk)
-            else:
-                # Isolated cell - lower priority but still valuable
-                selection_score = 0.5 * (1 - risk)
-
-            scored_candidates.append((pos, risk, selection_score))
-
-        # Select highest scoring candidate
-        best_candidate = max(scored_candidates, key=lambda x: x[2])
-        return (best_candidate[0], best_candidate[1])
+        # Sort by information score and revealed neighbors
+        scored_candidates.sort(key=lambda x: (-x[2], -x[3], x[1]))
+        return scored_candidates[0][:2]
     
     def update_policy_outcome(
         self, 

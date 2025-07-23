@@ -21,3 +21,8 @@ nav:
       - Prime residue recursion: tutorials/prime_residue_recursion.md
   - Theory:
       - Torus-of-tori and DPP-14: torus_of_tori_and_dpp14.md
+      - Fractal Demo: torus_brot_demo.md
+      - Meta-Cell Guide: meta_cell_usage.md
+      - χ-Tests:
+          - Prime Residue: prime_residue.md
+          - Confidence Oscillation: confidence_osc.md
