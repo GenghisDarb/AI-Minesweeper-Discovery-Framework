@@ -110,15 +110,15 @@ node_modules/
 # Other build artifacts
 *.log
 *.tmp
-# ignore generated documentation and build outputs
+# Ignore generated documentation and build outputs
 /site/
-/*.html
-*.inv
-assets/stylesheets/*.min.css
-*.min.js
+*.html
+*.css
+*.js
 *.json
+*.inv
 
-# but keep any source css under docs/
+# Keep source CSS under docs/
 !docs/css/
 
 # Node.js dependencies
