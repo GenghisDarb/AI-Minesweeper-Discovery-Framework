@@ -79,7 +79,7 @@ class Board:
                 cell.neighbors = self.neighbors(i, j)
 
         # Board‑level state
-        self.custom_neighbors: Optional[dict[tuple[int, int], list[tuple[int, int]]]] = None
+        self.custom_neighbors = {}  # Initialize as an empty dictionary
         self.last_safe_reveal: Optional[tuple[int, int]] = None
         self.confidence_history: list[float] = []
         self.chi_cycle_count: int = 0
@@ -116,7 +116,7 @@ class Board:
         """Return the list of neighboring Cell objects for the cell at (r, c)."""
         if self.custom_neighbors:
             coords = self.custom_neighbors.get((r, c), [])
-            return [self.grid[nr][nc] for (nr, nc) in coords]
+            return [self.grid[nr][nc] for (nr, nc) in coords if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols]
         nbrs: List[Cell] = []
         for dr in (-1, 0, 1):
             for dc in (-1, 0, 1):

@@ -404,6 +404,16 @@ class BarMeter:
         print(f"CONFIDENCE {bar} {self.confidence * 100:.0f} %")
 
 
+def display_confidence(confidence_value):
+    """
+    Display the confidence value in a Streamlit app.
+
+    Args:
+        confidence_value (float): The confidence value to display.
+    """
+    st.write(f"Confidence: {confidence_value:.2f}")
+
+
 def render_chi_brot_visualizer():
     """Render a placeholder χ-brot fractal visualizer."""
     st.markdown("### χ-brot Fractal Visualizer")
@@ -938,3 +948,5 @@ class ChiBrotVisualizer:
                ha='center', va='center', transform=ax.transAxes)
         ax.set_title("χ-brot Pattern Analysis")
         return fig
+
+__all__ = ["display_confidence"]

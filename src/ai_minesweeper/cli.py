@@ -11,7 +11,7 @@ import time
 import typer
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.constraint_solver import ConstraintSolver
-from ai_minesweeper.cell import CellState
+from ai_minesweeper.board import CellState
 
 app = typer.Typer()
 

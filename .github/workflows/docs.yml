@@ -51,11 +51,12 @@ jobs:
           pip install -r requirements.txt
           python scripts/build_whitepage.py || echo "PDF generation failed gracefully."
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: site
+      # Commenting out the deploy step to stop pushing to gh-pages
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./site
 
       - name: Echo site URL
         run: echo "🟢 Docs available at https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/"

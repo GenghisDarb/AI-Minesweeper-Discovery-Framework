@@ -8,7 +8,7 @@ Version 1.1.0
 __version__ = "1.1.0"
 __author__ = "AI Minesweeper Discovery Framework Team"
 
-from .board import Board
+from .board import Board, CellState
 from .constraint_solver import ConstraintSolver
 from .board_builder import BoardBuilder
 from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
@@ -30,7 +30,8 @@ __all__ = [
     "ConfidencePolicy",
     "BetaConfidence",
     "LegacyBetaConfidence",
-    "__version__"
+    "__version__",
+    "CellState"
 ]
 # Add SpreadRiskAssessor if available
 if SpreadRiskAssessor:

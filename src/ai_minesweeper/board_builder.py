@@ -48,6 +48,7 @@ class BoardBuilder:
         # Guarantee at least one mine exists
         if all(not cell.is_mine for row in board.grid for cell in row):
             board.grid[0][0].is_mine = True
+            board.grid[0][0].state = State.HIDDEN
         return board
 
     @staticmethod
@@ -64,6 +65,9 @@ class BoardBuilder:
         for r, row in enumerate(data):
             grid_row = []
             for c, cell_data in enumerate(row):
+                # Add stricter validation for cell_data
+                if cell_data is None or (isinstance(cell_data, str) and cell_data.strip() == ""):
+                    cell_data = "0"  # Default to a hidden cell
                 if isinstance(cell_data, dict):
                     cell = Cell(
                         row=cell_data.get("row", r),
