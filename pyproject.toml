@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-minesweeper-discovery-framework"
-version = "1.1.0"
+version = "1.0.0"
 description = "AI Minesweeper with χ-recursive form and TORUS theory integration"
 authors = [{name = "AI Minesweeper Discovery Framework Team"}]
 license = {text = "MIT"}
@@ -42,6 +42,17 @@ target-version = ['py38']
 [tool.isort]
 profile = "black"
 line_length = 88
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+extend-select = ["I", "F", "E", "W", "UP", "B", "C90"]
+extend-ignore = ["E203"]
+
+[tool.ruff.format]
+quote-style = "double"
 
 [tool.poetry.dependencies]
 python = ">=3.10"
