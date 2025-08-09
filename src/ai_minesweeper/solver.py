@@ -70,7 +70,7 @@ class ConstraintSolver:
             else:
                 # Reveal, counting progress only on actual state change
                 try:
-                    changed = bool(getattr(board, "reveal_cell", getattr(board, "reveal"))(r, c))
+                    changed = bool(getattr(board, "reveal_cell", board.reveal)(r, c))
                 except Exception:
                     changed = False
                 now_revealed = revealed_count()

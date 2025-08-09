@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from typing import Any, List, Dict
 
 from .base import LLMProvider
 
@@ -55,7 +54,7 @@ class OpenAIProvider(LLMProvider):
 
     def chat(
         self,
-        history: List[Dict[str, str]],
+        history: list[dict[str, str]],
         temperature: float = 0.0,
         request_timeout: int | float | None = 15,
         max_tokens: int = 256,

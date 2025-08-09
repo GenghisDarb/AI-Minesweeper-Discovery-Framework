@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 import logging
-from typing import List, Dict, Any, Tuple
+from typing import Any
+
 from .llm_providers import load_provider
 
 logger = logging.getLogger(__name__)
 
-def llm_suggest(board_snapshot: Dict[str, Any]) -> List[Dict[str, Any]]:
+def llm_suggest(board_snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Ask the configured provider for suggestions.
     Returns a sorted list of dicts: {"action","cell","reason","p"}.
@@ -19,7 +21,7 @@ def llm_suggest(board_snapshot: Dict[str, Any]) -> List[Dict[str, Any]]:
     except Exception as e:  # pragma: no cover
         logger.warning("LLM provider failed: %s", e)
         return []
-    def norm(item: Dict[str, Any]) -> Tuple[float, int, int, str, str]:
+    def norm(item: dict[str, Any]) -> tuple[float, int, int, str, str]:
         r, c = tuple(item.get("cell", (0, 0)))
         p = float(item.get("p", 0.0))
         action = str(item.get("action", "abstain"))

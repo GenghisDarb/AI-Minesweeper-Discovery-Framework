@@ -1,14 +1,15 @@
 from __future__ import annotations
-import os
+
 import logging
-from typing import Protocol, List, Dict, Optional
+import os
+from typing import Protocol
 
 logger = logging.getLogger(__name__)
 
 class LLMProvider(Protocol):
-    def suggest(self, board_snapshot: Dict) -> List[Dict]: ...
+    def suggest(self, board_snapshot: dict) -> list[dict]: ...
 
-def load_provider() -> Optional[LLMProvider]:
+def load_provider() -> LLMProvider | None:
     """Load LLM provider from env.
 
     AIMS_LLM_PROVIDER in {"openai","anthropic","local","disabled"}

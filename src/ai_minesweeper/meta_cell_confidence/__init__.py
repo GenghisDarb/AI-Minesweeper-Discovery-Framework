@@ -7,7 +7,7 @@ closure and the “ghost rider” bicycle effect, the module introduces a meta-c
 tracks prediction accuracy and adjusts the solver's risk policy dynamically.
 """
 
-from .policy_wrapper import ConfidencePolicy
 from .beta_confidence import BetaConfidence
+from .policy_wrapper import ConfidencePolicy
 
 __all__ = ["ConfidencePolicy", "BetaConfidence"]

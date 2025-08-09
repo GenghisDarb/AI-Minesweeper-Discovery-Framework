@@ -9,11 +9,11 @@ __version__ = "1.1.0"
 __author__ = "AI Minesweeper Discovery Framework Team"
 
 from .board import Board, CellState
-from .constraint_solver import ConstraintSolver
 from .board_builder import BoardBuilder
-from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
+from .constraint_solver import ConstraintSolver
 from .meta_cell_confidence.beta_confidence import BetaConfidence
 from .meta_cell_confidence.confidence import BetaConfidence as LegacyBetaConfidence
+from .meta_cell_confidence.policy_wrapper import ConfidencePolicy
 from .risk_assessor import RiskAssessor
 
 # Optionally include SpreadRiskAssessor if present

@@ -1,4 +1,5 @@
 import os
+
 from .board import Board, State
 
 TEST_MODE = os.getenv("AIMS_TEST_MODE") == "1"

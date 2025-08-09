@@ -1,5 +1,5 @@
-from enum import Enum
 from decimal import Decimal, getcontext
+from enum import Enum
 from pathlib import Path
 
 # Global debug toggle

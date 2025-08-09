@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Union
 
 
 class State(Enum):
@@ -35,7 +35,7 @@ class Cell:
     z: int | None = None  # Atomic number
     n: int | None = None  # Neutron number
     confidence: float = 0.0  # Solver's confidence level for this cell
-    neighbors: Optional[List["Cell"]] = None  # List of neighboring cells
+    neighbors: list["Cell"] | None = None  # List of neighboring cells
     symbol: str = ""  # Chemical symbol for periodic table cells
     group: int | None = None  # Group number for periodic table cells
     period: int | None = None  # Period number for periodic table cells

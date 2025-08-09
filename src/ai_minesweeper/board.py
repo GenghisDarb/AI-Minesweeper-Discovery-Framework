@@ -8,20 +8,21 @@ This module provides the core Board class with:
 - Integrated logging for TORUS theory alignment
 """
 
-import json
-from datetime import datetime
-from typing import List, Optional, Tuple, Iterable, Any
+from collections.abc import Iterable
 from enum import Enum
+from typing import Any
 
 from ai_minesweeper.constants import DEBUG
 
-from .cell import Cell as _Cell, State  # re‑export so tests can import State here
+from .cell import Cell as _Cell  # re‑export so tests can import State here
+from .cell import State
+
 # Re-export Cell under expected name
 Cell = _Cell
 
 __all__ = ["Board", "Cell", "State", "CellState"]
 
-PathHistory = List[Tuple[int, int]]
+PathHistory = list[tuple[int, int]]
 
 
 class CellState(Enum):
@@ -39,15 +40,15 @@ class Board:
     now normalized to a single coherent API expected by risk/constraint tests.
     """
 
-    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+    def __init__(self, n_rows: int | None = None, n_cols: int | None = None, mine_count: int | None = None, grid: Iterable | None = None):
         # Support construction either from explicit dimensions or a provided grid of Cell objects
         if grid is not None:
             if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
                 raise TypeError("grid must be a 2D list")
             # Normalize tokens to Cell objects if needed
-            normalized_grid: List[List[_Cell]] = []
+            normalized_grid: list[list[_Cell]] = []
             for r, row in enumerate(grid):
-                norm_row: List[_Cell] = []
+                norm_row: list[_Cell] = []
                 for c, item in enumerate(row):
                     if isinstance(item, _Cell):
                         cell = item
@@ -91,8 +92,8 @@ class Board:
         # Initialize cell coordinate metadata (idempotent if already set)
         for i, row in enumerate(self.grid):
             for j, cell in enumerate(row):
-                setattr(cell, 'row', i)
-                setattr(cell, 'col', j)
+                cell.row = i
+                cell.col = j
                 if not hasattr(cell, 'state'):
                     from .cell import State as CellStateInternal
                     cell.state = CellStateInternal.HIDDEN
@@ -110,7 +111,7 @@ class Board:
     # Construction helpers
     # -------------------------------------------------------------------------
     @staticmethod
-    def from_grid(grid: List[List[Cell]]) -> "Board":
+    def from_grid(grid: list[list[Cell]]) -> "Board":
         """Construct a Board from a grid of Cell objects."""
         n_rows = len(grid)
         n_cols = len(grid[0]) if n_rows > 0 else 0
@@ -119,14 +120,14 @@ class Board:
         return board
 
     @property
-    def cells(self) -> List[Cell]:
+    def cells(self) -> list[Cell]:
         """Return a flattened list of all cells on the board."""
         return [cell for row in self.grid for cell in row]
 
     # -------------------------------------------------------------------------
     # Neighbor handling
     # -------------------------------------------------------------------------
-    def neighbors(self, r: int, c: int) -> List[Cell]:
+    def neighbors(self, r: int, c: int) -> list[Cell]:
         """Return the list of neighboring Cell objects for the cell at (r, c)."""
         if not hasattr(self, 'custom_neighbors'):
             self.custom_neighbors = {}
@@ -135,14 +136,14 @@ class Board:
             coords = self.custom_neighbors.get((r, c), [])
             return [self.grid[nr][nc] for (nr, nc) in coords if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols]
 
-        nbrs: List[Cell] = []
+        nbrs: list[Cell] = []
         for dr, dc in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]:
             nr, nc = r + dr, c + dc
             if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols:
                 nbrs.append(self.grid[nr][nc])
         return nbrs
 
-    def adjacent_cells(self, row: int, col: int) -> List[tuple[int, int]]:
+    def adjacent_cells(self, row: int, col: int) -> list[tuple[int, int]]:
         """Return a list of coordinate tuples for all adjacent positions."""
         neighbors = []
         for dr in (-1, 0, 1):
@@ -157,7 +158,7 @@ class Board:
     # -------------------------------------------------------------------------
     # Basic operations
     # -------------------------------------------------------------------------
-    def reveal(self, pos: tuple[int, int] | int | Cell, col: Optional[int] = None, flood: bool = False, visited: Optional[set[tuple[int, int]]] = None) -> None:
+    def reveal(self, pos: tuple[int, int] | int | Cell, col: int | None = None, flood: bool = False, visited: set[tuple[int, int]] | None = None) -> None:
         """Reveal a cell. If flood=True and the revealed cell has clue 0, perform an iterative BFS flood to reveal contiguous zero regions.
 
         Accepts either (row, col) tuple or row, col ints.
@@ -168,8 +169,8 @@ class Board:
         if col is None and isinstance(pos, tuple):
             row, col = pos
         elif col is None and hasattr(pos, 'row') and hasattr(pos, 'col'):
-            row = int(getattr(pos, 'row'))
-            col = int(getattr(pos, 'col'))
+            row = int(pos.row)  # type: ignore[union-attr]
+            col = int(pos.col)  # type: ignore[union-attr]
         elif isinstance(pos, int) and col is not None:
             row = pos
         else:
@@ -279,7 +280,8 @@ class Board:
 
     def reveal_cell(self, r: int, c: int) -> bool:
         """Compatibility: reveal a cell and return True if it's not a mine."""
-        r = int(r); c = int(c)
+        r = int(r)
+        c = int(c)
         # Treat as mine if annotated in either grid attribute or mines set
         if getattr(self.grid[r][c], 'is_mine', False) or (r, c) in getattr(self, 'mines', set()):
             return False
@@ -288,7 +290,8 @@ class Board:
 
     def flag_cell(self, r: int, c: int, safe_flag: bool = False) -> None:
         """Compatibility: flag a cell; if safe_flag True, mark as SAFE_FLAGGED."""
-        r = int(r); c = int(c)
+        r = int(r)
+        c = int(c)
         if safe_flag:
             self.safe_flags.add((r, c))
             if getattr(self.grid[r][c], 'state', None) == State.HIDDEN:
@@ -328,11 +331,11 @@ class Board:
         except Exception:
             # Fallback counter
             self.chi_cycle_count += 1
-    def hidden_cells(self) -> List[Cell]:
+    def hidden_cells(self) -> list[Cell]:
         """Return a list of all hidden Cell objects."""
         return [cell for row in self.grid for cell in row if cell.state == State.HIDDEN]
 
-    def revealed_cells(self) -> List[Cell]:
+    def revealed_cells(self) -> list[Cell]:
         """Return a list of all revealed Cell objects."""
         return [cell for row in self.grid for cell in row if cell.state == State.REVEALED]
 
@@ -373,7 +376,7 @@ class Board:
     # -------------------------------------------------------------------------
     # Neighbor utilities used by validation and algorithms
     # -------------------------------------------------------------------------
-    def get_neighbors(self, *args: Any) -> List[Any]:
+    def get_neighbors(self, *args: Any) -> list[Any]:
         """Overloaded neighbor helper.
 
         - When called with (row:int, col:int) -> returns list[tuple[int,int]]
@@ -392,8 +395,8 @@ class Board:
             return coords
         elif len(args) == 1:
             cell = args[0]
-            out: List[Any] = []
-            r0, c0 = getattr(cell, 'row'), getattr(cell, 'col')
+            out: list[Any] = []
+            r0, c0 = cell.row, cell.col
             for dr in (-1, 0, 1):
                 for dc in (-1, 0, 1):
                     if dr == 0 and dc == 0:
@@ -586,13 +589,13 @@ class Board:
 
     # (Removed duplicate __init__ that caused signature conflicts)
 
-    def get_revealed_cells(self) -> List[Tuple[int, int]]:
+    def get_revealed_cells(self) -> list[tuple[int, int]]:
         return [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.REVEALED]
 
-    def get_hidden_cells(self) -> List[Tuple[int, int]]:
+    def get_hidden_cells(self) -> list[tuple[int, int]]:
         return [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.HIDDEN]
 
-    def get_flagged_cells(self) -> List[Tuple[int, int]]:
+    def get_flagged_cells(self) -> list[tuple[int, int]]:
         return [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.FLAGGED]
 
     # Note: Removed duplicate legacy solve_next; the single-action, frontier-biased solve_next above remains the canonical implementation.
@@ -600,7 +603,7 @@ class Board:
     # ---------------------------------------------------------------------
     # Mine placement helpers (compat)
     # ---------------------------------------------------------------------
-    def place_mines(self, first_click: Optional[tuple[int, int]] = None) -> None:
+    def place_mines(self, first_click: tuple[int, int] | None = None) -> None:
         """Populate self.mines with positions, avoiding first_click. No-op if already filled to mine_count."""
         avoid = set()
         if first_click is not None:

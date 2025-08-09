@@ -10,7 +10,7 @@ def test_periodic_table_integration():
     # Simulate a CSV input for the periodic table
     csv_content = """H,He
 Li,Be
-Na, 
+Na,
 """
     with open("elements.csv", "w") as f:
         f.write(csv_content)

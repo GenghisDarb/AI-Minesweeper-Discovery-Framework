@@ -34,7 +34,10 @@ def test_from_text():
 
 def test_from_pdf():
     # Mock PDF input
-    pdf_bytes = b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\nstartxref\n0\n%%EOF"
+    pdf_bytes = (
+        b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n"
+        b"<< /Root 1 0 R >>\nstartxref\n0\n%%EOF"
+    )
     with tempfile.NamedTemporaryFile(
         delete=False, mode="wb", suffix=".pdf"
     ) as temp_pdf:

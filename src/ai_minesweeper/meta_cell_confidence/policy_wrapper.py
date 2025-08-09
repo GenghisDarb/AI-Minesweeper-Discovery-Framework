@@ -6,11 +6,12 @@ risk threshold adjustment and χ-recursive decision optimization.
 """
 
 import logging
-from typing import TYPE_CHECKING, Dict, Tuple, List, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
+
 if TYPE_CHECKING:
     from ..board import Board
-from .confidence import BetaConfidence
 from ..risk_assessor import RiskAssessor
+from .confidence import BetaConfidence
 
 
 class ConfidencePolicy:
@@ -23,10 +24,10 @@ class ConfidencePolicy:
     base_safe_threshold: float
     base_flag_threshold: float
     confidence_adjustment_factor: float
-    decision_sequence: List[Tuple[str, Any, float]]
+    decision_sequence: list[tuple[str, Any, float]]
     confidence_tracker: BetaConfidence
     legacy_policy_iterations: int
-    legacy_decision_sequence: List
+    legacy_decision_sequence: list
     legacy_confidence_tracker: BetaConfidence
     """
     Policy wrapper that integrates risk assessment with confidence-based decision making.
@@ -37,7 +38,7 @@ class ConfidencePolicy:
     - Integration with BetaConfidence for adaptive learning
     - TORUS theory alignment for cyclical improvement
     """
-    
+
     def __init__(self, base_solver, confidence: BetaConfidence | None = None):
         # Instantiate base_solver if a class is provided; default to RiskAssessor-like
         try:
@@ -64,15 +65,15 @@ class ConfidencePolicy:
         self.legacy_decision_sequence = []
         self.legacy_confidence_tracker = self.confidence
 
-    def get_policy_statistics(self) -> Dict:
+    def get_policy_statistics(self) -> dict:
         """Return simple statistics used by tests."""
         return {
             "policy_iterations": self.policy_iterations,
             "decision_count": len(self.decision_sequence),
             "confidence_mean": getattr(self.confidence, "mean", lambda: 0.5)(),
         }
-    
-    def get_recommended_action(self, board: 'Board') -> Dict:
+
+    def get_recommended_action(self, board: 'Board') -> dict:
         """
         Get recommended action based on confidence-adjusted risk assessment.
         
@@ -126,7 +127,7 @@ class ConfidencePolicy:
 
         self.logger.debug(f"Policy recommendation: {recommendation['action']} with confidence {overall_confidence:.3f}")
         return recommendation
-    
+
     def _calculate_dynamic_threshold(
         self,
         base_threshold: float,
@@ -165,12 +166,12 @@ class ConfidencePolicy:
             return 0.35
         else:  # flag
             return 0.95
-    
+
     def _find_safe_candidates(
         self,
-        risk_map: Dict[Tuple[int, int], float],
+        risk_map: dict[tuple[int, int], float],
         threshold: float
-    ) -> List[Tuple[Tuple[int, int], float]]:
+    ) -> list[tuple[tuple[int, int], float]]:
         """
         Find safe move candidates based on risk threshold.
 
@@ -190,12 +191,12 @@ class ConfidencePolicy:
         # Sort by risk (ascending - safest first)
         candidates.sort(key=lambda x: x[1])
         return candidates
-    
+
     def _find_flag_candidates(
-        self, 
-        risk_map: Dict[Tuple[int, int], float], 
+        self,
+        risk_map: dict[tuple[int, int], float],
         threshold: float
-    ) -> List[Tuple[Tuple[int, int], float]]:
+    ) -> list[tuple[tuple[int, int], float]]:
         """
         Find flag candidates based on risk threshold.
         
@@ -210,20 +211,20 @@ class ConfidencePolicy:
             (pos, risk) for pos, risk in risk_map.items()
             if risk >= threshold
         ]
-        
+
         # Sort by risk (descending - highest risk first)
         candidates.sort(key=lambda x: x[1], reverse=True)
-        
+
         return candidates
-    
+
     def _optimize_decision(
         self,
-        safe_candidates: List[Tuple[Tuple[int, int], float]],
-        flag_candidates: List[Tuple[Tuple[int, int], float]],
-        risk_map: Dict[Tuple[int, int], float],
+        safe_candidates: list[tuple[tuple[int, int], float]],
+        flag_candidates: list[tuple[tuple[int, int], float]],
+        risk_map: dict[tuple[int, int], float],
         board,
         confidence: float
-    ) -> Dict:
+    ) -> dict:
         """
         Apply χ-recursive optimization to select the best decision.
         
@@ -247,7 +248,7 @@ class ConfidencePolicy:
                 "confidence": confidence,
                 "reason": f"High-confidence flag (risk={risk:.3f})"
             }
-        
+
         # Priority 2: Safe reveals
         if safe_candidates:
             # Apply χ-recursive selection from safe candidates
@@ -260,7 +261,7 @@ class ConfidencePolicy:
                 "confidence": confidence,
                 "reason": f"Safe reveal (risk={risk:.3f})"
             }
-        
+
         # Priority 3: Medium-confidence flagging
         if flag_candidates and confidence > 0.5:
             pos, risk = flag_candidates[0]
@@ -271,7 +272,7 @@ class ConfidencePolicy:
                 "confidence": confidence,
                 "reason": f"Medium-confidence flag (risk={risk:.3f})"
             }
-        
+
         # Priority 4: Forced move (lowest risk available)
         if risk_map:
             safest_pos = min(risk_map.items(), key=lambda x: x[1])
@@ -283,14 +284,14 @@ class ConfidencePolicy:
                 "confidence": confidence,
                 "reason": f"Forced move - lowest risk (risk={risk:.3f})"
             }
-        
+
         return {"action": "none", "reason": "No valid moves available"}
-    
+
     def _apply_chi_recursive_selection(
         self,
-        safe_candidates: List[Tuple[Any, float]],
+        safe_candidates: list[tuple[Any, float]],
         board
-    ) -> Tuple[Any, float]:
+    ) -> tuple[Any, float]:
         """
         Apply χ-recursive selection logic to choose from safe candidates.
 
@@ -319,11 +320,11 @@ class ConfidencePolicy:
         # Sort by information score and revealed neighbors
         scored_candidates.sort(key=lambda x: (-x[2], -x[3], x[1]))
         return scored_candidates[0][:2]
-    
+
     def update_policy_outcome(
-        self, 
-        action: str, 
-        position: Tuple[int, int], 
+        self,
+        action: str,
+        position: tuple[int, int],
         success: bool,
         outcome_quality: float = 1.0
     ) -> None:
@@ -340,9 +341,9 @@ class ConfidencePolicy:
             self.confidence_tracker.update_success(action, outcome_quality)
         else:
             self.confidence_tracker.update_failure(action, 1.0 - outcome_quality)
-        
+
         self.logger.debug(f"Policy outcome updated: {action} at {position}, success={success}")
-    
+
 
     # The second __init__ override has been removed to preserve the unified constructor above
     def choose_move(self, board_state):
@@ -353,11 +354,11 @@ class ConfidencePolicy:
         # Accept both .estimate and .predict for legacy/mock compatibility
         estimate = getattr(self.solver, "estimate", None)
         predict = getattr(self.solver, "predict", None)
-        prob_map: Dict[Any, float] = {}
+        prob_map: dict[Any, float] = {}
         if callable(estimate):
             pm = estimate(board_state)
             if isinstance(pm, dict):
-                prob_map = cast(Dict[Any, float], pm)
+                prob_map = cast(dict[Any, float], pm)
             else:
                 try:
                     prob_map = dict(pm)  # type: ignore[arg-type]
@@ -371,7 +372,7 @@ class ConfidencePolicy:
         elif callable(predict):
             pm = predict(board_state)
             if isinstance(pm, dict):
-                prob_map = cast(Dict[Any, float], pm)
+                prob_map = cast(dict[Any, float], pm)
             else:
                 try:
                     prob_map = dict(pm)  # type: ignore[arg-type]
@@ -427,7 +428,7 @@ class ConfidencePolicy:
             if isinstance(pos, tuple) and len(pos) >= 2:
                 return (risk_val, pos[0], pos[1])
             if hasattr(pos, 'row') and hasattr(pos, 'col'):
-                return (risk_val, getattr(pos, 'row'), getattr(pos, 'col'))
+                return (risk_val, pos.row, pos.col)
             return (risk_val, 0, 0)
         ordered = sorted(candidates, key=order_key)
         # Find first not yet chosen
@@ -438,7 +439,7 @@ class ConfidencePolicy:
             r, c = move_key
             return board_state.grid[r][c]
         return move_key
-    
+
     # Add robust hidden_cells fallback for mocks
     def _get_hidden_cells(self, board_state):
         if hasattr(board_state, "grid"):

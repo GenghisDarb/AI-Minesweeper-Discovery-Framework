@@ -1,7 +1,7 @@
 from __future__ import annotations
-import os
+
 import logging
-from typing import Any, Dict, List
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class OpenAIBackend:
         self._openai.api_key = api_key
         self._model = model
 
-    def suggest(self, board_snapshot: Dict) -> List[Dict]:
+    def suggest(self, board_snapshot: dict) -> list[dict]:
         """
         Return list of dicts with:
           {"action": "flag"|"reveal"|"abstain", "cell": (r,c), "reason": str, "p": float}
@@ -76,7 +76,14 @@ class OpenAIBackend:
                 except Exception:
                     p = 0.0
             p = min(1.0, max(0.0, float(p)))
-            return [{"action": action, "cell": (int(cell[0]), int(cell[1])), "reason": reason, "p": float(p)}]
+            return [
+                {
+                    "action": action,
+                    "cell": (int(cell[0]), int(cell[1])),
+                    "reason": reason,
+                    "p": float(p),
+                }
+            ]
         except Exception as e:  # pragma: no cover
             logger.warning("OpenAI suggest failed: %s", e)
             return []

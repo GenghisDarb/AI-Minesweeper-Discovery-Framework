@@ -1,6 +1,7 @@
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.risk_assessor import RiskAssessor, SpreadRiskAssessor
 
+
 def print_risk_maps():
     board = BoardBuilder.random_board(rows=2, cols=2, mines=1)
     print("Board:")

@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Any
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
@@ -112,7 +112,7 @@ class MinesweeperVisualizer:
     def create_board_visualization(
         self,
         board: Board,
-        risk_map: Optional[Dict[Tuple[int, int], float]] = None,
+        risk_map: dict[tuple[int, int], float] | None = None,
         confidence_overlay: bool = False,
     ) -> Any:
         """
@@ -153,7 +153,7 @@ class MinesweeperVisualizer:
 
         # Title with game state
         title = f"AI Minesweeper {getattr(board,'width', w)}x{getattr(board,'height', h)} - Mines: {getattr(board,'remaining_mines',0)}/{getattr(board,'mine_count',0)}"
-        if hasattr(board, 'is_solved') and callable(getattr(board, 'is_solved')) and board.is_solved():
+        if hasattr(board, 'is_solved') and callable(board.is_solved) and board.is_solved():
             title += " ✅ SOLVED"
         ax.set_title(title, fontsize=14, fontweight="bold")
 
@@ -168,7 +168,7 @@ class MinesweeperVisualizer:
         self,
         ax: Any,
         board: Board,
-        risk_map: Optional[Dict[Tuple[int, int], float]],
+        risk_map: dict[tuple[int, int], float] | None,
         confidence_overlay: bool,
     ) -> None:
         """Draw the basic board grid with cell backgrounds."""
@@ -238,7 +238,7 @@ class MinesweeperVisualizer:
         self,
         ax: Any,
         board: Board,
-        risk_map: Dict[Tuple[int, int], float],
+        risk_map: dict[tuple[int, int], float],
     ) -> None:
         """Draw risk assessment overlay."""
         # Create risk heatmap
@@ -278,7 +278,7 @@ class MinesweeperVisualizer:
             return self.color_scheme["confidence_low"]
 
     def create_chi_cycle_visualization(
-        self, confidence_history: List[float], chi_cycle_count: int
+        self, confidence_history: list[float], chi_cycle_count: int
     ) -> Any:
         """
         Create χ-cycle progress visualization.
@@ -329,7 +329,7 @@ class MinesweeperVisualizer:
         return fig
 
     def create_risk_distribution_plot(
-        self, risk_map: Dict[Tuple[int, int], float]
+        self, risk_map: dict[tuple[int, int], float]
     ) -> Any:
         """
         Create risk distribution analysis plot.
@@ -381,15 +381,15 @@ class TooltipManager:
 
     def __init__(self):
         """Initialize tooltip manager."""
-        self.active_tooltips: Dict[str, Any] = {}
+        self.active_tooltips: dict[str, Any] = {}
         self.logger = logging.getLogger(__name__)
 
     def create_cell_tooltip(
         self,
-        position: Tuple[int, int],
+        position: tuple[int, int],
         board: Board,
-        risk: Optional[float] = None,
-        confidence: Optional[float] = None,
+        risk: float | None = None,
+        confidence: float | None = None,
     ) -> str:
         """
         Create tooltip text for a board cell.
@@ -453,7 +453,7 @@ class TooltipManager:
 
         return "\n".join(tooltip_lines)
 
-    def create_solver_status_tooltip(self, solver_stats: Dict) -> str:
+    def create_solver_status_tooltip(self, solver_stats: dict) -> str:
         """
         Create tooltip for solver status display.
 
@@ -487,7 +487,7 @@ class AccessibilityHelper:
 
     @staticmethod
     def get_cell_description(
-        position: Tuple[int, int],
+        position: tuple[int, int],
         board: Board,
         verbose: bool = True,
     ) -> str:
@@ -558,7 +558,7 @@ class ChiBrotVisualizer:
         self.logger = logging.getLogger(__name__)
         self.logger.info("χ-brot visualizer initialized (stub)")
 
-    def create_chi_brot_pattern(self, decision_history: List) -> Any:
+    def create_chi_brot_pattern(self, decision_history: list) -> Any:
         """Stub for χ-brot pattern visualization."""
         fig, ax = plt.subplots()
         ax.text(
@@ -606,16 +606,16 @@ def add_accessibility_labels_to_cells(board: Board) -> None:
                 except Exception:
                     cell_obj = None
                 if cell_obj is not None:
-                    setattr(cell_obj, 'aria_label', label)
+                    cell_obj.aria_label = label
                 else:
                     # Fallback storage
                     if not hasattr(board, '_aria_labels'):
-                        setattr(board, '_aria_labels', {})
+                        board._aria_labels = {}
                     board._aria_labels[pos] = label  # type: ignore[attr-defined]
     except Exception:  # pragma: no cover - defensive
         logger.debug("Accessibility labels skipped (board structure mismatch)")
 
-def add_high_contrast_mode(board: Optional[Board] = None) -> None:
+def add_high_contrast_mode(board: Board | None = None) -> None:
     """Enable high-contrast mode for the board."""
     logger.info("Enabling high-contrast mode.")
     # Apply high-contrast CSS class
@@ -647,14 +647,14 @@ def align_chat_input_with_ui() -> None:
     """
     pass
 
-def rank_hypotheses_core(hyps: List[str]) -> List[str]:
+def rank_hypotheses_core(hyps: list[str]) -> list[str]:
     """Pure deterministic baseline ranking for hypotheses.
 
     Stable key ensures reproducible ordering independent of platform locale.
     """
     return sorted(hyps or [], key=lambda s: (len(s), s))
 
-def render_llm_chat(hypotheses: Optional[List[str]] = None) -> Optional[List[str]]:
+def render_llm_chat(hypotheses: list[str] | None = None) -> list[str] | None:
     """Render a minimal chat/ranking UI for hypotheses with deterministic fallback.
 
     Behavior:
@@ -694,7 +694,7 @@ def render_llm_chat(hypotheses: Optional[List[str]] = None) -> Optional[List[str
         st.info("Provide at least one hypothesis to rank.")
         return None
 
-    ranked_list: List[str]
+    ranked_list: list[str]
     if llm_suggest is None:
         st.warning("LLM interface unavailable; using deterministic baseline ordering.")
         ranked_list = rank_hypotheses_core(items)
@@ -705,7 +705,7 @@ def render_llm_chat(hypotheses: Optional[List[str]] = None) -> Optional[List[str
             # deterministically fall back.
             suggestions = llm_suggest({"hypotheses": items})  # type: ignore[arg-type]
             # If provider returns structured suggestions with 'text', use them; else fallback
-            extracted: List[str] = [
+            extracted: list[str] = [
                 str(s.get("text"))
                 for s in suggestions
                 if isinstance(s, dict) and isinstance(s.get("text"), str)
@@ -751,10 +751,10 @@ def ensure_persistent_unexplored_cells(board: Board):
     for row in getattr(board, 'grid', []):
         for cell in row:
             if hasattr(cell, 'state') and cell.state == CellState.HIDDEN:
-                setattr(cell, 'style', "background-color: lightgray;")
+                cell.style = "background-color: lightgray;"
 
 
-def chi_brot_visualization(board: Optional[Board] = None) -> str:
+def chi_brot_visualization(board: Board | None = None) -> str:
     """Render a deterministic χ-brot style preview and save to artifacts/chi_brot.png.
 
     Uses headless Agg backend and a simple parametric curve whose phase is driven by
@@ -812,9 +812,9 @@ def highlight_newly_revealed_cells(board: Board):
     for row in getattr(board, 'grid', []):
         for cell in row:
             if hasattr(cell, 'state') and cell.state == CellState.REVEALED and getattr(cell, 'recently_revealed', False):
-                setattr(cell, 'style', "background-color: yellow;")
+                cell.style = "background-color: yellow;"
 
-def highlight_zero_value_reveals(board: Board, revealed_cells: Optional[List[Any]] = None):
+def highlight_zero_value_reveals(board: Board, revealed_cells: list[Any] | None = None):
     """
     Highlight cells with zero adjacent mines when revealed.
     """
@@ -823,7 +823,7 @@ def highlight_zero_value_reveals(board: Board, revealed_cells: Optional[List[Any
     if revealed_cells is not None:
         for cell in revealed_cells:
             try:
-                setattr(cell, 'style', "background-color: green;")
+                cell.style = "background-color: green;"
             except Exception:
                 pass
         return
@@ -831,7 +831,7 @@ def highlight_zero_value_reveals(board: Board, revealed_cells: Optional[List[Any
     for row in getattr(board, 'grid', []):
         for cell in row:
             if hasattr(cell, 'state') and cell.state == CellState.REVEALED and getattr(cell, 'clue', None) == 0:
-                setattr(cell, 'style', "background-color: green;")
+                cell.style = "background-color: green;"
 
 def render_cell_with_tooltip(*args, **kwargs):
     """Two modes:
@@ -844,7 +844,7 @@ def render_cell_with_tooltip(*args, **kwargs):
         html = f'<div style="background-color: {color}; padding: 4px;" title="{message}">{message}</div>'
         return html
     # Board rendering path
-    board: Optional[Board] = args[0] if args else kwargs.get('board')
+    board: Board | None = args[0] if args else kwargs.get('board')
     logger.info("Rendering cells with tooltips.")
     if board is None:
         return ""

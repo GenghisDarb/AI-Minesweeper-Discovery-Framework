@@ -1,14 +1,18 @@
 import pytest
 
+
 @pytest.fixture
 def csv_path(tmp_path):
     # Provide a default example CSV path for the test
     # You may want to copy a real board file here if needed
     return "examples/boards/sample.csv"
 import os
+
 import pytest
+
 from ai_minesweeper.board_builder import BoardBuilder
 from ai_minesweeper.constraint_solver import ConstraintSolver
+
 
 @pytest.fixture
 def csv_path(tmp_path):

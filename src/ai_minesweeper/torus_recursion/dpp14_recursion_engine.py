@@ -1,6 +1,7 @@
-from typing import Any, Dict, List, Tuple
-import numpy as np
+from typing import Any
+
 from ai_minesweeper.board import Board
+
 
 class DPP14RecursionEngine:
     @staticmethod
@@ -16,9 +17,8 @@ class DPP14RecursionEngine:
             self.lane_id = lane_id
             self.board = board
             self.solver_policy = solver_policy
-            from typing import Optional, Union
-            self.chi_value: Optional[float] = None
-            self.resonance_zones: List[Union[Tuple[int, int], str]] = []
+            self.chi_value: float | None = None
+            self.resonance_zones: list[tuple[int, int] | str] = []
             self.collapsed = False
             # Simple, reproducible per-lane metric: safe move ratio
             self._moves_total = 0
@@ -39,7 +39,7 @@ class DPP14RecursionEngine:
 
         return copy.deepcopy(board)
 
-    def run(self) -> Dict[str, Any]:
+    def run(self) -> dict[str, Any]:
         """
         Executes the 14-lane recursion engine and aggregates results.
 

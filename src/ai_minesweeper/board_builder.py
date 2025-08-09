@@ -22,8 +22,8 @@ class BoardBuilder:
         header_option = 0 if header else None
         try:
             df = pd.read_csv(path, header=header_option)
-        except pd.errors.EmptyDataError:
-            raise ValueError(f"CSV file at '{path}' is empty or invalid.")
+        except pd.errors.EmptyDataError as err:
+            raise ValueError(f"CSV file at '{path}' is empty or invalid.") from err
 
         grid: list[list[Cell]] = []
         max_columns = max(len(row) for row in df.values)
@@ -283,7 +283,7 @@ class BoardBuilder:
 
         for r, row in enumerate(layout):
             grid_row = []
-            for c, char in enumerate(row):
+            for c, _char in enumerate(row):
                 if (r, c) in mines:
                     grid_row.append(Cell(is_mine=True, state=State.HIDDEN))
                 else:
@@ -303,8 +303,8 @@ class BoardBuilder:
                 ]
 
         # Calculate and set correct clue values
-        for i, row in enumerate(board.grid):
-            for j, cell in enumerate(row):
+        for _i, row in enumerate(board.grid):
+            for _j, cell in enumerate(row):
                 neighbors = getattr(cell, 'neighbors', None) or []
                 cell.clue = sum(getattr(neighbor, 'is_mine', False) for neighbor in neighbors)
 

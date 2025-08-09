@@ -43,18 +43,11 @@ def test_solver_basic():
             ]
 
     # Calculate and set correct clue values
-    for i, row in enumerate(board.grid):
-        for j, cell in enumerate(row):
+    for row in board.grid:
+        for cell in row:
             cell.clue = sum(neighbor.is_mine for neighbor in cell.neighbors)
 
-    print("Initial board state:")
-    for row in board.grid:
-        print(
-            [
-                f"Cell({cell.row}, {cell.col}): State={cell.state}, Clue={cell.clue}, IsMine={cell.is_mine}"
-                for cell in row
-            ]
-        )
+    # Debug print removed to satisfy line-length checks
 
     # Reveal one cell to kick off logic
     board.grid[0][0].state = State.REVEALED

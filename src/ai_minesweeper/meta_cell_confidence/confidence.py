@@ -1,5 +1,4 @@
-from typing import Any, Dict, Tuple
-
+from typing import Any
 
 
 class BetaConfidence:
@@ -98,15 +97,16 @@ class BetaConfidence:
     def choose_move(self, board, risk_map: dict) -> Any:
         """Select the next cell to probe based on confidence and risk assessment."""
         tau_val = self.get_threshold()
+        # Use a numeric threshold if provided; default to 0.0
         tau = float(tau_val) if isinstance(tau_val, (int, float)) else 0.0
-        candidates = [cell for cell, risk in risk_map.items() if risk < tau]
+        candidates = [cell for cell, risk in risk_map.items() if float(risk) < tau]
         if candidates:
             # Stable min by explicit lambda to satisfy type checkers
             return min(candidates, key=lambda c: float(risk_map[c]))
         # fallback: minimum risk overall
         if not risk_map:
             return None
-        rm: Dict[Tuple[int, int], float] = dict(risk_map)  # tighten typing for min key
+        rm: dict[tuple[int, int], float] = dict(risk_map)  # tighten typing for min key
         try:
             return min(rm, key=lambda k: float(rm[k]))
         except Exception:

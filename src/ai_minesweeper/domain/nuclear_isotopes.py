@@ -1,5 +1,4 @@
 from ai_minesweeper.board import Board
-from ai_minesweeper.cell import State
 
 
 class NuclearIsotopeAdapter:
@@ -11,6 +10,7 @@ class NuclearIsotopeAdapter:
         Cells where the dataset indicates instability are treated as mines (hidden).
         """
         from pathlib import Path
+
         import pandas as pd
 
         csv_path = Path(csv_path)
@@ -58,7 +58,7 @@ class NuclearIsotopeAdapter:
                     if board.grid[nr][nc].is_mine:
                         count += 1
                 # Store in a generic clue field used by reveal/logic
-                setattr(cell, 'clue', count)
+                cell.clue = count
 
         # Do not auto-flag or reveal; leave state as hidden to allow solver/policy actions
         return board

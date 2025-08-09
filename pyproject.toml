@@ -45,11 +45,27 @@ line_length = 88
 
 [tool.ruff]
 target-version = "py311"
-line-length = 100
+line-length = 120
+extend-exclude = [
+    "notebooks",
+    "torus_brot/notebooks",
+    "streamlit_app.py",
+    "site",
+    "docs",
+    "scripts",
+]
 
 [tool.ruff.lint]
-extend-select = ["I", "F", "E", "W", "UP", "B", "C90"]
-extend-ignore = ["E203"]
+extend-select = ["I", "F", "E", "W", "UP", "B"]
+extend-ignore = [
+    "E203", # Whitespace before ':'
+    "E501", # Line too long
+    "W291", # Trailing whitespace
+    "W293", # Blank line contains whitespace
+    "UP038", # isinstance union (we'll modernize gradually)
+    "F841", # Local variable assigned but never used
+    "C901", # Function is too complex
+]
 
 [tool.ruff.format]
 quote-style = "double"
