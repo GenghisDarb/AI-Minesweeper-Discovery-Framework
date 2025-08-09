@@ -27,7 +27,10 @@ def test_performance_flags_a_true_mine_within_20_moves_on_periodic():
     # Plant a mine deterministically if not present via Board API (using compatibility sets)
     if not getattr(board, 'mines', None):
         board.mines.add((0, 0))
-        board.grid[0][0].is_mine = True
+    if not (hasattr(board, 'mines') and isinstance(board.mines, set)):
+        board.mines = set()
+    board.mines.add((0, 0))
+    board.grid[0][0].is_mine = True
     moves = _run_policy_until_steps(board, steps=20)
     # Assert at least one flag action would be taken by solver logic eventually
     assert len(moves) > 0
