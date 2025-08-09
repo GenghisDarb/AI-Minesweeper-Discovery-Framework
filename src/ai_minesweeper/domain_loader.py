@@ -16,7 +16,8 @@ class DomainLoader:
         :param csv_path: Path to the CSV file (optional).
         """
         if domain_name == "periodic-table-v2":
-            path = os.path.join(DATA_DIR, "periodic_table", "isotopes.csv")
+            # Use isotopes.csv by default; this domain models nuclear stability
+            path = csv_path or os.path.join(DATA_DIR, "periodic_table", "isotopes.csv")
             if not os.path.exists(path):
                 raise FileNotFoundError(f"Expected data file not found: {path}")
             adapter = NuclearIsotopeAdapter()
