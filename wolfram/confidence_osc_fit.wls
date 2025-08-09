@@ -7,4 +7,4 @@ params = Normal[fit["BestFitParameters"]];
 Export["data/confidence_fit_params.json", KeyMap[ToString, params], "JSON"];
 Plot[{hist, Evaluate[fit[t]]}, {t, 1, Length@hist},
 PlotLegends -> {"data", "damped χ-wave"}] //
-Export["figures/confidence_fit.png", #, "PNG"] &
+Export["docs/figures/confidence_fit.png", #, "PNG"] &

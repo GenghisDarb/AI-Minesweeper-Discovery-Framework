@@ -67,4 +67,4 @@ The CLI allows playing or validating a board from CSV.
 
 ## White-paper
 
-- [What is AI-Hypothesis Discovery?](whitepage.pdf)
+- [What is AI-Hypothesis Discovery?](whitepaper.pdf)

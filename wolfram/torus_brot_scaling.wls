@@ -16,8 +16,8 @@ escapeIter[x + I y],
 {y, -2, 2, 4./gridPts}, {x, -2, 2, 4./gridPts}
 ] // ArrayPlot[#, ColorFunction -> "Inferno", ImageSize -> 450] &;
 
-Export["figures/torus_brot_demo.png", img, "PNG"];
+Export["docs/figures/torus_brot_demo.png", img, "PNG"];
 
 powSpec = Abs[Fourier[Total@img, FourierParameters -> {1, -1}]];
 peakPos = Ordering[powSpec, -4];
-Export["data/torus_brot_fft_peaks.csv", peakPos, "CSV"];
+Export["docs/data/torus_brot_fft_peaks.csv", peakPos, "CSV"];
