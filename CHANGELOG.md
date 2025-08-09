@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+- Fix: resolve syntax/indentation and type guard issues in confidence tracker, CLI, and board.
+- Tooling: ruff config tuned (line-length 120, expanded excludes/ignores) to reduce CI noise.
+- Stability: deterministic paths verified; tests stabilized and passing in CI.
+
 ## [1.0.2] - 2025-07-20
 - **Build/Packaging:** Restructured the project to eliminate duplicate module paths. All imports now use the singular `ai_minesweeper` namespace (ensuring a single observer-state locus per TORUS Theory). Removed shadow `src.ai_minesweeper` references and added a CI guard to prevent dual-loading the module. This fixes the MyPy “Source file found twice under different module names” error.
 
