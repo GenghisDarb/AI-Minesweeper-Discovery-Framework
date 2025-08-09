@@ -10,15 +10,16 @@ This module provides the core Board class with:
 
 import json
 from datetime import datetime
-from typing import List, Optional, Tuple, Iterable
+from typing import List, Optional, Tuple, Iterable, Any
 from enum import Enum
 
 from ai_minesweeper.constants import DEBUG
-from ai_minesweeper.meta_cell_confidence.confidence import BetaConfidence
 
-from .cell import Cell, State  # re‑export so tests can import State here
+from .cell import Cell as _Cell, State  # re‑export so tests can import State here
+# Re-export Cell under expected name
+Cell = _Cell
 
-__all__ = ["Board", "Cell", "State"]
+__all__ = ["Board", "Cell", "State", "CellState"]
 
 PathHistory = List[Tuple[int, int]]
 
@@ -32,65 +33,78 @@ class CellState(Enum):
 
 
 class Board:
-    """Core board class implementing χ‑recursive Minesweeper logic."""
+    """Core board class implementing χ‑recursive Minesweeper logic.
 
-    _history: Optional[PathHistory] = None
+    This class had drift with duplicate constructors / reveal methods; it is
+    now normalized to a single coherent API expected by risk/constraint tests.
+    """
 
-    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, grid: Optional[Iterable] = None):
-        """
-        Initialize the board. If `grid` is provided, it should be an iterable of iterables of `Cell` or token values.
-        Otherwise, `n_rows` and `n_cols` must be provided and the board will be initialized with hidden cells.
-        """
-        if grid is None:
-            if n_rows is None or n_cols is None:
-                raise ValueError("n_rows and n_cols must be provided if grid is None")
-            self.grid: List[List[Cell]] = [
-                [Cell(row=i, col=j, state=State.HIDDEN) for j in range(n_cols)]
-                for i in range(n_rows)
-            ]
-        else:
-            self.grid = []
-            for i, row in enumerate(grid):
-                cell_row = []
-                for j, cell_data in enumerate(row):
-                    if isinstance(cell_data, str):
-                        token = cell_data.lower()
-                        if token == "mine":
-                            cell = Cell(row=i, col=j, state=State.HIDDEN, is_mine=True)
-                        elif token in (s.value for s in State):
-                            cell = Cell(row=i, col=j, state=State(token))
-                        else:
-                            cell = Cell(row=i, col=j, state=State.HIDDEN)
-                    elif isinstance(cell_data, Cell):
-                        cell = cell_data
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            # Normalize tokens to Cell objects if needed
+            normalized_grid: List[List[_Cell]] = []
+            for r, row in enumerate(grid):
+                norm_row: List[_Cell] = []
+                for c, item in enumerate(row):
+                    if isinstance(item, _Cell):
+                        cell = item
                     else:
-                        raise ValueError(f"Invalid cell data: {cell_data}")
-                    cell_row.append(cell)
-                self.grid.append(cell_row)
+                        # Convert token/str to Cell
+                        cell = _Cell.from_token(item)
+                        # Promote token mines to is_mine=True
+                        if getattr(cell, "state", None) and str(cell.state) == State.MINE.value:
+                            cell.is_mine = True
+                    cell.row = r
+                    cell.col = c
+                    if not hasattr(cell, "state") or cell.state is None:
+                        cell.state = State.HIDDEN
+                    norm_row.append(cell)
+                normalized_grid.append(norm_row)
+            self.grid = normalized_grid
+            self.n_rows = len(self.grid)
+            self.n_cols = len(self.grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self._declared_mine_count = sum(getattr(c, 'is_mine', False) for row in self.grid for c in row)
+        else:
+            # Accept mine_count as optional; require integer n_rows and n_cols
+            if not (isinstance(n_rows, int) and isinstance(n_cols, int)):
+                raise TypeError("Provide either grid or integer n_rows and n_cols")
+            self.n_rows = int(n_rows)  # type: ignore[arg-type]
+            self.n_cols = int(n_cols)  # type: ignore[arg-type]
+            self._declared_mine_count = int(mine_count) if isinstance(mine_count, int) else 0
+            # Initialize with default non-mine cells
+            self.grid = [[_Cell(is_mine=False) for _ in range(self.n_cols)] for _ in range(self.n_rows)]
 
-        self.n_rows = len(self.grid)
-        self.n_cols = len(self.grid[0]) if self.grid else 0
+        if self._declared_mine_count is not None and self._declared_mine_count > (self.n_rows * self.n_cols):
+            raise ValueError("Mine count exceeds total cells")
 
-        # Initialize cell coordinates and neighbors
+        # neighbor cache / overrides
+        self.custom_neighbors = {}  # type: ignore[assignment]
+
+        # mines container and safe flags (for legacy/compat APIs)
+        self.mines: set[tuple[int, int]] = set()
+        self.safe_flags: set[tuple[int, int]] = set()
+
+        # Initialize cell coordinate metadata (idempotent if already set)
         for i, row in enumerate(self.grid):
             for j, cell in enumerate(row):
-                cell.row = i
-                cell.col = j
-                cell.neighbors = self.neighbors(i, j)
+                setattr(cell, 'row', i)
+                setattr(cell, 'col', j)
+                if not hasattr(cell, 'state'):
+                    from .cell import State as CellStateInternal
+                    cell.state = CellStateInternal.HIDDEN
 
-        # Board‑level state
-        self.custom_neighbors = {}  # Initialize as an empty dictionary
-        self.last_safe_reveal: Optional[tuple[int, int]] = None
-        self.confidence_history: list[float] = []
-        self.chi_cycle_count: int = 0
-        self._mines_remaining: int = 0  # optional manual override
+        # χ / confidence tracking
+        self.last_safe_reveal = None  # last safe reveal position
+        self.confidence_history = []  # rolling confidence values
+        self.chi_cycle_count = 0
+        self._mines_remaining_override = None
 
-        # Debugging: print the initialized grid state
         if DEBUG:
-            print("[DEBUG] Board initialized with grid:")
-            for row in self.grid:
-                print(" ".join(cell.state.name for cell in row))
-            print(f"[BOARD INIT] Created Board with {self.n_rows} rows and {self.n_cols} cols")
+            print(f"[BOARD INIT] rows={self.n_rows} cols={self.n_cols} declared_mines={self._declared_mine_count}")
 
     # -------------------------------------------------------------------------
     # Construction helpers
@@ -106,25 +120,26 @@ class Board:
 
     @property
     def cells(self) -> List[Cell]:
-        """Flattened list of all cells on the board."""
-        return [c for row in self.grid for c in row]
+        """Return a flattened list of all cells on the board."""
+        return [cell for row in self.grid for cell in row]
 
     # -------------------------------------------------------------------------
     # Neighbor handling
     # -------------------------------------------------------------------------
     def neighbors(self, r: int, c: int) -> List[Cell]:
         """Return the list of neighboring Cell objects for the cell at (r, c)."""
+        if not hasattr(self, 'custom_neighbors'):
+            self.custom_neighbors = {}
+
         if self.custom_neighbors:
             coords = self.custom_neighbors.get((r, c), [])
             return [self.grid[nr][nc] for (nr, nc) in coords if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols]
+
         nbrs: List[Cell] = []
-        for dr in (-1, 0, 1):
-            for dc in (-1, 0, 1):
-                if dr == 0 and dc == 0:
-                    continue
-                nr, nc = r + dr, c + dc
-                if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols:
-                    nbrs.append(self.grid[nr][nc])
+        for dr, dc in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < self.n_rows and 0 <= nc < self.n_cols:
+                nbrs.append(self.grid[nr][nc])
         return nbrs
 
     def adjacent_cells(self, row: int, col: int) -> List[tuple[int, int]]:
@@ -142,38 +157,177 @@ class Board:
     # -------------------------------------------------------------------------
     # Basic operations
     # -------------------------------------------------------------------------
-    def reveal(self, row: int | tuple[int, int], col: Optional[int] = None, flood: bool = False, visited: Optional[set] = None) -> None:
-        """
-        Reveal the cell at (row, col) or at the coordinate tuple. If flood is True and the revealed cell has zero adjacent mines,
-        recursively reveal all neighbors (standard Minesweeper flood-fill). A visited set is used to avoid infinite recursion.
+    def reveal(self, pos: tuple[int, int] | int | Cell, col: Optional[int] = None, flood: bool = False, visited: Optional[set[tuple[int, int]]] = None) -> None:
+        """Reveal a cell. If flood=True and the revealed cell has clue 0, perform an iterative BFS flood to reveal contiguous zero regions.
+
+        Accepts either (row, col) tuple or row, col ints.
         """
         if visited is None:
             visited = set()
-        if col is None and isinstance(row, tuple):
-            row, col = row
-        if (row, col) in visited:
+        # Normalize inputs (accept tuple, row+col ints, or Cell-like)
+        if col is None and isinstance(pos, tuple):
+            row, col = pos
+        elif col is None and hasattr(pos, 'row') and hasattr(pos, 'col'):
+            row = int(getattr(pos, 'row'))
+            col = int(getattr(pos, 'col'))
+        elif isinstance(pos, int) and col is not None:
+            row = pos
+        else:
+            raise TypeError("reveal expects (row,col) tuple or row, col ints")
+
+        row = int(row)  # type: ignore[arg-type]
+        col = int(col)  # type: ignore[arg-type]
+
+        def _reveal_cell(r: int, c: int) -> int:
+            # Reveal a single non-mine cell if hidden; return its clue
+            cell_local = self.grid[r][c]
+            if getattr(cell_local, 'is_mine', False):
+                # Never reveal mines via flood or accidental reveals
+                return -1
+            if getattr(cell_local, 'state', None) == State.HIDDEN:
+                cell_local.state = State.REVEALED
+                self.last_safe_reveal = (r, c)
+                # OSQN tick on observation
+                try:
+                    self.tick_chi_cycle(confidence=0.5)
+                except Exception:
+                    self.chi_cycle_count += 1
+            # Prefer explicit clue if available; fallback to adjacent_mines
+            clue_val = getattr(cell_local, 'clue', None)
+            if clue_val is None:
+                clue_val = getattr(cell_local, 'adjacent_mines', 0)
+            return int(clue_val or 0)
+
+        # Always reveal the starting cell
+        start_adj = _reveal_cell(row, col)
+
+        # If not flooding or starting cell is non‑zero, we're done
+        if not flood or start_adj != 0:
             return
-        visited.add((row, col))
 
-        cell = self.grid[row][col]
-        if cell.state == State.HIDDEN:
-            cell.state = State.REVEALED
-            self.last_safe_reveal = (row, col)
-            if flood and getattr(cell, "adjacent_mines", 0) == 0:
-                for neighbor in self.neighbors(row, col):
-                    self.reveal((neighbor.row, neighbor.col), flood=True, visited=visited)
+        # Iterative BFS flood fill from zeros
+        from collections import deque
+        queue = deque()
+        if (row, col) not in visited:
+            visited.add((row, col))
+        queue.append((row, col))
 
-    def flag(self, row: int | tuple[int, int], col: Optional[int] = None) -> None:
-        """Flag the cell at (row, col) or at the coordinate tuple as a mine."""
-        if col is None and isinstance(row, tuple):
-            row, col = row
-        cell = self.grid[row][col]
-        if cell.state == State.HIDDEN:
+        while queue:
+            r, c = queue.popleft()
+            # For each zero cell, expand to neighbors
+            cell_here = self.grid[r][c]
+            if getattr(cell_here, 'is_mine', False):
+                # Shouldn't happen from flood, but guard anyway
+                continue
+            adj_here = int((getattr(cell_here, 'clue', None) if getattr(cell_here, 'clue', None) is not None else getattr(cell_here, 'adjacent_mines', 0)) or 0)
+            if adj_here != 0:
+                # Numbered boundary: do not expand further
+                continue
+            for nr, nc in self.get_neighbors(r, c):
+                if (nr, nc) in visited:
+                    continue
+                visited.add((nr, nc))
+                # Reveal neighbor (non-mine) and enqueue if it's also zero
+                adj = _reveal_cell(nr, nc)
+                if adj == 0:
+                    queue.append((nr, nc))
+
+    # ---------------------------------------------------------------------
+    # Compatibility shims expected by tests
+    # ---------------------------------------------------------------------
+    @property
+    def width(self) -> int:
+        return int(self.n_cols)
+
+    @property
+    def height(self) -> int:
+        return int(self.n_rows)
+
+    @property
+    def remaining_mines(self) -> int:
+        return int(self.mines_remaining)
+
+    @property
+    def cell_states(self) -> dict[tuple[int, int], CellState]:
+        mapping: dict[tuple[int, int], CellState] = {}
+        for r in range(self.n_rows):
+            for c in range(self.n_cols):
+                st = getattr(self.grid[r][c], 'state', None)
+                if st == State.REVEALED:
+                    mapping[(r, c)] = CellState.REVEALED
+                elif st == State.FLAGGED:
+                    mapping[(r, c)] = CellState.FLAGGED
+                else:
+                    mapping[(r, c)] = CellState.HIDDEN
+        # Mark safe flags
+        for pos in getattr(self, 'safe_flags', set()):
+            mapping[tuple(pos)] = CellState.SAFE_FLAGGED
+        return mapping
+
+    @property
+    def revealed_numbers(self) -> dict[tuple[int, int], int]:
+        nums: dict[tuple[int, int], int] = {}
+        for r in range(self.n_rows):
+            for c in range(self.n_cols):
+                cell = self.grid[r][c]
+                if getattr(cell, 'state', None) == State.REVEALED:
+                    val = getattr(cell, 'clue', None)
+                    if val is None:
+                        val = getattr(cell, 'adjacent_mines', 0)
+                    nums[(r, c)] = int(val or 0)
+        return nums
+
+    def reveal_cell(self, r: int, c: int) -> bool:
+        """Compatibility: reveal a cell and return True if it's not a mine."""
+        r = int(r); c = int(c)
+        # Treat as mine if annotated in either grid attribute or mines set
+        if getattr(self.grid[r][c], 'is_mine', False) or (r, c) in getattr(self, 'mines', set()):
+            return False
+        self.reveal((r, c), flood=True)
+        return True
+
+    def flag_cell(self, r: int, c: int, safe_flag: bool = False) -> None:
+        """Compatibility: flag a cell; if safe_flag True, mark as SAFE_FLAGGED."""
+        r = int(r); c = int(c)
+        if safe_flag:
+            self.safe_flags.add((r, c))
+            if getattr(self.grid[r][c], 'state', None) == State.HIDDEN:
+                self.grid[r][c].state = State.FLAGGED
+        else:
+            self.flag(r, c)
+
+    def flag(self, r: int, c: int) -> None:
+        """Flag a cell as a mine deterministically (no peeking)."""
+        r = int(r)
+        c = int(c)
+        cell = self.grid[r][c]
+        if getattr(cell, 'state', None) == State.HIDDEN:
             cell.state = State.FLAGGED
+            # Keep compatibility sets updated if used elsewhere
+            try:
+                self.safe_flags.discard((r, c))
+            except Exception:
+                pass
+            # Tick chi cycle on mutation
+            try:
+                self.tick_chi_cycle(confidence=0.5)
+            except Exception:
+                self.chi_cycle_count += 1
 
-    # -------------------------------------------------------------------------
-    # Utility methods
-    # -------------------------------------------------------------------------
+    @property
+    def mine_count(self) -> int:
+        """Total mines on the board, preferring declared count else counting is_mine flags."""
+        if isinstance(getattr(self, "_declared_mine_count", None), int) and self._declared_mine_count > 0:
+            return int(self._declared_mine_count)
+        return sum(1 for row in self.grid for cell in row if getattr(cell, 'is_mine', False))
+
+    def tick_chi_cycle(self, confidence: float = 0.5) -> None:
+        """Shim to advance chi cycle; delegates to update_chi_cycle if available."""
+        try:
+            self.update_chi_cycle(confidence)
+        except Exception:
+            # Fallback counter
+            self.chi_cycle_count += 1
     def hidden_cells(self) -> List[Cell]:
         """Return a list of all hidden Cell objects."""
         return [cell for row in self.grid for cell in row if cell.state == State.HIDDEN]
@@ -202,7 +356,7 @@ class Board:
         for row in self.grid:
             for cell in row:
                 if cell.state == State.REVEALED and getattr(cell, "clue", None) is not None:
-                    neighbors = self.get_neighbors(cell)
+                    neighbors = self.get_neighbors(cell)  # type: ignore[arg-type]
                     mine_count = sum(1 for neighbor in neighbors if neighbor.is_mine)
                     if mine_count != cell.clue:
                         return False
@@ -219,103 +373,254 @@ class Board:
     # -------------------------------------------------------------------------
     # Neighbor utilities used by validation and algorithms
     # -------------------------------------------------------------------------
-    def get_neighbors(self, cell: Cell) -> List[Cell]:
-        """Get neighboring Cell objects for a given cell."""
-        neighbors = []
-        for dr in (-1, 0, 1):
-            for dc in (-1, 0, 1):
-                if dr == 0 and dc == 0:
-                    continue
-                r, c = cell.row + dr, cell.col + dc
-                if 0 <= r < self.n_rows and 0 <= c < self.n_cols:
-                    neighbors.append(self.grid[r][c])
-        return neighbors
+    def get_neighbors(self, *args: Any) -> List[Any]:
+        """Overloaded neighbor helper.
+
+        - When called with (row:int, col:int) -> returns list[tuple[int,int]]
+        - When called with (cell:Cell-like) -> returns list[Cell]
+        """
+        if len(args) == 2 and all(isinstance(x, int) for x in args):
+            row, col = args  # type: ignore[assignment]
+            coords: list[tuple[int, int]] = []
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    if dr == 0 and dc == 0:
+                        continue
+                    r, c = row + dr, col + dc
+                    if 0 <= r < self.n_rows and 0 <= c < self.n_cols:
+                        coords.append((r, c))
+            return coords
+        elif len(args) == 1:
+            cell = args[0]
+            out: List[Any] = []
+            r0, c0 = getattr(cell, 'row'), getattr(cell, 'col')
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    if dr == 0 and dc == 0:
+                        continue
+                    r, c = r0 + dr, c0 + dc
+                    if 0 <= r < self.n_rows and 0 <= c < self.n_cols:
+                        out.append(self.grid[r][c])
+            return out
+        else:
+            raise TypeError("get_neighbors expects (row:int, col:int) or (cell)")
 
     # -------------------------------------------------------------------------
     # Mines and flagging
     # -------------------------------------------------------------------------
     @property
     def mines_remaining(self) -> int:
-        """
-        Return the number of mines remaining on the board, computed as the total number of mines
-        minus the number of flagged cells. If a manual override has been set via the setter, return that value.
-        """
-        if hasattr(self, "_mines_remaining") and self._mines_remaining > 0:
-            return self._mines_remaining
-        total_mines = sum(cell.is_mine for row in self.grid for cell in row)
-        flagged_mines = sum(cell.state == State.FLAGGED for row in self.grid for cell in row)
-        return total_mines - flagged_mines
+        flagged = sum(1 for row in self.grid for cell in row if getattr(cell, 'state', None) == State.FLAGGED)
+        if self._mines_remaining_override is not None:
+            # Treat override as total mines; compute remaining dynamically
+            remaining = int(self._mines_remaining_override) - flagged
+            return remaining if remaining >= 0 else 0
+        # Prefer declared count if available
+        total_mines = self.mine_count
+        remaining = total_mines - flagged
+        return remaining if remaining >= 0 else 0
 
     @mines_remaining.setter
     def mines_remaining(self, value: int) -> None:
         if value < 0:
-            raise ValueError("Mines remaining cannot be negative.")
-        self._mines_remaining = value
+            raise ValueError("Mines remaining cannot be negative")
+        self._mines_remaining_override = value
 
-    # -------------------------------------------------------------------------
-    # Export and representation
-    # -------------------------------------------------------------------------
-    def export_state(self) -> List[dict]:
-        """Export the current board state as a list of dictionaries."""
-        return [
-            {
-                "row": cell.row,
-                "col": cell.col,
-                "state": cell.state.name,
-                "clue": getattr(cell, "clue", 0) or 0,
-                "risk": getattr(cell, "risk", None),
-            }
-            for row in self.grid
-            for cell in row
-        ]
+    def solve_next(self):
+        """Perform one deterministic action: prefer a logical flag, else safe reveal, else frontier reveal, else central reveal."""
+        from ai_minesweeper.utils.dr import dr_sort
 
-    def __getitem__(self, pos: tuple[int, int]) -> Cell:
-        """Allow bracket access (row, col) to the board."""
-        r, c = pos
-        if not (0 <= r < self.n_rows and 0 <= c < self.n_cols):
-            raise IndexError("Board access out of bounds.")
-        return self.grid[r][c]
+        # Helper: iterate revealed numbered cells deterministically
+        def iter_number_cells():
+            coords = []
+            for r in range(self.n_rows):
+                for c in range(self.n_cols):
+                    cell = self.grid[r][c]
+                    if getattr(cell, 'state', None) == State.REVEALED:
+                        clue = getattr(cell, 'clue', getattr(cell, 'adjacent_mines', None))
+                        if clue is not None:
+                            coords.append((r, c))
+            return dr_sort(coords)
 
-    def __repr__(self) -> str:
-        return f"Board(rows={self.n_rows}, cols={self.n_cols})"
+        # 1) Classic constraint: flag if need equals number of hidden neighbors
+        for (r, c) in iter_number_cells():
+            clue = int(getattr(self.grid[r][c], 'clue', getattr(self.grid[r][c], 'adjacent_mines', 0)) or 0)
+            neighbors = self.get_neighbors(r, c)
+            hidden = [(nr, nc) for (nr, nc) in neighbors if self.grid[nr][nc].state == State.HIDDEN]
+            if not hidden:
+                continue
+            flagged = [(nr, nc) for (nr, nc) in neighbors if self.grid[nr][nc].state == State.FLAGGED]
+            need = clue - len(flagged)
+            if need == len(hidden) and need > 0:
+                nr, nc = dr_sort(hidden)[0]
+                self.flag(nr, nc)
+                return (nr, nc)
 
-    # -------------------------------------------------------------------------
-    # Logging for hypothesis testing and χ‑cycle updates
-    # -------------------------------------------------------------------------
-    def log_state(self, hypothesis_id: str, action: str, confidence: float) -> None:
-        """Log the current board state to a .jsonl file with session‑scoped rotation."""
-        session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = f"observer_state_log_{session_id}.jsonl"
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "hypothesis_id": hypothesis_id,
-            "action": action,
-            "confidence": confidence,
-            "belief_state": [
-                {
-                    "row": cell.row,
-                    "col": cell.col,
-                    "state": cell.state.name,
-                    "flagged": cell.state == State.FLAGGED,
-                }
-                for row in self.grid
-                for cell in row
-            ],
-        }
-        with open(log_file, "a") as log:
-            log.write(json.dumps(log_entry) + "\n")
+        # 2) Classic constraint: safe reveal if flagged equals clue
+        for (r, c) in iter_number_cells():
+            clue = int(getattr(self.grid[r][c], 'clue', getattr(self.grid[r][c], 'adjacent_mines', 0)) or 0)
+            neighbors = self.get_neighbors(r, c)
+            hidden = [(nr, nc) for (nr, nc) in neighbors if self.grid[nr][nc].state == State.HIDDEN]
+            if not hidden:
+                continue
+            flagged = [(nr, nc) for (nr, nc) in neighbors if self.grid[nr][nc].state == State.FLAGGED]
+            if len(flagged) == clue:
+                nr, nc = dr_sort(hidden)[0]
+                self.reveal((nr, nc), flood=True)
+                return (nr, nc)
 
-    # -------------------------------------------------------------------------
-    # Confidence and χ‑cycle integration
-    # -------------------------------------------------------------------------
-    def calculate_dynamic_threshold(self, mean: float) -> float:
-        """Calculate the dynamic confidence threshold based on the mean confidence level."""
-        return 0.05 + mean * 0.20
+        # 3) Subset inference: adjacent numbers only
+        number_cells = list(iter_number_cells())
+        for idx_a in range(len(number_cells)):
+            r1, c1 = number_cells[idx_a]
+            cell1 = self.grid[r1][c1]
+            clue1 = int(getattr(cell1, 'clue', getattr(cell1, 'adjacent_mines', 0)) or 0)
+            n1 = self.get_neighbors(r1, c1)
+            H1 = {(nr, nc) for (nr, nc) in n1 if self.grid[nr][nc].state == State.HIDDEN}
+            F1 = {(nr, nc) for (nr, nc) in n1 if self.grid[nr][nc].state == State.FLAGGED}
+            need1 = clue1 - len(F1)
+            if need1 < 0:
+                continue
+            for idx_b in range(idx_a + 1, len(number_cells)):
+                r2, c2 = number_cells[idx_b]
+                if abs(r1 - r2) > 1 or abs(c1 - c2) > 1:
+                    continue
+                cell2 = self.grid[r2][c2]
+                clue2 = int(getattr(cell2, 'clue', getattr(cell2, 'adjacent_mines', 0)) or 0)
+                n2 = self.get_neighbors(r2, c2)
+                H2 = {(nr, nc) for (nr, nc) in n2 if self.grid[nr][nc].state == State.HIDDEN}
+                F2 = {(nr, nc) for (nr, nc) in n2 if self.grid[nr][nc].state == State.FLAGGED}
+                need2 = clue2 - len(F2)
+                if need2 < 0:
+                    continue
+                # H1 subset of H2 -> act on H2\H1
+                if H1 and H1.issubset(H2):
+                    diff = H2 - H1
+                    if diff:
+                        if need2 - need1 == len(diff):
+                            nr, nc = dr_sort(list(diff))[0]
+                            self.flag(nr, nc)
+                            return (nr, nc)
+                        if need2 - need1 == 0:
+                            nr, nc = dr_sort(list(diff))[0]
+                            self.reveal((nr, nc), flood=True)
+                            return (nr, nc)
+                # H2 subset of H1 -> act on H1\H2
+                if H2 and H2.issubset(H1):
+                    diff = H1 - H2
+                    if diff:
+                        if need1 - need2 == len(diff):
+                            nr, nc = dr_sort(list(diff))[0]
+                            self.flag(nr, nc)
+                            return (nr, nc)
+                        if need1 - need2 == 0:
+                            nr, nc = dr_sort(list(diff))[0]
+                            self.reveal((nr, nc), flood=True)
+                            return (nr, nc)
 
-    def update_confidence(self) -> None:
-        """Update the board's confidence using the BetaConfidence distribution."""
-        confidence = BetaConfidence()
-        mean_confidence = confidence.mean()
-        self.dynamic_threshold = self.calculate_dynamic_threshold(mean_confidence)
-        self.confidence_history.append(mean_confidence)
+        # 4) Frontier exploration fallback
+        def count_revealed_number_neighbors(r: int, c: int) -> int:
+            cnt = 0
+            for (nr, nc) in self.get_neighbors(r, c):
+                cell = self.grid[nr][nc]
+                if getattr(cell, 'state', None) == State.REVEALED and getattr(cell, 'clue', getattr(cell, 'adjacent_mines', None)) is not None:
+                    cnt += 1
+            return cnt
+
+        def hidden_neighbor_count(r: int, c: int) -> int:
+            return sum(1 for (nr, nc) in self.get_neighbors(r, c) if self.grid[nr][nc].state == State.HIDDEN)
+
+        hidden_cells = [(r, c) for r in range(self.n_rows) for c in range(self.n_cols) if self.grid[r][c].state == State.HIDDEN]
+        frontier: list[tuple[int, int]] = []
+        for (r, c) in hidden_cells:
+            if count_revealed_number_neighbors(r, c) > 0:
+                frontier.append((r, c))
+
+        if frontier:
+            def rank(t: tuple[int, int]):
+                r, c = t
+                return (
+                    -count_revealed_number_neighbors(r, c),
+                    hidden_neighbor_count(r, c),
+                    r, c,
+                )
+            target = sorted(frontier, key=rank)[0]
+            self.reveal(target, flood=True)
+            return target
+
+        # 5) No frontier yet: choose central hidden cell, fallback to dr_sort
+        centers: list[tuple[int, int]] = []
+        mid_r = self.n_rows // 2
+        mid_c = self.n_cols // 2
+        cand_rows = [mid_r] if self.n_rows % 2 == 1 else [mid_r - 1, mid_r]
+        cand_cols = [mid_c] if self.n_cols % 2 == 1 else [mid_c - 1, mid_c]
+        for rr in cand_rows:
+            for cc in cand_cols:
+                if 0 <= rr < self.n_rows and 0 <= cc < self.n_cols:
+                    centers.append((rr, cc))
+        center_hidden = [p for p in centers if self.grid[p[0]][p[1]].state == State.HIDDEN]
+        target = dr_sort(center_hidden or hidden_cells)[0] if (center_hidden or hidden_cells) else None
+        if target is None:
+            return None
+        self.reveal(target, flood=True)
+        return target
+
+    def is_hidden(self, cell_or_pos):
+        if isinstance(cell_or_pos, tuple):
+            r, c = cell_or_pos
+            return self.grid[r][c].state == State.HIDDEN
+        return cell_or_pos.state == State.HIDDEN
+
+    def is_revealed(self, r: int, c: int) -> bool:
+        return self.grid[r][c].state == State.REVEALED  # type: ignore[index]
+
+    def get_adjacent_mines(self, r: int, c: int) -> int:
+        # Use explicit mines set when available
+        if self.mines:
+            return sum(1 for (nr, nc) in self.get_neighbors(int(r), int(c)) if (nr, nc) in self.mines)
+        return sum(1 for nbr in self.neighbors(r, c) if getattr(nbr, 'is_mine', False))
+
+    def update_chi_cycle(self, confidence: float) -> None:
+        self.confidence_history.append(confidence)
         self.chi_cycle_count += 1
+
+    # (Removed duplicate __init__ that caused signature conflicts)
+
+    def get_revealed_cells(self) -> List[Tuple[int, int]]:
+        return [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.REVEALED]
+
+    def get_hidden_cells(self) -> List[Tuple[int, int]]:
+        return [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.HIDDEN]
+
+    def get_flagged_cells(self) -> List[Tuple[int, int]]:
+        return [(cell.row, cell.col) for row in self.grid for cell in row if cell.state == State.FLAGGED]
+
+    # Note: Removed duplicate legacy solve_next; the single-action, frontier-biased solve_next above remains the canonical implementation.
+
+    # ---------------------------------------------------------------------
+    # Mine placement helpers (compat)
+    # ---------------------------------------------------------------------
+    def place_mines(self, first_click: Optional[tuple[int, int]] = None) -> None:
+        """Populate self.mines with positions, avoiding first_click. No-op if already filled to mine_count."""
+        avoid = set()
+        if first_click is not None:
+            avoid.add((int(first_click[0]), int(first_click[1])))
+        # If already populated to declared count, do nothing
+        if self.mines and len(self.mines) >= self.mine_count:
+            return
+        # Deterministic fill scan to reach mine_count
+        needed = max(self.mine_count - len(self.mines), 0)
+        if needed == 0:
+            return
+        for r in range(self.n_rows):
+            for c in range(self.n_cols):
+                if needed == 0:
+                    break
+                if (r, c) in avoid or (r, c) in self.mines:
+                    continue
+                self.mines.add((r, c))
+                # Also mark cell attribute for compatibility with dynamic checks
+                self.grid[r][c].is_mine = True
+                needed -= 1
+            if needed == 0:
+                break

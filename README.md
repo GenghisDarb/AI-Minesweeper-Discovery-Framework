@@ -9,9 +9,11 @@
 The Minesweeper Discovery Framework transforms complex domains into Minesweeper-style puzzles to uncover hidden patterns and anomalies. By leveraging advanced theories like the χ-cycle and controller dimension, MDF enables hypothesis discovery in fields ranging from nuclear physics to prime number distributions.
 
 ## Key Features
-- **Modular Design**: Easily extendable to new domains via adapters.
-- **Interactive Tools**: Includes a Streamlit web app and Binder notebook for demos.
-- **Robust Validation**: Backed by 8-σ empirical evidence.
+
+- **LLM Integration**: Coming soon. Placeholder interface available in the app.
+- **Domain-Specific Demos**: Load example boards like Prime Spiral and χ‑brot via the sidebar.
+- **High-Contrast & Colorblind Modes**: Functional toggles for accessibility.
+- **Export Results**: Download board state as JSON or move history as CSV.
 
 ## Quick Start
 1. Clone the repository.
@@ -87,6 +89,14 @@ Launch the Streamlit app:
 ```bash
 streamlit run streamlit_app.py
 ```
+
+To try the Prime Spiral demo:
+1. Launch the app.
+2. Upload `examples/boards/prime_spiral.csv` via the sidebar.
+
+To run the χ‑brot Visualizer:
+1. Open the "χ‑brot Visualizer" tab in the app.
+2. View the placeholder visualization.
 
 ### CLI
 Run the CLI play command to simulate Minesweeper gameplay:
@@ -468,4 +478,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 *Made with ❤️ and lots of ☕ by the AI Minesweeper Discovery Framework Team*
->>>>>>> copilot/fix-dae99444-ca86-4639-9a82-4b34463bbba0

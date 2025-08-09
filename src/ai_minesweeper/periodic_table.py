@@ -4,9 +4,11 @@ from ai_minesweeper.board import State
 class PeriodicTableDomain:
     @staticmethod
     def is_mine(cell):
-        print(
-            f"[DEBUG] Checking if cell is mine: state={cell.state}, symbol={cell.symbol}"
-        )
+        """Return True if the cell represents a mine by periodic-table semantics.
+
+        Count mines by symbol regardless of current state so that explicitly-flagged
+        mines (e.g., 'X' from CSV on small demo boards) are recognized by the domain.
+        """
         mine_symbols = {
             "li",
             "be",
@@ -19,11 +21,7 @@ class PeriodicTableDomain:
             "x",
             "mine",
         }
-        return (
-            cell.symbol
-            and cell.symbol.lower() in mine_symbols
-            and cell.state == State.HIDDEN
-        )
+        return bool(getattr(cell, "symbol", None)) and str(cell.symbol).lower() in mine_symbols
 
     @staticmethod
     def get_neighbors(cell, board):
@@ -41,5 +39,4 @@ class PeriodicTableDomain:
 
     @staticmethod
     def generate_clue(cell, neighbors):
-        print(f"Generating clue for cell: symbol={cell.symbol}")
         return sum(1 for neighbor in neighbors if PeriodicTableDomain.is_mine(neighbor))

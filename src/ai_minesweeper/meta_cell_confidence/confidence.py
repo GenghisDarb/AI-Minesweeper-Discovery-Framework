@@ -77,19 +77,39 @@ class BetaConfidence:
         self._threshold = value
 
     def get_threshold(self) -> float | None:
-        """Get the current confidence threshold (dynamic if not set)."""
-        if self._threshold is not None:
-            return self._threshold
-        # Dynamic threshold: τ = 0.25 - 0.20 * mean
-        return 0.25 - 0.20 * self.mean()
+        """Return explicitly set threshold; None if never set (per tests)."""
+        return self._threshold
+
+    # Compatibility helpers expected by policy wrapper/tests
+    def get_confidence(self) -> float:
+        return float(self.mean())
+
+    def get_decision_confidence(self, _action: str) -> float:
+        return float(self.mean())
+
+    def update_success(self, _action: str, _quality: float = 1.0) -> None:
+        # Nudge toward higher confidence
+        self.alpha += 1.0
+
+    def update_failure(self, _action: str, _penalty: float = 1.0) -> None:
+        # Nudge toward lower confidence
+        self.beta += 1.0
 
     def choose_move(self, board, risk_map: dict) -> Any:
-        """
-        Select the next cell to probe based on confidence and risk assessment.
-        """
-        tau = self.get_threshold()
+        """Select the next cell to probe based on confidence and risk assessment."""
+        tau_val = self.get_threshold()
+        tau = float(tau_val) if isinstance(tau_val, (int, float)) else 0.0
         candidates = [cell for cell, risk in risk_map.items() if risk < tau]
         if candidates:
             return min(candidates, key=lambda c: risk_map[c])
-        # fallback: return the minimum risk cell
-        return min(risk_map, key=risk_map.get)
+        # fallback: minimum risk overall
+        if not risk_map:
+            return None
+        rm = dict(risk_map)
+        try:
+            return min(rm, key=rm.get)
+        except Exception:
+            # As a last resort, return an arbitrary key
+            for k in rm.keys():
+                return k
+            return None

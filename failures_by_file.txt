@@ -1,0 +1,823 @@
+=== Running tests/test_ab_winrate.py ===
+..                                                                       [100%]
+2 passed in 0.60s
+
+=== Running tests/test_basic_functionality.py ===
+FFFFF.FF.FFF.                                                            [100%]
+=================================== FAILURES ===================================
+_____________________ TestBoard.test_board_initialization ______________________
+
+self = <test_basic_functionality.TestBoard object at 0x79b1b9cb3020>
+
+    def test_board_initialization(self):
+        """Test board initialization."""
+        board = Board(9, 9, 10)
+        assert board.width == 9
+        assert board.height == 9
+>       assert board.mine_count == 10
+E       assert 0 == 10
+E        +  where 0 = Board(rows=9, cols=9).mine_count
+
+tests/test_basic_functionality.py:25: AssertionError
+________________________ TestBoard.test_mine_placement _________________________
+
+self = <test_basic_functionality.TestBoard object at 0x79b1c9ca2720>
+
+    def test_mine_placement(self):
+        """Test mine placement."""
+        board = Board(5, 5, 5)
+>       board.place_mines((2, 2))
+        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'place_mines'
+
+tests/test_basic_functionality.py:33: AttributeError
+__________________________ TestBoard.test_cell_reveal __________________________
+
+self = <test_basic_functionality.TestBoard object at 0x79b1b9dd9880>
+
+    def test_cell_reveal(self):
+        """Test cell revealing."""
+        board = Board(3, 3, 1)
+        board.mines = {(0, 0)}  # Manually place one mine
+    
+        # Reveal safe cell
+>       success = board.reveal_cell(2, 2)
+                  ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'reveal_cell'. Did you mean: 'revealed_cells'?
+
+tests/test_basic_functionality.py:44: AttributeError
+_________________________ TestBoard.test_cell_flagging _________________________
+
+self = <test_basic_functionality.TestBoard object at 0x79b1c9cb5e50>
+
+    def test_cell_flagging(self):
+        """Test cell flagging."""
+        board = Board(3, 3, 1)
+    
+        # Flag cell
+>       board.flag_cell(1, 1)
+        ^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'flag_cell'
+
+tests/test_basic_functionality.py:57: AttributeError
+_____________________ TestBoard.test_neighbor_calculation ______________________
+
+self = <test_basic_functionality.TestBoard object at 0x79b1b95c0860>
+
+    def test_neighbor_calculation(self):
+        """Test neighbor calculation."""
+        board = Board(3, 3, 0)
+    
+        # Corner cell
+>       neighbors = board.get_neighbors(0, 0)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: Board.get_neighbors() takes 2 positional arguments but 3 were given
+
+tests/test_basic_functionality.py:71: TypeError
+__________________ TestRiskAssessor.test_risk_map_calculation __________________
+
+self = <test_basic_functionality.TestRiskAssessor object at 0x79b1b95c0ad0>
+
+    def test_risk_map_calculation(self):
+        """Test risk map calculation."""
+        board = Board(3, 3, 1)
+        board.mines = {(0, 0)}
+>       board.reveal_cell(2, 2)  # Reveal safe cell
+        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'reveal_cell'. Did you mean: 'revealed_cells'?
+
+tests/test_basic_functionality.py:95: AttributeError
+______________________ TestRiskAssessor.test_safest_cells ______________________
+
+self = <test_basic_functionality.TestRiskAssessor object at 0x79b1b95c0bf0>
+
+    def test_safest_cells(self):
+        """Test safest cells identification."""
+        board = Board(3, 3, 1)
+        board.mines = {(0, 0)}
+>       board.reveal_cell(2, 2)
+        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'reveal_cell'. Did you mean: 'revealed_cells'?
+
+tests/test_basic_functionality.py:111: AttributeError
+_____________________ TestConstraintSolver.test_solve_step _____________________
+
+self = <test_basic_functionality.TestConstraintSolver object at 0x79b1b95c0e30>
+
+    def test_solve_step(self):
+        """Test solver step execution."""
+        board = Board(3, 3, 1)
+        board.mines = {(0, 0)}
+>       board.place_mines((2, 2))  # This will be ignored since mines already set
+        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'place_mines'
+
+tests/test_basic_functionality.py:134: AttributeError
+_________________ TestConstraintSolver.test_solver_statistics __________________
+
+self = <test_basic_functionality.TestConstraintSolver object at 0x79b1b95c0f50>
+
+    def test_solver_statistics(self):
+        """Test solver statistics."""
+        solver = ConstraintSolver()
+>       stats = solver.get_solver_statistics()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_basic_functionality.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ai_minesweeper.constraint_solver.ConstraintSolver object at 0x79b1b9252360>
+
+    def get_solver_statistics(self) -> Dict:
+        """
+        Get comprehensive solver statistics.
+    
+        Returns:
+            Dictionary with solver performance statistics
+        """
+>       policy_stats = self.policy_wrapper.get_policy_statistics()
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ConfidencePolicy' object has no attribute 'get_policy_statistics'
+
+src/ai_minesweeper/constraint_solver.py:523: AttributeError
+___________________ TestIntegration.test_complete_game_flow ____________________
+
+self = <test_basic_functionality.TestIntegration object at 0x79b1b9d7c800>
+
+    def test_complete_game_flow(self):
+        """Test a complete game flow."""
+        # Create small game
+        board = Board(3, 3, 1)
+        solver = ConstraintSolver()
+    
+        # Start game
+>       board.place_mines((1, 1))
+        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Board' object has no attribute 'place_mines'
+
+tests/test_basic_functionality.py:168: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_basic_functionality.py::TestBoard::test_board_initialization
+FAILED tests/test_basic_functionality.py::TestBoard::test_mine_placement - At...
+FAILED tests/test_basic_functionality.py::TestBoard::test_cell_reveal - Attri...
+FAILED tests/test_basic_functionality.py::TestBoard::test_cell_flagging - Att...
+FAILED tests/test_basic_functionality.py::TestBoard::test_neighbor_calculation
+FAILED tests/test_basic_functionality.py::TestRiskAssessor::test_risk_map_calculation
+FAILED tests/test_basic_functionality.py::TestRiskAssessor::test_safest_cells
+FAILED tests/test_basic_functionality.py::TestConstraintSolver::test_solve_step
+FAILED tests/test_basic_functionality.py::TestConstraintSolver::test_solver_statistics
+FAILED tests/test_basic_functionality.py::TestIntegration::test_complete_game_flow
+10 failed, 3 passed in 0.82s
+
+=== Running tests/test_beta_confidence.py ===
+..F..                                                                    [100%]
+=================================== FAILURES ===================================
+__________________________ test_set_and_get_threshold __________________________
+
+    def test_set_and_get_threshold():
+        conf = BetaConfidence()
+    
+        # Valid threshold
+        conf.set_threshold(0.8)
+        assert conf.get_threshold() == 0.8
+    
+        # Invalid threshold
+        with pytest.raises(ValueError):
+            conf.set_threshold(-0.1)
+    
+        with pytest.raises(ValueError):
+            conf.set_threshold(1.1)
+    
+        # Threshold not set
+        conf = BetaConfidence()
+>       assert conf.get_threshold() is None
+E       assert 0.15 is None
+E        +  where 0.15 = get_threshold()
+E        +    where get_threshold = <ai_minesweeper.meta_cell_confidence.confidence.BetaConfidence object at 0x7fe08acb3230>.get_threshold
+
+tests/test_beta_confidence.py:60: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_beta_confidence.py::test_set_and_get_threshold - assert 0.1...
+1 failed, 4 passed in 0.71s
+
+=== Running tests/test_board.py ===
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________________ test_board_constructor ____________________________
+
+    def test_board_constructor():
+        grid = [["hidden", "mine"], ["hidden", "hidden"]]
+>       board = Board(grid=grid)
+                ^^^^^^^^^^^^^^^^
+
+tests/test_board.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Board(rows=2, cols=2), n_rows = None, n_cols = None, mine_count = None
+grid = [['hidden', 'mine'], ['hidden', 'hidden']]
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+                raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+            self.n_rows = int(n_rows)  # type: ignore[arg-type]
+            self.n_cols = int(n_cols)  # type: ignore[arg-type]
+            self.initial_mine_count = int(mine_count)  # type: ignore[assignment]
+            from .cell import Cell  # local import to avoid cycles
+            # Initialize with default non-mine cells
+            self.grid = [[Cell(is_mine=False) for _ in range(self.n_cols)] for _ in range(self.n_rows)]
+    
+        if self.initial_mine_count is not None and self.initial_mine_count > (self.n_rows * self.n_cols):
+            raise ValueError("Mine count exceeds total cells")
+    
+        # neighbor cache / overrides
+        self.custom_neighbors = {}  # type: ignore[assignment]
+    
+        # Initialize cell coordinate metadata (idempotent if already set)
+        for i, row in enumerate(self.grid):
+            for j, cell in enumerate(row):
+>               setattr(cell, 'row', i)
+E               AttributeError: 'str' object has no attribute 'row'
+
+src/ai_minesweeper/board.py:69: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_board.py::test_board_constructor - AttributeError: 'str' ob...
+1 failed in 0.67s
+
+=== Running tests/test_board_attrs.py ===
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____________________________ test_neighbors_count _____________________________
+
+    def test_neighbors_count():
+>       b = Board(3, 3)
+            ^^^^^^^^^^^
+
+tests/test_board_attrs.py:5: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x738cd32d4c50>
+n_rows = 3, n_cols = 3, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+_________________________________ test_reveal __________________________________
+
+    def test_reveal():
+>       b = Board(2, 2)
+            ^^^^^^^^^^^
+
+tests/test_board_attrs.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x738cc409d430>
+n_rows = 2, n_cols = 2, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_board_attrs.py::test_neighbors_count - TypeError: Provide e...
+FAILED tests/test_board_attrs.py::test_reveal - TypeError: Provide either gri...
+2 failed in 0.79s
+
+=== Running tests/test_board_builder.py ===
+.F..F.                                                                   [100%]
+=================================== FAILURES ===================================
+_____________________________ test_from_relations ______________________________
+
+    def test_from_relations():
+        # Mock relations input
+        relations = [(0, 1), (1, 2)]
+>       board = BoardBuilder.from_relations(relations)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_board_builder.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/board_builder.py:210: in from_relations
+    board = Board(n_rows, n_cols)
+            ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x7b62216ddc70>
+n_rows = 2, n_cols = 2, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+______________________________ test_random_board _______________________________
+
+    def test_random_board():
+>       board = BoardBuilder.random_board(5, 5, 10)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_board_builder.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/board_builder.py:258: in random_board
+    board = Board(rows, cols)
+            ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x7b622ee40ad0>
+n_rows = 5, n_cols = 5, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_board_builder.py::test_from_relations - TypeError: Provide ...
+FAILED tests/test_board_builder.py::test_random_board - TypeError: Provide ei...
+2 failed, 4 passed in 1.04s
+
+=== Running tests/test_builder.py ===
+.                                                                        [100%]
+1 passed in 0.04s
+
+=== Running tests/test_builder_csv.py ===
+.                                                                        [100%]
+1 passed in 0.73s
+
+=== Running tests/test_cell.py ===
+....                                                                     [100%]
+4 passed in 0.57s
+
+=== Running tests/test_cli.py ===
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________________________ test_validate_command _____________________________
+
+    def test_validate_command():
+        result = runner.invoke(app, ["validate", "examples/boards/sample.csv"])
+>       assert result.exit_code == 0
+E       assert 2 == 0
+E        +  where 2 = <Result SystemExit(2)>.exit_code
+
+tests/test_cli.py:20: AssertionError
+______________________________ test_play_command _______________________________
+
+    def test_play_command():
+        result = runner.invoke(app, ["play", "examples/boards/sample.csv"])
+>       assert result.exit_code == 0
+E       assert 2 == 0
+E        +  where 2 = <Result SystemExit(2)>.exit_code
+
+tests/test_cli.py:26: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_cli.py::test_validate_command - assert 2 == 0
+FAILED tests/test_cli.py::test_play_command - assert 2 == 0
+2 failed in 0.94s
+
+=== Running tests/test_cli_play.py ===
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________________ test_cli_play_dry_run _____________________________
+
+    def test_cli_play_dry_run():
+        # Use an example board CSV
+        sample_board = "examples/boards/sample.csv"
+        assert os.path.exists(sample_board), "Sample board CSV is missing"
+    
+        # Use the CliRunner for more reliable testing
+        runner = CliRunner()
+        result = runner.invoke(app, ["play", sample_board, "--dry-run"])
+    
+        # The dry-run should report that the board is valid (or inconsistencies if any)
+>       assert "The board is valid." in result.output, (
+            "Dry-run did not validate the board as expected"
+        )
+E       AssertionError: Dry-run did not validate the board as expected
+E       assert 'The board is valid.' in "Usage: cli [OPTIONS]\nTry 'cli --help' for help.\n╭─ Error ──────────────────────────────────────────────────────────...                                 │\n╰──────────────────────────────────────────────────────────────────────────────╯\n"
+E        +  where "Usage: cli [OPTIONS]\nTry 'cli --help' for help.\n╭─ Error ──────────────────────────────────────────────────────────...                                 │\n╰──────────────────────────────────────────────────────────────────────────────╯\n" = <Result SystemExit(2)>.output
+
+tests/test_cli_play.py:18: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_cli_play.py::test_cli_play_dry_run - AssertionError: Dry-ru...
+1 failed in 0.79s
+
+=== Running tests/test_click_engine.py ===
+.                                                                        [100%]
+1 passed in 0.65s
+
+=== Running tests/test_conf_oscillation.py ===
+.                                                                        [100%]
+1 passed in 0.71s
+
+=== Running tests/test_confidence.py ===
+
+no tests ran in 0.03s
+
+=== Running tests/test_confidence_policy.py ===
+...F..                                                                   [100%]
+=================================== FAILURES ===================================
+____________________________ test_confidence_policy ____________________________
+
+    def test_confidence_policy():
+        class MockSolver:
+            def __init__(self):
+                self.last_prob = {}
+    
+            def predict(self, board):
+                # Mock probability map for testing
+                self.last_prob = {(0, 0): 0.1, (0, 1): 0.2, (1, 0): 0.3, (1, 1): 0.4}
+                return self.last_prob
+    
+        class MockBoard:
+            def is_hidden(self, r, c):
+                # Mock all cells as hidden for simplicity
+                return True
+    
+        solver = MockSolver()
+        board = MockBoard()
+        policy = ConfidencePolicy(solver)
+    
+        move = policy.choose_move(board)
+>       assert move is not None
+E       assert None is not None
+
+tests/test_confidence_policy.py:92: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_confidence_policy.py::test_confidence_policy - assert None ...
+1 failed, 5 passed in 0.68s
+
+=== Running tests/test_dpp14_engine.py ===
+..                                                                       [100%]
+2 passed in 1.40s
+
+=== Running tests/test_dpp14_recursion_engine.py ===
+..                                                                       [100%]
+2 passed in 0.60s
+
+=== Running tests/test_import.py ===
+.                                                                        [100%]
+1 passed in 0.03s
+
+=== Running tests/test_nuclear_adapter.py ===
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________________________ test_nuclear_adapter _____________________________
+
+    def test_nuclear_adapter():
+>       board = DomainLoader.load("periodic-table-v2")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_nuclear_adapter.py:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/domain_loader.py:23: in load
+    return adapter.build_board(path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+src/ai_minesweeper/domain/nuclear_isotopes.py:30: in build_board
+    board = Board(n_rows=max_z + 1, n_cols=max_n + 1)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x7f59d55aa060>
+n_rows = np.int64(121), n_cols = np.int64(181), mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_nuclear_adapter.py::test_nuclear_adapter - TypeError: Provi...
+1 failed in 0.73s
+
+=== Running tests/test_periodic_table.py ===
+..............                                                           [100%]
+14 passed in 0.64s
+
+=== Running tests/test_periodic_table_demo.py ===
+.                                                                        [100%]
+1 passed in 0.58s
+
+=== Running tests/test_phase_lock_phi.py ===
+.                                                                        [100%]
+1 passed in 0.59s
+
+=== Running tests/test_primes_chi.py ===
+.                                                                        [100%]
+1 passed in 0.56s
+
+=== Running tests/test_quick.py ===
+...F.....F...FF...                                                       [100%]
+=================================== FAILURES ===================================
+________________________ test_render_cell_with_tooltip _________________________
+
+    def test_render_cell_with_tooltip():
+>       html = render_cell_with_tooltip("safe", "This cell is safe.")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_cell_with_tooltip() takes 1 positional argument but 2 were given
+
+tests/test_quick.py:99: TypeError
+______________________ test_highlight_zero_value_reveals _______________________
+
+    def test_highlight_zero_value_reveals():
+        from ai_minesweeper.board_builder import BoardBuilder
+        from ai_minesweeper.cell import Cell
+    
+        board = BoardBuilder.from_csv(CSV_PATH)
+        revealed_cells = [Cell(row=0, col=0, clue=0), Cell(row=1, col=1, clue=0)]
+    
+        # Mock Streamlit's markdown function
+        st.markdown = lambda x, unsafe_allow_html: None
+    
+        try:
+>           highlight_zero_value_reveals(board, revealed_cells)
+E           TypeError: highlight_zero_value_reveals() takes 1 positional argument but 2 were given
+
+tests/test_quick.py:175: TypeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_highlight_zero_value_reveals():
+        from ai_minesweeper.board_builder import BoardBuilder
+        from ai_minesweeper.cell import Cell
+    
+        board = BoardBuilder.from_csv(CSV_PATH)
+        revealed_cells = [Cell(row=0, col=0, clue=0), Cell(row=1, col=1, clue=0)]
+    
+        # Mock Streamlit's markdown function
+        st.markdown = lambda x, unsafe_allow_html: None
+    
+        try:
+            highlight_zero_value_reveals(board, revealed_cells)
+        except Exception as e:
+>           pytest.fail(f"highlight_zero_value_reveals raised an exception: {e}")
+E           Failed: highlight_zero_value_reveals raised an exception: highlight_zero_value_reveals() takes 1 positional argument but 2 were given
+
+tests/test_quick.py:177: Failed
+_________________________ test_add_high_contrast_mode __________________________
+
+    def test_add_high_contrast_mode():
+        # Mock Streamlit's markdown function
+        st.markdown = lambda x, unsafe_allow_html: None
+    
+        try:
+>           add_high_contrast_mode()
+E           TypeError: add_high_contrast_mode() missing 1 required positional argument: 'board'
+
+tests/test_quick.py:223: TypeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_add_high_contrast_mode():
+        # Mock Streamlit's markdown function
+        st.markdown = lambda x, unsafe_allow_html: None
+    
+        try:
+            add_high_contrast_mode()
+        except Exception as e:
+>           pytest.fail(f"add_high_contrast_mode raised an exception: {e}")
+E           Failed: add_high_contrast_mode raised an exception: add_high_contrast_mode() missing 1 required positional argument: 'board'
+
+tests/test_quick.py:225: Failed
+___________________ test_ui_widgets_render_cell_with_tooltip ___________________
+
+    def test_ui_widgets_render_cell_with_tooltip():
+>       html = render_cell_with_tooltip("safe", "This cell is safe.")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_cell_with_tooltip() takes 1 positional argument but 2 were given
+
+tests/test_quick.py:229: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_quick.py::test_render_cell_with_tooltip - TypeError: render...
+FAILED tests/test_quick.py::test_highlight_zero_value_reveals - Failed: highl...
+FAILED tests/test_quick.py::test_add_high_contrast_mode - Failed: add_high_co...
+FAILED tests/test_quick.py::test_ui_widgets_render_cell_with_tooltip - TypeEr...
+4 failed, 14 passed in 1.78s
+
+=== Running tests/test_risk.py ===
+.                                                                        [100%]
+1 passed in 0.59s
+
+=== Running tests/test_risk_assessor.py ===
+.FFFF.                                                                   [100%]
+=================================== FAILURES ===================================
+_______________________ test_estimate_risk_map_structure _______________________
+
+    def test_estimate_risk_map_structure():
+>       board = BoardBuilder.random_board(rows=4, cols=4, mines=2)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_risk_assessor.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/board_builder.py:258: in random_board
+    board = Board(rows, cols)
+            ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x74833860c3e0>
+n_rows = 4, n_cols = 4, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+_______________________ test_estimate_risk_map_variance ________________________
+
+    def test_estimate_risk_map_variance():
+>       board = BoardBuilder.random_board(rows=4, cols=4, mines=2)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_risk_assessor.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/board_builder.py:258: in random_board
+    board = Board(rows, cols)
+            ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x748338350bf0>
+n_rows = 4, n_cols = 4, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+__________________________ test_estimate_empty_board ___________________________
+
+    def test_estimate_empty_board():
+        board = BoardBuilder.empty_board(rows=4, cols=4)
+        risk_map = RiskAssessor().estimate(board)
+    
+>       assert len(risk_map) == 0, "Risk map should be empty for an empty board"
+E       AssertionError: Risk map should be empty for an empty board
+E       assert 16 == 0
+E        +  where 16 = len({(0, 0): 0.0, (0, 1): 0.0, (0, 2): 0.0, (0, 3): 0.0, ...})
+
+tests/test_risk_assessor.py:39: AssertionError
+______________________ test_estimate_fully_revealed_board ______________________
+
+    def test_estimate_fully_revealed_board():
+>       board = BoardBuilder.random_board(rows=4, cols=4, mines=2)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_risk_assessor.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/board_builder.py:258: in random_board
+    board = Board(rows, cols)
+            ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x748338181af0>
+n_rows = 4, n_cols = 4, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_risk_assessor.py::test_estimate_risk_map_structure - TypeEr...
+FAILED tests/test_risk_assessor.py::test_estimate_risk_map_variance - TypeErr...
+FAILED tests/test_risk_assessor.py::test_estimate_empty_board - AssertionErro...
+FAILED tests/test_risk_assessor.py::test_estimate_fully_revealed_board - Type...
+4 failed, 2 passed in 0.84s
+
+=== Running tests/test_risk_spread.py ===
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________________ test_risk_has_variance ____________________________
+
+    def test_risk_has_variance():
+>       board = BoardBuilder.random_board(rows=4, cols=4, mines=2)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_risk_spread.py:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/ai_minesweeper/board_builder.py:258: in random_board
+    board = Board(rows, cols)
+            ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[AttributeError("'Board' object has no attribute 'n_rows'") raised in repr()] Board object at 0x7484decf9490>
+n_rows = 4, n_cols = 4, mine_count = None, grid = None
+
+    def __init__(self, n_rows: Optional[int] = None, n_cols: Optional[int] = None, mine_count: Optional[int] = None, grid: Optional[Iterable] = None):
+        # Support construction either from explicit dimensions or a provided grid of Cell objects
+        if grid is not None:
+            if not (isinstance(grid, list) and all(isinstance(row, list) for row in grid)):
+                raise TypeError("grid must be a 2D list")
+            self.grid = grid
+            self.n_rows = len(grid)
+            self.n_cols = len(grid[0]) if self.n_rows else 0
+            # Preserve the declared mine count separately from dynamic counting
+            self.initial_mine_count = sum(getattr(c, 'is_mine', False) for row in grid for c in row)
+        else:
+            if not all(isinstance(arg, int) for arg in (n_rows, n_cols, mine_count)):
+>               raise TypeError("Provide either grid or integer n_rows, n_cols, mine_count")
+E               TypeError: Provide either grid or integer n_rows, n_cols, mine_count
+
+src/ai_minesweeper/board.py:52: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_risk_spread.py::test_risk_has_variance - TypeError: Provide...
+1 failed in 0.77s
+
+=== Running tests/test_solver.py ===
