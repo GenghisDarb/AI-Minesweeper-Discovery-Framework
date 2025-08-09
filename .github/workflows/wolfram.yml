@@ -30,7 +30,7 @@ jobs:
           fi
           git commit -m "Nightly Wolfram auto-update" || echo "No file changes"
           git push
-      - name: Build & Deploy MkDocs
+      - name: Build MkDocs (no deploy)
         run: |
           pip install mkdocs mkdocs-material
-          mkdocs gh-deploy --force
+          mkdocs build --verbose

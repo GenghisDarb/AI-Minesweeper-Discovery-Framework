@@ -9,9 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Build-only; no gh-pages deploy
     permissions:
-      contents: write         # REQUIRED for gh-pages deploy
-      pages: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -51,8 +51,9 @@ jobs:
           pip install -r requirements.txt
           python scripts/build_whitepage.py || echo "PDF generation failed gracefully."
 
-      - name: Echo site URL
-        run: echo "🟢 Docs available at https://genghisdarb.github.io/AI-Minesweeper-Discovery-Framework/"
+      - name: Echo build artifact location
+        run: |
+          echo "MkDocs site built in ./site (not deployed)"
 
       - name: Verify Streamlit installed
         run: python -c "import streamlit; print('✅ Streamlit is installed')"
