@@ -6,6 +6,7 @@ risk threshold adjustment and χ-recursive decision optimization.
 """
 
 import logging
+import numbers
 from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
@@ -15,6 +16,15 @@ from .confidence import BetaConfidence
 
 
 class ConfidencePolicy:
+    """Policy wrapper that integrates risk assessment with confidence-based decision making.
+    
+    Features:
+    - Dynamic risk threshold adjustment based on confidence levels
+    - χ-recursive decision optimization
+    - Integration with BetaConfidence for adaptive learning
+    - TORUS theory alignment for cyclical improvement
+    """
+
     # Attribute annotations for static analysis and clarity
     solver: Any
     risk_assessor: RiskAssessor
@@ -29,16 +39,6 @@ class ConfidencePolicy:
     legacy_policy_iterations: int
     legacy_decision_sequence: list
     legacy_confidence_tracker: BetaConfidence
-    """
-    Policy wrapper that integrates risk assessment with confidence-based decision making.
-    
-    Features:
-    - Dynamic risk threshold adjustment based on confidence levels
-    - χ-recursive decision optimization
-    - Integration with BetaConfidence for adaptive learning
-    - TORUS theory alignment for cyclical improvement
-    """
-
     def __init__(self, base_solver, confidence: BetaConfidence | None = None):
         # Instantiate base_solver if a class is provided; default to RiskAssessor-like
         try:
@@ -88,9 +88,11 @@ class ConfidencePolicy:
         # Get base risk map from risk assessor
         risk_map = self.risk_assessor.calculate_risk_map(board)
 
-        # Assert all values are floats
+        # Validate numeric values (accept ints, floats, numpy scalars)
         for v in risk_map.values():
-            assert isinstance(v, float), f"Risk map value is not float: {v} (type {type(v)})"
+            assert isinstance(v, numbers.Real), (
+                f"Risk map value is not numeric: {v} (type {type(v)})"
+            )
 
         if not risk_map:
             return {"action": "none", "reason": "No hidden cells available"}
@@ -184,10 +186,12 @@ class ConfidencePolicy:
         """
         candidates = []
         for pos, risk in risk_map.items():
-            if not isinstance(risk, float):
-                raise TypeError(f"Risk value for {pos} is not float: {risk} (type {type(risk)})")
-            if risk <= threshold:
-                candidates.append((pos, risk))
+            if not isinstance(risk, numbers.Real):
+                raise TypeError(
+                    f"Risk value for {pos} is not numeric: {risk} (type {type(risk)})"
+                )
+            if float(risk) <= float(threshold):
+                candidates.append((pos, float(risk)))
         # Sort by risk (ascending - safest first)
         candidates.sort(key=lambda x: x[1])
         return candidates
@@ -208,8 +212,8 @@ class ConfidencePolicy:
             List of (position, risk) tuples for flag candidates
         """
         candidates = [
-            (pos, risk) for pos, risk in risk_map.items()
-            if risk >= threshold
+            (pos, float(risk)) for pos, risk in risk_map.items()
+            if float(risk) >= float(threshold)
         ]
 
         # Sort by risk (descending - highest risk first)
@@ -427,8 +431,11 @@ class ConfidencePolicy:
             risk_val = prob_map.get(pos, 1.0)
             if isinstance(pos, tuple) and len(pos) >= 2:
                 return (risk_val, pos[0], pos[1])
-            if hasattr(pos, 'row') and hasattr(pos, 'col'):
-                return (risk_val, pos.row, pos.col)
+            # Fallback for objects with row/col attributes without static typing guarantees
+            r = getattr(pos, "row", None)
+            c = getattr(pos, "col", None)
+            if isinstance(r, numbers.Integral) and isinstance(c, numbers.Integral):
+                return (risk_val, int(r), int(c))
             return (risk_val, 0, 0)
         ordered = sorted(candidates, key=order_key)
         # Find first not yet chosen
