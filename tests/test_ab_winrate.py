@@ -15,7 +15,10 @@ def _run_policy_until_steps(board, steps: int = 20):
         if not move:
             break
         r, c = move if isinstance(move, tuple) else (move.row, move.col)
-        getattr(board, 'reveal_cell', board.reveal)(r, c)
+        if hasattr(board, 'reveal_cell'):
+            board.reveal_cell(r, c)
+        else:
+            board.reveal(r, c)
         moves.append((r, c))
     return moves
 
