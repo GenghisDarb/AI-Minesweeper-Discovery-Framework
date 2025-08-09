@@ -107,6 +107,9 @@ site/
 # Node modules
 node_modules/
 
+# Keep required test data JSON despite global *.json ignores
+!data/confidence_fit_params.json
+
 # Other build artifacts
 *.log
 *.tmp
