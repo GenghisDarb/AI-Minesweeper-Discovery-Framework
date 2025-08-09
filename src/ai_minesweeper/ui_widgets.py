@@ -583,13 +583,39 @@ def display_confidence(confidence: float, mode: str = "cli") -> str:
     else:
         raise ValueError("Unsupported mode. Use 'cli' or 'ui'.")
 
-def add_accessibility_labels_to_cells(board: Board):
-    """Add accessibility labels to cells on the board."""
-    logger.info("Adding accessibility labels to cells.")
-    # Placeholder implementation
-    pass
+def add_accessibility_labels_to_cells(board: Board) -> None:
+    """Add simple ARIA-like labels on cells for screen readers.
 
-def add_high_contrast_mode(board: Optional[Board] = None):
+    This function attaches a "aria_label" attribute to each cell with a
+    deterministic description string. Safe for tests and headless use.
+    """
+    logger.info("Adding accessibility labels to cells.")
+    try:
+        for y in range(getattr(board, 'height', getattr(board, 'n_rows', 0)) or 0):
+            for x in range(getattr(board, 'width', getattr(board, 'n_cols', 0)) or 0):
+                pos = (x, y)
+                state = board.cell_states.get(pos)
+                if state is None:
+                    continue
+                # Minimal, deterministic label
+                label = f"cell r{y+1} c{x+1} state {getattr(state, 'name', str(state))}"
+                # Attach to board if per-cell object exists; else store in a dict
+                cell_obj = None
+                try:
+                    cell_obj = board.grid[y][x]
+                except Exception:
+                    cell_obj = None
+                if cell_obj is not None:
+                    setattr(cell_obj, 'aria_label', label)
+                else:
+                    # Fallback storage
+                    if not hasattr(board, '_aria_labels'):
+                        setattr(board, '_aria_labels', {})
+                    board._aria_labels[pos] = label  # type: ignore[attr-defined]
+    except Exception:  # pragma: no cover - defensive
+        logger.debug("Accessibility labels skipped (board structure mismatch)")
+
+def add_high_contrast_mode(board: Optional[Board] = None) -> None:
     """Enable high-contrast mode for the board."""
     logger.info("Enabling high-contrast mode.")
     # Apply high-contrast CSS class
@@ -597,7 +623,7 @@ def add_high_contrast_mode(board: Optional[Board] = None):
     # Render the board here
     st.markdown('</div>', unsafe_allow_html=True)
 
-def add_colorblind_friendly_palette(board: Board):
+def add_colorblind_friendly_palette(board: Board) -> None:
     """Enable colorblind-friendly palette for the board."""
     logger.info("Enabling colorblind-friendly palette.")
     # Apply colorblind-friendly CSS class
@@ -605,15 +631,16 @@ def add_colorblind_friendly_palette(board: Board):
     # Render the board here
     st.markdown('</div>', unsafe_allow_html=True)
 
-def add_chat_interface_placeholder():
-    """Add a disabled text input box as a placeholder for future LLM integration."""
+def add_chat_interface_placeholder() -> None:
+    """Render a disabled chat input with explicit 'LLM disabled' banner."""
+    st.warning("LLM disabled. Set AIMS_LLM_PROVIDER=openai and provide OPENAI_API_KEY to enable.")
     st.text_input(
         "Ask the AI assistant:",
         disabled=True,
-        help="LLM integration coming soon. This feature is currently under development."
+        help="Provide credentials and provider to enable deterministic LLM assist."
     )
 
-def align_chat_input_with_ui():
+def align_chat_input_with_ui() -> None:
     """
     Placeholder function to align chat input with the UI.
     This will be implemented in the future.
@@ -694,12 +721,20 @@ def render_llm_chat(hypotheses: Optional[List[str]] = None) -> Optional[List[str
         st.write(f"{i}. {h}")
     return ranked_list
 
-def apply_grid_styling():
-    """
-    Placeholder function to apply grid styling.
-    This will be implemented in the future.
-    """
-    pass
+def apply_grid_styling() -> None:
+        """Apply consistent grid styling (high-contrast borders, readable fonts)."""
+        st.markdown(
+                """
+                <style>
+                    .grid { border-collapse: collapse; }
+                    .grid td, .grid th { border: 1px solid #333; padding: 4px; }
+                    .cell-hidden { background: #C0C0C0; }
+                    .cell-revealed { background: #F0F0F0; }
+                    .cell-flagged { background: #FF6B6B; }
+                </style>
+                """,
+                unsafe_allow_html=True,
+        )
 
 def ensure_grid_styling_consistency():
     """
@@ -717,6 +752,57 @@ def ensure_persistent_unexplored_cells(board: Board):
         for cell in row:
             if hasattr(cell, 'state') and cell.state == CellState.HIDDEN:
                 setattr(cell, 'style', "background-color: lightgray;")
+
+
+def chi_brot_visualization(board: Optional[Board] = None) -> str:
+    """Render a deterministic χ-brot style preview and save to artifacts/chi_brot.png.
+
+    Uses headless Agg backend and a simple parametric curve whose phase is driven by
+    an integer chi-cycle counter if present on the board (else 0).
+
+    Returns the output file path.
+    """
+    # Force Agg backend for headless stability in CI
+    try:  # local import to avoid global backend mutation
+        import matplotlib
+        matplotlib.use("Agg", force=True)
+    except Exception:
+        pass
+
+    # Derive a deterministic phase from board
+    chi = 0
+    try:
+        # Support various attribute names used in code/tests
+        for attr in ("chi_cycle_count", "chi_cycle", "chi", "chi_phase", "cycle"):
+            if hasattr(board, attr):
+                chi = int(getattr(board, attr) or 0)
+                break
+    except Exception:
+        chi = 0
+
+    # Parametric curve: small Lissajous with chi-based phase
+    t = np.linspace(0, 2 * np.pi, 400)
+    a, b = 3, 2
+    delta = (chi % 20) * (np.pi / 10.0)
+    x = np.cos(a * t + delta)
+    y = np.sin(b * t)
+
+    fig, ax = plt.subplots(figsize=(3, 3))
+    ax.plot(x, y, color="#3366cc", linewidth=1.5)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_title(f"χ-brot preview (χ={chi})", fontsize=9)
+    ax.set_aspect("equal")
+    ax.grid(False)
+
+    # Ensure output dir
+    import os
+    out_dir = os.path.join(os.getcwd(), "artifacts")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "chi_brot.png")
+    fig.savefig(out_path, dpi=120, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
 
 def highlight_newly_revealed_cells(board: Board):
     """

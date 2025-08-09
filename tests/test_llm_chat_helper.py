@@ -1,13 +1,11 @@
 from ai_minesweeper.ui_widgets import rank_hypotheses_core
 
-def test_rank_hypotheses_core_deterministic():
-    inp = [
-        "mine at (3,4)",
-        "safe (0,0)",
-        "flag corner",
-        "reveal center",
-    ]
-    out1 = rank_hypotheses_core(inp)
-    out2 = rank_hypotheses_core(inp)
+
+def test_rank_hypotheses_core_deterministic_and_permutation():
+    hyps = ["H2", "A", "H10", "B", "A1", "A10", "A2"]
+    out1 = rank_hypotheses_core(hyps)
+    out2 = rank_hypotheses_core(list(reversed(hyps)))
+    # Deterministic and order independent with the same key
     assert out1 == out2
-    assert set(out1) == set(inp)
+    # Same multiset
+    assert sorted(out1) == sorted(hyps)
