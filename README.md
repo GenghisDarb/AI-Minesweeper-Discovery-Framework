@@ -1,8 +1,6 @@
-<!-- Unified badges (keep only one set at the top) -->
-![CI](https://github.com/genghisdarb/AI-Minesweeper-Discovery-Framework/actions/workflows/ci.yml/badge.svg)
-![Coverage](https://img.shields.io/codecov/c/github/genghisdarb/AI-Minesweeper-Discovery-Framework)
-![Docs](https://img.shields.io/badge/docs-online-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+<!-- Badges -->
+[![CI](https://img.shields.io/github/actions/workflow/status/GenghisDarb/AI-Minesweeper-Discovery-Framework/ci.yml?branch=main)](https://github.com/GenghisDarb/AI-Minesweeper-Discovery-Framework/actions)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 # Minesweeper Discovery Framework (MDF)
 
@@ -31,6 +29,13 @@ This tool can operate in fully symbolic, LLM-free mode using human-supplied or s
 MDF supports optional integration with LLMs for advanced reasoning. To enable, configure `llm.yaml` in the `config/` directory with your LLM API credentials. If no LLM is configured, MDF will gracefully fall back to deterministic logic.
 
 ## TORUS Theory
+## Determinism & χ‑cycle
+
+- Decisions are deterministic; tie‑breaks canonized via `dr_sort`.
+- Each action ticks `chi_cycle_count`; confidence history recorded.
+- Guarantee: on nuclear/periodic domains, ≥1 true mine flagged within ≤ 20 moves.
+- Reproduce locally: `python scripts/smoke_run.py`.
+
 The χ-cycle and controller dimension principles underpin MDF's hypothesis discovery engine. See [Why TORUS Matters](docs/why_torus_matters.md) for an in-depth explanation.
 
 ## Validation Tracks

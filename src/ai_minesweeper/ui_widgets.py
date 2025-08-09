@@ -620,6 +620,80 @@ def align_chat_input_with_ui():
     """
     pass
 
+def rank_hypotheses_core(hyps: List[str]) -> List[str]:
+    """Pure deterministic baseline ranking for hypotheses.
+
+    Stable key ensures reproducible ordering independent of platform locale.
+    """
+    return sorted(hyps or [], key=lambda s: (len(s), s))
+
+def render_llm_chat(hypotheses: Optional[List[str]] = None) -> Optional[List[str]]:
+    """Render a minimal chat/ranking UI for hypotheses with deterministic fallback.
+
+    Behavior:
+    - If hypotheses are provided, they will be pre-filled in the textarea (one per line).
+    - If not provided, the user can paste hypotheses manually.
+    - Clicking "Rank" calls llm_suggest with temperature=0 provider settings via llm_interface,
+      which will deterministically fall back when config/keys are missing.
+
+    Returns:
+    - Ranked list when available, else None.
+    """
+    try:
+        from .llm_interface import llm_suggest
+    except Exception:
+        llm_suggest = None  # type: ignore
+
+    st.subheader("AI Assistant (Hypothesis Ranking)")
+    default_text = "\n".join(hypotheses) if hypotheses else ""
+    text = st.text_area(
+        "Enter hypotheses (one per line):",
+        value=default_text,
+        height=150,
+        help="The assistant will re-order only; no new items will be added.",
+    )
+
+    cols = st.columns(2)
+    with cols[0]:
+        do_rank = st.button("Rank", type="primary")
+    with cols[1]:
+        st.caption("Deterministic: temperature=0; safe fallback if LLM unavailable.")
+
+    if not do_rank:
+        return None
+
+    items = [s.strip() for s in text.splitlines() if s.strip()]
+    if not items:
+        st.info("Provide at least one hypothesis to rank.")
+        return None
+
+    ranked_list: List[str]
+    if llm_suggest is None:
+        st.warning("LLM interface unavailable; using deterministic baseline ordering.")
+        ranked_list = rank_hypotheses_core(items)
+    else:
+        try:
+            # Provider expects a snapshot; for ranking, we only pass the list
+            # under a neutral key. The provider may ignore this and UI will still
+            # deterministically fall back.
+            suggestions = llm_suggest({"hypotheses": items})  # type: ignore[arg-type]
+            # If provider returns structured suggestions with 'text', use them; else fallback
+            extracted: List[str] = [
+                str(s.get("text"))
+                for s in suggestions
+                if isinstance(s, dict) and isinstance(s.get("text"), str)
+            ]
+            ranked_list = extracted if extracted else rank_hypotheses_core(items)
+        except Exception as ex:  # pragma: no cover - defensive UI path
+            logger.warning("llm_suggest failed: %s", ex)
+            st.warning("LLM failed; using deterministic baseline ordering.")
+            ranked_list = rank_hypotheses_core(items)
+
+    st.success("Ranking complete.")
+    for i, h in enumerate(ranked_list, 1):
+        st.write(f"{i}. {h}")
+    return ranked_list
+
 def apply_grid_styling():
     """
     Placeholder function to apply grid styling.

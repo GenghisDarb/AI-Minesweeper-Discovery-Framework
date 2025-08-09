@@ -14,6 +14,7 @@ from ai_minesweeper.ui_widgets import (
     highlight_newly_revealed_cells,
     display_confidence,
 )
+ 
 from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14RecursionEngine
 
 
@@ -396,8 +397,8 @@ from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14Recursion
         if not st.session_state.solver or not st.session_state.board:
             return
         
-        # Create tabs for different visualizations
-        tab1, tab2, tab3 = st.tabs(["📈 Confidence Trends", "🎯 Risk Analysis", "📜 Move History"])
+    # Create tabs for different visualizations
+    tab1, tab2, tab3 = st.tabs(["📈 Confidence Trends", "🎯 Risk Analysis", "📜 Move History"])
         
         with tab1:
             self.create_confidence_visualization()
@@ -407,6 +408,8 @@ from ai_minesweeper.torus_recursion.dpp14_recursion_engine import DPP14Recursion
         
         with tab3:
             self.create_move_history()
+
+ 
     
     def create_confidence_visualization(self):
         """Create confidence trend visualization."""

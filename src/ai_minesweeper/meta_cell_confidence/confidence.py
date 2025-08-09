@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict, Tuple
 
 
 
@@ -101,13 +101,14 @@ class BetaConfidence:
         tau = float(tau_val) if isinstance(tau_val, (int, float)) else 0.0
         candidates = [cell for cell, risk in risk_map.items() if risk < tau]
         if candidates:
-            return min(candidates, key=lambda c: risk_map[c])
+            # Stable min by explicit lambda to satisfy type checkers
+            return min(candidates, key=lambda c: float(risk_map[c]))
         # fallback: minimum risk overall
         if not risk_map:
             return None
-        rm = dict(risk_map)
+        rm: Dict[Tuple[int, int], float] = dict(risk_map)  # tighten typing for min key
         try:
-            return min(rm, key=rm.get)
+            return min(rm, key=lambda k: float(rm[k]))
         except Exception:
             # As a last resort, return an arbitrary key
             for k in rm.keys():
