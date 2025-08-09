@@ -651,7 +651,8 @@ def add_accessibility_labels_to_cells(board: Board) -> None:
                     try:
                         cell_obj.aria_label = label  # type: ignore[attr-defined]
                     except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Failed to set aria_label on cell_obj at ({x}, {y}): {e}", exc_info=True)
                 else:
                     # Fallback storage
                     if not hasattr(board, "_aria_labels"):
