@@ -20,26 +20,19 @@ jobs:
 
       - name: Extract Sigma Evidence
         run: |
-          # Example logic to extract sigma evidence from notebooks
-          sigma=$(grep -oP 'Evidence: \d+-σ' notebooks/*.ipynb | sort -r | head -n 1 | grep -oP '\d+-σ')
+          sigma=$(grep -oP 'Evidence: \d+-σ' notebooks/*.ipynb | sort -r | head -n 1 | grep -oP '\d+-σ' || true)
           echo "sigma=$sigma" >> $GITHUB_ENV
 
       - name: Update README
         run: |
-          sed -i "s/\[Evidence Sigma\].*\[Evidence Sigma\]/[Evidence Sigma](https://img.shields.io/badge/evidence-$sigma-blue)/" README.md
-
-      - name: Set Flag
-        id: setflag
-        run: |
-          if git diff --quiet README.md; then
-            echo "changed=false" >> $GITHUB_ENV
-          else
-            echo "changed=true" >> $GITHUB_ENV
-          fi
+          sed -i "s|\[Evidence Sigma\].*\[Evidence Sigma\]|[Evidence Sigma](https://img.shields.io/badge/evidence-$sigma-blue)|" README.md
 
       - name: Commit Badge
-        if: env.changed == 'true'
         run: |
-          git add README.md
-          git commit -m "auto-badge" || echo "no diff"
-          git push
+          if git diff --quiet README.md; then
+            echo "No README changes"
+          else
+            git add README.md
+            git commit -m "auto-badge" || echo "no diff"
+            git push
+          fi
