@@ -8,7 +8,7 @@ The Minesweeper Discovery Framework transforms complex domains into Minesweeper-
 
 ## Key Features
 
-- **LLM Integration**: Coming soon. Placeholder interface available in the app.
+- **LLM Integration (optional, deterministic)**: Provider-agnostic interface. Disabled by default; enable via env.
 - **Domain-Specific Demos**: Load example boards like Prime Spiral and χ‑brot via the sidebar.
 - **High-Contrast & Colorblind Modes**: Functional toggles for accessibility.
 - **Export Results**: Download board state as JSON or move history as CSV.
@@ -26,15 +26,19 @@ This framework is not a game. It uses Minesweeper-like reasoning structures to r
 This tool can operate in fully symbolic, LLM-free mode using human-supplied or structured input data.
 
 ## LLM Configuration
-MDF supports optional integration with LLMs for advanced reasoning. To enable, configure `llm.yaml` in the `config/` directory with your LLM API credentials. If no LLM is configured, MDF will gracefully fall back to deterministic logic.
+Optional. Disabled by default. Deterministic suggestions (temperature=0) when enabled.
 
-## TORUS Theory
+- Set environment variables:
+  - `AIMS_LLM_PROVIDER=openai` (or `anthropic`, `local`, `disabled`)
+  - For OpenAI: `OPENAI_API_KEY=...`
+- If not set or invalid, the system falls back safely to a pure symbolic mode.
+
+## TORUS Theory and Determinism
 ## Determinism & χ‑cycle
 
 - Decisions are deterministic; tie‑breaks canonized via `dr_sort`.
 - Each action ticks `chi_cycle_count`; confidence history recorded.
-- Guarantee: on nuclear/periodic domains, ≥1 true mine flagged within ≤ 20 moves.
-- Reproduce locally: `python scripts/smoke_run.py`.
+- Reproduce locally with a fixed seed: set `AIMS_SEED=1234`.
 
 The χ-cycle and controller dimension principles underpin MDF's hypothesis discovery engine. See [Why TORUS Matters](docs/why_torus_matters.md) for an in-depth explanation.
 

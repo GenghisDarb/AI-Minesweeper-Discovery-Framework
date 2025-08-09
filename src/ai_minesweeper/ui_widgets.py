@@ -1,10 +1,52 @@
+# ruff: noqa: I001
 import logging
 from typing import Any
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
-import streamlit as st  # Ensure Streamlit is imported
+# Streamlit import with safe fallback for headless test environments
+try:  # pragma: no cover - import guard
+    import streamlit as st  # type: ignore
+except Exception:  # pragma: no cover - headless CI fallback
+    class _StubStreamlit:
+        def markdown(self, *args, **kwargs):
+            return None
+
+        def write(self, *args, **kwargs):
+            return None
+
+        def button(self, *args, **kwargs):
+            return False
+
+        def progress(self, *args, **kwargs):
+            return None
+
+        def subheader(self, *args, **kwargs):
+            return None
+
+        def text_input(self, *args, **kwargs):
+            return ""
+
+        def text_area(self, *args, **kwargs):
+            return ""
+
+        def columns(self, n: int):
+            return [self for _ in range(n)]
+
+        def caption(self, *args, **kwargs):
+            return None
+
+        def warning(self, *args, **kwargs):
+            return None
+
+        def info(self, *args, **kwargs):
+            return None
+
+        def success(self, *args, **kwargs):
+            return None
+
+    st = _StubStreamlit()  # type: ignore
 
 from .board import Board, CellState
 from .constants import CHI_STR6
@@ -606,11 +648,17 @@ def add_accessibility_labels_to_cells(board: Board) -> None:
                 except Exception:
                     cell_obj = None
                 if cell_obj is not None:
-                    cell_obj.aria_label = label
+                    try:
+                        cell_obj.aria_label = label  # type: ignore[attr-defined]
+                    except Exception:
+                        pass
                 else:
                     # Fallback storage
-                    if not hasattr(board, '_aria_labels'):
-                        board._aria_labels = {}
+                    if not hasattr(board, "_aria_labels"):
+                        try:
+                            board._aria_labels = {}  # type: ignore[attr-defined]
+                        except Exception:
+                            return
                     board._aria_labels[pos] = label  # type: ignore[attr-defined]
     except Exception:  # pragma: no cover - defensive
         logger.debug("Accessibility labels skipped (board structure mismatch)")
@@ -642,10 +690,19 @@ def add_chat_interface_placeholder() -> None:
 
 def align_chat_input_with_ui() -> None:
     """
-    Placeholder function to align chat input with the UI.
-    This will be implemented in the future.
+    Apply minimal CSS so the chat input aligns with surrounding UI elements.
+    Safe in headless mode; no-ops if Streamlit is stubbed.
     """
-    pass
+    st.markdown(
+        """
+        <style>
+            .stTextInput > div > div > input {
+                max-width: 640px;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def rank_hypotheses_core(hyps: list[str]) -> list[str]:
     """Pure deterministic baseline ranking for hypotheses.
@@ -680,11 +737,9 @@ def render_llm_chat(hypotheses: list[str] | None = None) -> list[str] | None:
         help="The assistant will re-order only; no new items will be added.",
     )
 
-    cols = st.columns(2)
-    with cols[0]:
-        do_rank = st.button("Rank", type="primary")
-    with cols[1]:
-        st.caption("Deterministic: temperature=0; safe fallback if LLM unavailable.")
+    # Render controls (avoid context managers to keep headless stub simple)
+    do_rank = st.button("Rank", type="primary")
+    st.caption("Deterministic: temperature=0; safe fallback if LLM unavailable.")
 
     if not do_rank:
         return None
@@ -858,17 +913,40 @@ def render_cell_with_tooltip(*args, **kwargs):
             st.markdown(f'<div title="{tooltip}">{getattr(cell, "symbol", "")}</div>', unsafe_allow_html=True)
 
 def render_hypotheses_with_tooltips(board: Board):
+    """Render a simple, deterministic hypotheses panel with tooltips.
+
+    Behavior:
+    - If board exposes `get_revealed_hypotheses()` -> use it; else, try `hypotheses` attr.
+    - Renders each hypothesis with a title tooltip; sorted deterministically by (len, text).
+    - No exceptions are raised if nothing is available.
     """
-    Placeholder function to render hypotheses with tooltips.
-    This will be implemented in the future.
-    """
-    logger.info("Rendering hypotheses with tooltips (placeholder).")
-    pass
+    logger.info("Rendering hypotheses with tooltips.")
+    hyps: list[str] = []
+    try:
+        func = getattr(board, "get_revealed_hypotheses", None)
+        if callable(func):
+            val = func()
+            if isinstance(val, list):
+                hyps = [str(x) for x in val]
+        elif hasattr(board, "hypotheses") and isinstance(board.hypotheses, list):  # type: ignore[attr-defined]
+            hyps = [str(x) for x in board.hypotheses]  # type: ignore[attr-defined]
+    except Exception:  # pragma: no cover - defensive
+        hyps = []
+
+    if not hyps:
+        st.info("No hypotheses to display.")
+        return
+
+    ordered = sorted(hyps, key=lambda s: (len(s), s))
+    st.subheader("Hypotheses")
+    for h in ordered:
+        st.markdown(f'<div title="{h}">• {h}</div>', unsafe_allow_html=True)
 
 def update_hypotheses_panel(board: Board):
+    """Update the hypotheses panel in a deterministic, no-throw way.
+
+    Delegates to `render_hypotheses_with_tooltips` and adds a stable caption.
     """
-    Placeholder function to update the hypotheses panel.
-    This will be implemented in the future.
-    """
-    logger.info("Updating hypotheses panel (placeholder).")
-    pass
+    logger.info("Updating hypotheses panel.")
+    render_hypotheses_with_tooltips(board)
+    st.caption("Sorted deterministically by length, then lexicographically.")

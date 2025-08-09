@@ -26,6 +26,16 @@ Think of each recursion lane as a small torus evolving over time. Cross‑links 
 - Tests set AIMS_TEST_MODE=1 to allow deterministic shortcuts where appropriate. Production code remains pure and identical across runs.
 - CI verifies: lint, security (non‑blocking), and full test suite. A smoke script demonstrates a short, reproducible run with stable move ordering.
 
+### Minimal deterministic example
+
+Given a 3×3 board with a single revealed clue “1” at center, all lanes agree on the admissible set of hidden neighbors. With AIMS_SEED fixed, risk sorting produces the same next probe across runs:
+
+1. Hidden set H = {(0,0)…(2,2)} − {(1,1)}
+2. Risk map r: H → [0,1] normalized over |H|
+3. Next move = argmin_{(r,c)∈H} (r[(r,c)], r, c)
+
+Tie breaks are resolved by (row, col). No lane accesses unrevealed truths (no‑peeking).
+
 ## Extending the model
 
 - Additional lanes: keep cross‑lane communication admissible and auditably deterministic.
