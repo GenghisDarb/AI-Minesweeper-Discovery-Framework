@@ -34,10 +34,18 @@ jobs:
         run: |
           pip-audit -r requirements.txt || true
 
-      - name: Run tests
+      - name: Run tests with coverage
         env:
           AIMS_TEST_MODE: "1"
           AIMS_LLM_PROVIDER: "disabled"
           MPLBACKEND: "Agg"
         run: |
-          pytest -q
+          pytest --cov=src/ai_minesweeper --cov-report=xml -q
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          fail_ci_if_error: false

@@ -1,26 +1,39 @@
-# AI Hypothesis Discovery Framework
+# Minesweeper Discovery Framework (MDF)
 
-The AI Hypothesis Discovery Framework is a comprehensive toolkit designed to facilitate the development and testing of AI algorithms for systematic hypothesis exploration. It provides a robust environment for researchers and enthusiasts to explore various AI techniques and strategies, enabling them to understand and improve the performance of their algorithms in a controlled setting.
+The Minesweeper Discovery Framework transforms complex domains into Minesweeper‑style puzzles to uncover hidden patterns and anomalies. Leveraging χ‑cycle and controller‑dimension theories, MDF enables hypothesis discovery across fields ranging from nuclear physics to prime number distributions. It is not a game; MDF provides deterministic AI reasoning, optional LLM integration, domain‑specific demos (e.g., Prime Spiral and χ‑brot), accessibility modes, and export functions.
 
-With a focus on ease of use and extensibility, the framework offers a range of features including customizable hypothesis grids, AI agent integration, and performance analysis tools. Whether you're a seasoned AI researcher or a newcomer to the field, this framework provides the resources you need to delve into the world of AI-driven hypothesis discovery.
+## Key features
+
+- Optional, provider‑agnostic LLM integration (disabled by default; deterministic when enabled)
+- Domain‑specific demos (Prime Spiral, χ‑brot, and more)
+- High‑contrast and colorblind modes for accessibility
+- Export results (board state as JSON, move history as CSV)
 
 ## Installation
 
-To install the framework, use the following command:
+Choose one of the following:
+
+- PyPI: `pip install ai-minesweeper-discovery-framework`
+- From source:
+	- Clone the repository
+	- `pip install -e .`
+
+## Usage
+
+Run the Streamlit app:
 
 ```bash
-pip install ai-hypothesis-discovery-framework
+streamlit run streamlit_app.py
 ```
 
-## Quick CLI Example
-
-Here's a quick example of how to run a hypothesis discovery session with an AI agent using the CLI:
+Command‑line interface (CLI):
 
 ```bash
-ai-hypothesis-discovery --agent=random --grid-size=10 --false-hypotheses=15
+python -m ai_minesweeper.cli play examples/boards/sample.csv
+python -m ai_minesweeper.cli validate examples/boards/sample.csv
 ```
 
-This command runs a hypothesis discovery session on a 10x10 grid with 15 false hypotheses, using a random AI agent.
+The CLI allows playing or validating a board from CSV.
 
 ## Hero Panel
 
